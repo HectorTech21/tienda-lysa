@@ -5,21 +5,13 @@
  * Activar un logo solo con archivo local autorizado: logo + logoStatus: "approved".
  * Fuentes, investigación y recursos pendientes: assets/marcas/README.md.
  */
-const BRANDS = [
-  { id: "gladiator", name: "Gladiator", families: ["Maletas", "Mochilas de viaje", "Bolsas de viaje"], website: "https://maletasgladiator.com/", logo: "assets/marcas/gladiator-logo.png", logoStatus: "approved" },
-  { id: "cacharel", name: "Cacharel", families: ["Bolsos", "Mochilas", "Carteras", "Complementos"], website: "https://cacharelbags.com/", logo: "assets/marcas/cacharel-logo.jpg", logoStatus: "approved" },
-  { id: "anekke", name: "Anekke", families: ["Bolsos", "Mochilas", "Monederos", "Complementos"], website: "https://anekke.com/", logo: "assets/marcas/anneke-logo.png", logoStatus: "approved" },
-  { id: "totto", name: "Totto", families: ["Mochilas", "Maletas", "Bolsos", "Accesorios"], website: "https://www.totto.es/", logo: "assets/marcas/totto-logo.jpg", logoStatus: "approved" },
-  { id: "pepe-moll", name: "Pepe Moll", families: ["Bolsos", "Mochilas", "Complementos"], website: "https://pepemoll.es/", logo: "assets/marcas/pepemoll-logo.jpg", logoStatus: "approved" },
-  { id: "torrens", name: "Torrens", identity: "Torrens Hermanos · marroquinería", families: ["Bolsos", "Bandoleras", "Mochilas", "Carteras"], website: "https://www.torrenshermanos.com/", logo: null, logoStatus: "pending-verification" },
-  { id: "gabol", name: "Gabol", families: ["Maletas", "Mochilas", "Estuches", "Neceseres", "Complementos"], website: "https://gabol.com/", logo: "assets/marcas/gabol-logo.png", logoStatus: "approved" }
-];
+// Marcas y catálogo en catalog-data.js, cargado antes de este archivo.
 
-/* CATÁLOGO REAL: añadir aquí únicamente productos confirmados por el cliente.
+/* CATÁLOGO REAL: editar los registros en catalog-data.js.
  * brand debe coincidir con un id de BRANDS. No inferir disponibilidad por marca.
  * No se incluyen precios, existencias, descuentos ni productos oficiales ficticios.
  */
-const CATALOG_PRODUCTS = [];
+
 
 /* EJEMPLOS VISUALES: conservan las fotografías y los favoritos del MVP original.
  * No pertenecen a ninguna de las siete marcas. Nunca coinciden con un filtro de marca.
@@ -39,8 +31,8 @@ const DEMO_CATALOG = {
 (() => {
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-  const categories = { all: "Todas las categorías", bolsos: "Bolsos", mochilas: "Mochilas", maletas: "Maletas", complementos: "Complementos" };
-  const products = CATALOG_PRODUCTS.length ? CATALOG_PRODUCTS : DEMO_CATALOG.products;
+  const categories = Object.fromEntries([["all", "Todas las categorías"], ...CATALOG_CATEGORIES.map(item => [item.id, item.name])]);
+  const products = CATALOG_PRODUCTS.length ? CATALOG_PRODUCTS.map(product => ({ ...product, image: product.images[0].src, alt: product.images[0].alt, tone: product.color, category: product.categories[0] })) : DEMO_CATALOG.products;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const desktopMenu = window.matchMedia("(min-width: 851px)");
   const hoverPointer = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -138,6 +130,9 @@ const DEMO_CATALOG = {
     const marquee = $("#marquee-track");
     const group = document.createElement("div");
     group.className = "marquee-group";
+    const sequence = document.createElement("div");
+    sequence.className = "marquee-sequence";
+    group.append(sequence);
     BRANDS.forEach(brand => {
       const option = new Option(brand.name, brand.id);
       brandSelect.add(option);
@@ -166,12 +161,12 @@ const DEMO_CATALOG = {
       word.setAttribute("aria-label", `Ver la selección de ${brand.name}`);
       word.setAttribute("aria-pressed", "false");
       word.append(createBrandIdentity(brand));
-      group.append(word);
+      sequence.append(word);
       const separator = document.createElement("span");
       separator.className = "brand-separator";
       separator.textContent = "·";
       separator.setAttribute("aria-hidden", "true");
-      group.append(separator);
+      sequence.append(separator);
     });
     const allButton = document.createElement("button");
     allButton.type = "button";
@@ -181,19 +176,47 @@ const DEMO_CATALOG = {
     allButton.setAttribute("aria-pressed", "true");
     menu.append(allButton);
     marquee.append(group);
-    const duplicate = group.cloneNode(true);
+    const duplicate = document.createElement("div");
+    duplicate.className = "marquee-group";
     duplicate.setAttribute("aria-hidden", "true");
-    // La copia se excluye del orden de Tab y de lectores de pantalla, pero admite clic/tap.
-    $$("button", duplicate).forEach(button => {
-      button.tabIndex = -1;
-      button.replaceChildren(createBrandIdentity(BRANDS.find(brand => brand.id === button.dataset.brand)));
-    });
     marquee.append(duplicate);
     const marqueeWindow = $(".marquee-window");
+    function copySequence() {
+      const copy = sequence.cloneNode(true);
+      copy.setAttribute("aria-hidden", "true");
+      // Las copias admiten clic/tap, pero nunca duplican los siete destinos accesibles.
+      $$("button", copy).forEach(button => {
+        button.tabIndex = -1;
+        button.replaceChildren(createBrandIdentity(BRANDS.find(brand => brand.id === button.dataset.brand)));
+      });
+      return copy;
+    }
+    let repetitions = 0;
+    function sizeMarquee() {
+      const sequenceWidth = sequence.getBoundingClientRect().width;
+      if (!sequenceWidth) return;
+      const count = Math.max(1, Math.ceil(marqueeWindow.clientWidth / sequenceWidth));
+      if (count === repetitions) return;
+      repetitions = count;
+      $$(".marquee-sequence[aria-hidden]", group).forEach(copy => copy.remove());
+      duplicate.replaceChildren();
+      for (let index = 1; index < count; index++) group.append(copySequence());
+      for (let index = 0; index < count; index++) duplicate.append(copySequence());
+      // Cada mitad incluye las mismas secuencias, gaps y padding. La velocidad no cambia.
+      marquee.style.animationDuration = `${75 * count}s`;
+    }
+    sizeMarquee();
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(sizeMarquee);
+      observer.observe(marqueeWindow);
+      observer.observe(sequence);
+    } else window.addEventListener("resize", sizeMarquee);
     marqueeWindow.addEventListener("focusin", event => {
       if (!event.target.matches(":focus-visible")) return;
       marqueeWindow.classList.add("is-keyboard-navigation");
-      requestAnimationFrame(() => event.target.scrollIntoView({ behavior: "instant", block: "nearest", inline: "center" }));
+      requestAnimationFrame(() => {
+        if (marqueeWindow.contains(document.activeElement)) event.target.scrollIntoView({ behavior: "instant", block: "nearest", inline: "center" });
+      });
     });
     marqueeWindow.addEventListener("focusout", event => {
       if (!marqueeWindow.contains(event.relatedTarget)) {
@@ -209,7 +232,7 @@ const DEMO_CATALOG = {
 
   function createProductCard(product, index) {
     const card = document.createElement("article");
-    card.className = "product-card";
+    card.className = "product-card" + (product.isExample ? "" : " product-card--real");
     card.style.animationDelay = `${index * 35}ms`;
     card.setAttribute("aria-label", `${index + 1} de ${filteredProducts.length}: ${product.name}`);
     const imageBox = document.createElement("div");
@@ -225,9 +248,10 @@ const DEMO_CATALOG = {
     image.height = 1280;
     image.loading = "lazy";
     image.decoding = "async";
+    image.draggable = false;
     const viewLabel = document.createElement("span");
     viewLabel.className = "product-view";
-    viewLabel.textContent = "Descubrir la pieza ↗";
+    viewLabel.textContent = product.recordType === "review" ? "Ver fotografía pendiente ↗" : "Ver detalles ↗";
     view.append(image, viewLabel);
     const favoriteButton = document.createElement("button");
     favoriteButton.type = "button";
@@ -240,7 +264,7 @@ const DEMO_CATALOG = {
     info.className = "product-info";
     const brand = document.createElement("p");
     brand.className = "product-brand";
-    brand.textContent = product.isExample ? "Inspiración Lysa" : brandName(product.brand);
+    brand.textContent = product.isExample ? "Inspiración Lysa" : product.brand ? brandName(product.brand) : product.observedBrand ? `${product.observedBrand} · confirmación comercial pendiente` : "Marca por confirmar";
     const name = document.createElement("a");
     name.className = "product-name";
     name.dataset.product = product.id;
@@ -255,7 +279,7 @@ const DEMO_CATALOG = {
     swatch.style.setProperty("--swatch", product.swatch);
     tone.append(swatch, document.createTextNode(" " + product.tone));
     const demo = document.createElement("span");
-    demo.textContent = product.isExample ? "Ejemplo de estilo" : "";
+    demo.textContent = product.isExample ? "Ejemplo de estilo" : (product.categories || [product.category]).map(id => categories[id]).join(" · ");
     note.append(tone, demo);
     const description = document.createElement("p");
     description.className = "product-description";
@@ -264,8 +288,11 @@ const DEMO_CATALOG = {
     discover.className = "text-link product-discover";
     discover.href = view.href;
     discover.dataset.product = product.id;
-    discover.textContent = "Descubrir la pieza ↗";
-    info.append(brand, name, note, description, discover);
+    discover.textContent = product.recordType === "review" ? "Revisar fotografía ↗" : "Consultar producto ↗";
+    const status = document.createElement("p");
+    status.className = "product-catalog-status";
+    status.textContent = product.recordType === "review" ? "Fotografía pendiente de revisión · varios artículos" : "Consultar precio · disponibilidad por confirmar";
+    info.append(brand, name, note, status, description, discover);
     card.append(imageBox, info);
     return card;
   }
@@ -293,7 +320,7 @@ const DEMO_CATALOG = {
     $("#brand-selection-label").textContent = filterState.brand === "all" ? "Siete firmas para encontrar tu estilo." : `Tu selección: ${brandName(filterState.brand)}`;
     let text = categories[filterState.category] + " / " + (filterState.brand === "all" ? "Todas las marcas" : brandName(filterState.brand));
     if (filterState.favorites) text = "Tus piezas guardadas / " + text;
-    $("#filter-description").textContent = text + ` · ${filteredProducts.length} ${filteredProducts.length === 1 ? "pieza" : "piezas"}`;
+    $("#filter-description").textContent = text + ` · ${filteredProducts.length} registros`;
     $(".reset-filters").hidden = filterState.category === "all" && filterState.brand === "all" && !filterState.favorites;
     syncFavoriteCount();
   }
@@ -303,7 +330,7 @@ const DEMO_CATALOG = {
     if (animate && !reducedMotion.matches) track.classList.add("is-updating");
     const render = () => {
       filteredProducts = products.filter(product =>
-        (filterState.category === "all" || product.category === filterState.category) &&
+        (filterState.category === "all" || (product.categories || [product.category]).includes(filterState.category)) &&
         (filterState.brand === "all" || product.brand === filterState.brand) &&
         (!filterState.favorites || favorites.has(product.id))
       );
@@ -316,7 +343,7 @@ const DEMO_CATALOG = {
       $("#empty-description").textContent = hasBrand
         ? `Todavía no hay piezas de ${brandName(filterState.brand)}${filterState.category !== "all" ? " en «" + categories[filterState.category] + "»" : ""} incorporadas al catálogo online. Consulta con la tienda para conocer su selección.`
         : filterState.favorites && favorites.size === 0 ? "Toca el corazón de una pieza para guardarla y volver a encontrarla aquí." : "No hay piezas con esta combinación. Prueba otra categoría o vuelve a toda la selección.";
-      $("#catalog-note").textContent = CATALOG_PRODUCTS.length ? "Selección del catálogo facilitado por Tienda Lysa. Consulta con la tienda para más información." : "Imágenes de ejemplo sin asociación a las marcas. El catálogo de la tienda está pendiente de incorporar.";
+      $("#catalog-note").textContent = CATALOG_PRODUCTS.length ? "Fotografías reales de la tienda. Catálogo en preparación: consulta precio y disponibilidad. Las fotografías pendientes muestran varios artículos y no representan conjuntos a la venta." : "Imágenes de ejemplo sin asociación a las marcas. El catálogo de la tienda está pendiente de incorporar.";
       syncFilterUI();
       track.classList.remove("is-updating");
       requestAnimationFrame(updateCarousel);
@@ -380,11 +407,41 @@ const DEMO_CATALOG = {
     image.className = "product-detail-image";
     image.src = product.image;
     image.alt = product.alt;
+    image.draggable = false;
+    const gallery = document.createElement("div");
+    gallery.className = "product-gallery";
+    gallery.append(image);
+    const photos = (product.images || [{ src: product.image, alt: product.alt }]).filter((photo, index, all) => all.findIndex(item => item.src === photo.src) === index);
+    if (photos.length > 1) {
+      let current = 0;
+      const controls = document.createElement("div");
+      controls.className = "product-gallery-controls";
+      const previous = document.createElement("button");
+      const nextImage = document.createElement("button");
+      const position = document.createElement("span");
+      position.setAttribute("aria-live", "polite");
+      previous.type = nextImage.type = "button";
+      previous.textContent = "← Anterior";
+      nextImage.textContent = "Siguiente →";
+      function showPhoto(index) {
+        current = index;
+        image.src = photos[current].src;
+        image.alt = photos[current].alt;
+        position.textContent = `Foto ${current + 1} de ${photos.length}`;
+        previous.disabled = current === 0;
+        nextImage.disabled = current === photos.length - 1;
+      }
+      previous.addEventListener("click", () => showPhoto(current - 1));
+      nextImage.addEventListener("click", () => showPhoto(current + 1));
+      showPhoto(0);
+      controls.append(previous, position, nextImage);
+      gallery.append(controls);
+    }
     const copy = document.createElement("div");
     copy.className = "product-detail-copy";
     const brand = document.createElement("p");
     brand.className = "eyebrow";
-    brand.textContent = product.isExample ? "Inspiración Lysa" : brandName(product.brand);
+    brand.textContent = product.isExample ? "Inspiración Lysa" : product.brand ? brandName(product.brand) : product.observedBrand ? `${product.observedBrand} · confirmación comercial pendiente` : "Marca por confirmar";
     const title = document.createElement("h2");
     title.id = "product-dialog-title";
     title.textContent = product.name;
@@ -396,15 +453,18 @@ const DEMO_CATALOG = {
     description.textContent = product.description;
     const note = document.createElement("p");
     note.className = "product-example-note";
-    note.textContent = product.isExample ? "Imagen generada de un ejemplo sin marca, ajeno al catálogo comercial. Consulta con la tienda para descubrir piezas reales de este estilo." : "Consulta con Tienda Lysa para conocer los detalles de esta pieza.";
+    note.textContent = product.isExample ? "Imagen generada de un ejemplo sin marca, ajeno al catálogo comercial." : product.recordType === "review" ? "Fotografía pendiente de revisión: aparecen varios artículos independientes. No se ofrece como conjunto. Consulta con la tienda para identificar el artículo que te interesa." : "Consultar precio. Disponibilidad pendiente de confirmar. Catálogo en preparación.";
+    if (product.observedBrand) note.textContent += ` Marca observada: ${product.observedBrand}; confirmación comercial pendiente.`;
+    const category = document.createElement("p");
+    category.textContent = `${(product.categories || [product.category]).map(id => categories[id]).join(" · ")} · ${product.tone}`;
     const contact = document.createElement("button");
     contact.type = "button";
     contact.className = "button button-dark";
     contact.dataset.contact = "";
     contact.dataset.inquiry = product.name;
-    contact.textContent = "Consultar este estilo ↗";
-    copy.append(brand, title, label, description, note, contact);
-    layout.append(image, copy);
+    contact.textContent = product.recordType === "review" ? "Consultar esta fotografía ↗" : "Consultar este producto ↗";
+    copy.append(brand, title, label, category, description, note, contact);
+    layout.append(gallery, copy);
     content.append(layout);
     openDialog($("#product-dialog"), opener);
   }
@@ -414,7 +474,7 @@ const DEMO_CATALOG = {
     const fromProduct = !!opener?.dataset.inquiry;
     $("#contact-form").hidden = false;
     $("#contact-result").hidden = true;
-    if (fromProduct) $("textarea[name=message]").value = `Hola, me interesa el estilo de ${opener.dataset.inquiry} que aparece en la selección de muestra. ¿Podríais orientarme sobre piezas similares de vuestro catálogo?`;
+    if (fromProduct) $("textarea[name=message]").value = `Hola, me interesa «${opener.dataset.inquiry}», que aparece en las fotografías de la tienda. ¿Podríais confirmar sus detalles, precio y disponibilidad?`;
     else if (opener?.closest(".empty-state") && filterState.brand !== "all") $("textarea[name=message]").value = `Hola, me gustaría conocer la selección de ${brandName(filterState.brand)}${filterState.category !== "all" ? " en " + categories[filterState.category].toLowerCase() : ""} en Tienda Lysa. ¿Podríais orientarme?`;
     openDialog($("#contact-dialog"), fromProduct ? originalOpener : opener);
   }
