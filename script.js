@@ -13,26 +13,11 @@
  */
 
 
-/* EJEMPLOS VISUALES: conservan las fotografías y los favoritos del MVP original.
- * No pertenecen a ninguna de las siete marcas. Nunca coinciden con un filtro de marca.
- * Se muestran mientras no haya un catálogo real; permanecen separados de sus datos.
- * Script clásico, compatible con file:// y sin dependencias.
- */
-const DEMO_CATALOG = {
-  products: [
-    { id: "demo-curva", name: "Bolso Curva", brand: null, isExample: true, category: "bolsos", image: "assets/photos/bag.jpg", alt: "Bolso chocolate de muestra con asa redondeada", tone: "Chocolate", swatch: "#503127", description: "Una silueta de líneas suaves y un tono chocolate para imaginar tus próximos looks." },
-    { id: "demo-pausa", name: "Mochila Pausa", brand: null, isExample: true, category: "mochilas", image: "assets/photos/backpack.jpg", alt: "Mochila de muestra en color arena con correas caramelo", tone: "Arena", swatch: "#c3ad8b", description: "Tonos arena y caramelo en una mochila que inspira días en movimiento." },
-    { id: "demo-rumbo", name: "Maleta Rumbo", brand: null, isExample: true, category: "maletas", image: "assets/photos/suitcase.jpg", alt: "Maleta de muestra color marfil con relieve horizontal y ruedas", tone: "Marfil", swatch: "#dcd4c5", description: "Una invitación a imaginar tu próxima escapada, en un luminoso tono marfil." },
-    { id: "demo-ritual", name: "Estuche Ritual", brand: null, isExample: true, category: "complementos", image: "assets/photos/accessory.jpg", alt: "Estuche de muestra color chocolate con un pañuelo rosa a su lado", tone: "Chocolate", swatch: "#53372c", description: "Pequeños detalles en chocolate y rosa empolvado que ponen el acento en lo cotidiano." },
-    { id: "demo-luz", name: "Bandolera Luz", brand: null, isExample: true, category: "bolsos", image: "assets/photos/hero.jpg", alt: "Bolso bandolera de muestra color caramelo sobre una silla de madera", tone: "Caramelo", swatch: "#b37b4c", description: "El tono cálido y las formas sencillas de nuestro editorial, para llevar tu esencia contigo." }
-  ]
-};
-
 (() => {
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const categories = Object.fromEntries([["all", "Todas las categorías"], ...CATALOG_CATEGORIES.map(item => [item.id, item.name])]);
-  const products = CATALOG_PRODUCTS.length ? CATALOG_PRODUCTS.map(product => ({ ...product, image: product.images[0].src, alt: product.images[0].alt, tone: product.color, category: product.categories[0] })) : DEMO_CATALOG.products;
+  const products = CATALOG_PRODUCTS.filter(product => product.recordType === "product").map(product => ({ ...product, image: product.images[0].src, alt: product.images[0].alt, tone: product.color, category: product.categories[0] }));
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const desktopMenu = window.matchMedia("(min-width: 851px)");
   const hoverPointer = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -61,6 +46,45 @@ const DEMO_CATALOG = {
 
   function brandName(id) {
     return BRANDS.find(brand => brand.id === id)?.name || "Inspiración Lysa";
+  }
+
+  function productBrandName(product) {
+    if (product.brandStatus !== "visually-identified") return "";
+    return BRANDS.find(brand => brand.id === product.brand)?.name || product.observedBrand || "";
+  }
+
+  function whatsAppReady() {
+    return typeof WHATSAPP_NUMBER === "string" && /^[1-9]\d{7,14}$/.test(WHATSAPP_NUMBER);
+  }
+
+  function createWhatsAppAction(product, detail = false) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "product-actions";
+    const ready = whatsAppReady();
+    const action = document.createElement(ready ? "a" : "button");
+    action.className = "button button-dark whatsapp-button";
+    action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 3.6A11.7 11.7 0 0 0 2 17.7L.5 23.5l6-1.5a11.7 11.7 0 0 0 5.5 1.4A11.7 11.7 0 0 0 20.4 3.6ZM12 21.4a9.6 9.6 0 0 1-4.9-1.3l-.4-.2-3.5.9.9-3.4-.2-.4A9.7 9.7 0 1 1 12 21.4Zm5.3-7.2c-.3-.1-1.7-.8-1.9-.9s-.5-.1-.7.2l-.9 1c-.1.2-.3.2-.6.1a7.9 7.9 0 0 1-2.3-1.4 8.5 8.5 0 0 1-1.6-2c-.2-.3 0-.4.1-.6l.4-.5.3-.5c.1-.2 0-.4 0-.5L9.2 7c-.2-.5-.5-.4-.7-.4H8c-.2 0-.5.1-.7.3a3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1.1 2.7.1.2 1.8 2.8 4.4 3.9l1.5.5a3.6 3.6 0 0 0 1.7.1c.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.1-1.3l-.8-.4Z"/></svg><span>Consultar por WhatsApp</span>';
+    const brand = productBrandName(product);
+    if (ready) {
+      const message = `¡Hola! He visto en la web de Tienda Lysa el artículo «${product.name}»${brand ? " de " + brand : ""} (ref. ${product.reference}) y me gustaría saber su precio y si está disponible. ¡Gracias!`;
+      action.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      action.target = "_blank";
+      action.rel = "noopener noreferrer";
+      action.setAttribute("aria-label", `Consultar por WhatsApp: ${product.name}, ref. ${product.reference} (abre una nueva pestaña)`);
+    } else {
+      action.type = "button";
+      action.disabled = true;
+      action.setAttribute("aria-describedby", detail ? "product-whatsapp-note" : "whatsapp-setup-note");
+    }
+    wrapper.append(action);
+    if (!ready && detail) {
+      const note = document.createElement("p");
+      note.id = "product-whatsapp-note";
+      note.className = "whatsapp-unavailable";
+      note.textContent = "Falta configurar el teléfono de WhatsApp de la tienda para activar las consultas.";
+      wrapper.append(note);
+    }
+    return wrapper;
   }
 
   function announce(message) {
@@ -232,7 +256,7 @@ const DEMO_CATALOG = {
 
   function createProductCard(product, index) {
     const card = document.createElement("article");
-    card.className = "product-card" + (product.isExample ? "" : " product-card--real");
+    card.className = "product-card product-card--real";
     card.style.animationDelay = `${index * 35}ms`;
     card.setAttribute("aria-label", `${index + 1} de ${filteredProducts.length}: ${product.name}`);
     const imageBox = document.createElement("div");
@@ -240,7 +264,7 @@ const DEMO_CATALOG = {
     const view = document.createElement("a");
     view.href = "#pieza-" + product.id;
     view.dataset.product = product.id;
-    view.setAttribute("aria-label", `Ver ${product.name}${product.isExample ? ", ejemplo de estilo" : ""}`);
+    view.setAttribute("aria-label", `Ver ${product.name}`);
     const image = document.createElement("img");
     image.src = product.image;
     image.alt = product.alt;
@@ -251,7 +275,7 @@ const DEMO_CATALOG = {
     image.draggable = false;
     const viewLabel = document.createElement("span");
     viewLabel.className = "product-view";
-    viewLabel.textContent = product.recordType === "review" ? "Ver fotografía pendiente ↗" : "Ver detalles ↗";
+    viewLabel.textContent = "Ver detalles ↗";
     view.append(image, viewLabel);
     const favoriteButton = document.createElement("button");
     favoriteButton.type = "button";
@@ -264,23 +288,18 @@ const DEMO_CATALOG = {
     info.className = "product-info";
     const brand = document.createElement("p");
     brand.className = "product-brand";
-    brand.textContent = product.isExample ? "Inspiración Lysa" : product.brand ? brandName(product.brand) : product.observedBrand ? `${product.observedBrand} · confirmación comercial pendiente` : "Marca por confirmar";
+    brand.textContent = productBrandName(product);
     const name = document.createElement("a");
     name.className = "product-name";
     name.dataset.product = product.id;
     name.href = "#pieza-" + product.id;
     name.textContent = product.name;
+    const title = document.createElement("h3");
+    title.className = "product-title";
+    title.append(name);
     const note = document.createElement("p");
     note.className = "product-note";
-    const tone = document.createElement("span");
-    const swatch = document.createElement("span");
-    swatch.className = "color-swatch";
-    swatch.setAttribute("aria-hidden", "true");
-    swatch.style.setProperty("--swatch", product.swatch);
-    tone.append(swatch, document.createTextNode(" " + product.tone));
-    const demo = document.createElement("span");
-    demo.textContent = product.isExample ? "Ejemplo de estilo" : (product.categories || [product.category]).map(id => categories[id]).join(" · ");
-    note.append(tone, demo);
+    note.textContent = product.categories.map(id => categories[id]).join(" · ");
     const description = document.createElement("p");
     description.className = "product-description";
     description.textContent = product.description;
@@ -288,11 +307,12 @@ const DEMO_CATALOG = {
     discover.className = "text-link product-discover";
     discover.href = view.href;
     discover.dataset.product = product.id;
-    discover.textContent = product.recordType === "review" ? "Revisar fotografía ↗" : "Consultar producto ↗";
+    discover.textContent = "Ver detalles ↗";
     const status = document.createElement("p");
     status.className = "product-catalog-status";
-    status.textContent = product.recordType === "review" ? "Fotografía pendiente de revisión · varios artículos" : "Consultar precio · disponibilidad por confirmar";
-    info.append(brand, name, note, status, description, discover);
+    status.textContent = "Consultar precio";
+    if (brand.textContent) info.append(brand);
+    info.append(title, note, status, description, discover, createWhatsAppAction(product));
     card.append(imageBox, info);
     return card;
   }
@@ -320,7 +340,7 @@ const DEMO_CATALOG = {
     $("#brand-selection-label").textContent = filterState.brand === "all" ? "Siete firmas para encontrar tu estilo." : `Tu selección: ${brandName(filterState.brand)}`;
     let text = categories[filterState.category] + " / " + (filterState.brand === "all" ? "Todas las marcas" : brandName(filterState.brand));
     if (filterState.favorites) text = "Tus piezas guardadas / " + text;
-    $("#filter-description").textContent = text + ` · ${filteredProducts.length} registros`;
+    $("#filter-description").textContent = text + ` · ${filteredProducts.length} ${filteredProducts.length === 1 ? "artículo" : "artículos"}`;
     $(".reset-filters").hidden = filterState.category === "all" && filterState.brand === "all" && !filterState.favorites;
     syncFavoriteCount();
   }
@@ -343,7 +363,7 @@ const DEMO_CATALOG = {
       $("#empty-description").textContent = hasBrand
         ? `Todavía no hay piezas de ${brandName(filterState.brand)}${filterState.category !== "all" ? " en «" + categories[filterState.category] + "»" : ""} incorporadas al catálogo online. Consulta con la tienda para conocer su selección.`
         : filterState.favorites && favorites.size === 0 ? "Toca el corazón de una pieza para guardarla y volver a encontrarla aquí." : "No hay piezas con esta combinación. Prueba otra categoría o vuelve a toda la selección.";
-      $("#catalog-note").textContent = CATALOG_PRODUCTS.length ? "Fotografías reales de la tienda. Catálogo en preparación: consulta precio y disponibilidad. Las fotografías pendientes muestran varios artículos y no representan conjuntos a la venta." : "Imágenes de ejemplo sin asociación a las marcas. El catálogo de la tienda está pendiente de incorporar.";
+      $("#catalog-note").textContent = "Fotografías reales de nuestra selección. Consulta el precio de tu favorito.";
       syncFilterUI();
       track.classList.remove("is-updating");
       requestAnimationFrame(updateCarousel);
@@ -441,29 +461,22 @@ const DEMO_CATALOG = {
     copy.className = "product-detail-copy";
     const brand = document.createElement("p");
     brand.className = "eyebrow";
-    brand.textContent = product.isExample ? "Inspiración Lysa" : product.brand ? brandName(product.brand) : product.observedBrand ? `${product.observedBrand} · confirmación comercial pendiente` : "Marca por confirmar";
+    brand.textContent = productBrandName(product);
     const title = document.createElement("h2");
     title.id = "product-dialog-title";
     title.textContent = product.name;
-    const label = document.createElement("span");
-    label.className = "detail-demo-label";
-    label.textContent = "Ejemplo de estilo";
-    label.hidden = !product.isExample;
     const description = document.createElement("p");
     description.textContent = product.description;
-    const note = document.createElement("p");
-    note.className = "product-example-note";
-    note.textContent = product.isExample ? "Imagen generada de un ejemplo sin marca, ajeno al catálogo comercial." : product.recordType === "review" ? "Fotografía pendiente de revisión: aparecen varios artículos independientes. No se ofrece como conjunto. Consulta con la tienda para identificar el artículo que te interesa." : "Consultar precio. Disponibilidad pendiente de confirmar. Catálogo en preparación.";
-    if (product.observedBrand) note.textContent += ` Marca observada: ${product.observedBrand}; confirmación comercial pendiente.`;
     const category = document.createElement("p");
-    category.textContent = `${(product.categories || [product.category]).map(id => categories[id]).join(" · ")} · ${product.tone}`;
-    const contact = document.createElement("button");
-    contact.type = "button";
-    contact.className = "button button-dark";
-    contact.dataset.contact = "";
-    contact.dataset.inquiry = product.name;
-    contact.textContent = product.recordType === "review" ? "Consultar esta fotografía ↗" : "Consultar este producto ↗";
-    copy.append(brand, title, label, category, description, note, contact);
+    category.textContent = product.categories.map(id => categories[id]).join(" · ") + " · " + product.tone;
+    const reference = document.createElement("p");
+    reference.className = "product-reference";
+    reference.textContent = "Ref. " + product.reference;
+    const price = document.createElement("p");
+    price.className = "product-detail-price";
+    price.textContent = "Consultar precio";
+    if (brand.textContent) copy.append(brand);
+    copy.append(title, category, description, reference, price, createWhatsAppAction(product, true));
     layout.append(gallery, copy);
     content.append(layout);
     openDialog($("#product-dialog"), opener);
@@ -480,8 +493,8 @@ const DEMO_CATALOG = {
   }
 
   const policies = {
-    legal: { title: "Sobre esta demostración", html: "<p>Esta página es un MVP visual de Tienda Lysa. El cliente ha aportado la identidad gráfica de la tienda, una fotografía real de su establecimiento y los logotipos de seis de las siete marcas con las que trabaja. Torrens se identifica temporalmente mediante su nombre.</p><p>Las familias de productos de cada firma no indican disponibilidad en Tienda Lysa. Las imágenes generadas y los ejemplos de estilo no pertenecen a esas marcas ni representan su inventario.</p><p>No se ofrece venta online, no hay precios ni información de existencias, y no se aceptan pagos ni pedidos.</p><h3>Antes de publicar</h3><p>La tienda deberá facilitar su razón social, identificación fiscal, domicilio, datos de contacto y catálogo autorizado. El aviso legal definitivo deberá recoger esos datos. No se ha inventado información del negocio.</p>" },
-    privacy: { title: "Tu privacidad", html: "<p>Esta demostración no utiliza analítica, publicidad, cookies de seguimiento ni servicios externos. Las imágenes y los estilos se sirven desde el propio proyecto.</p><h3>Tus favoritos</h3><p>Al guardar una pieza se conserva únicamente su identificador en el almacenamiento local de tu navegador. Puedes retirarla con el mismo corazón. Eliminar todos los favoritos borra ese registro. Si el navegador bloquea el almacenamiento, los favoritos funcionan durante la visita.</p><h3>Tus consultas</h3><p>Los datos del formulario permanecen en memoria durante esta visita. No se envían a ningún servidor ni se guardan en el navegador. Solo se genera un archivo de texto en tu dispositivo cuando pulsas «Guardar consulta .txt».</p><p>La política definitiva deberá actualizarse cuando la tienda incorpore sus datos de contacto y servicios reales.</p>" }
+    legal: { title: "Información de esta web", html: "<p>Esta web presenta una selección fotografiada en Tienda Lysa. Los nombres de los artículos son descriptivos y las referencias LYSA sirven para identificarlos en las consultas; no son referencias oficiales del fabricante.</p><p>El precio y la disponibilidad se consultan con la tienda. No se realizan pagos ni pedidos desde esta página. Las imágenes del hero, las categorías y el editorial son ilustrativas y no representan artículos del catálogo.</p><h3>Información del negocio</h3><p>Los datos de titularidad, identificación fiscal, domicilio y contacto están pendientes de incorporar. El aviso legal definitivo deberá completarse con los datos verificados de la tienda antes de publicar.</p>" },
+    privacy: { title: "Tu privacidad", html: "<p>Esta página no utiliza analítica, publicidad ni cookies de seguimiento. Las imágenes y los estilos se cargan desde el propio proyecto.</p><h3>Tus favoritos</h3><p>Al guardar una pieza se conserva únicamente su identificador en el almacenamiento local de tu navegador. Puedes retirarla con el mismo corazón. Eliminar todos los favoritos borra ese registro. Si el navegador bloquea el almacenamiento, los favoritos funcionan durante la visita.</p><h3>Consultas por WhatsApp</h3><p>Cuando el teléfono de la tienda esté configurado, «Consultar por WhatsApp» abrirá WhatsApp en una nueva pestaña con el nombre, la marca identificada y la referencia del artículo. El mensaje no se envía automáticamente: puedes revisarlo y decidir si lo envías. Al abrir WhatsApp se aplican las condiciones y la política de privacidad de ese servicio.</p><h3>Preparar una consulta</h3><p>Los datos del formulario permanecen en memoria durante esta visita. No se envían a ningún servidor ni se guardan en el navegador. Solo se genera un archivo de texto en tu dispositivo cuando pulsas «Guardar consulta .txt».</p><p>La política definitiva deberá completarse con los datos del responsable del negocio antes de publicar.</p>" }
   };
 
   document.addEventListener("click", event => {
@@ -624,7 +637,7 @@ const DEMO_CATALOG = {
     const email = form.elements.namedItem("email").value.trim();
     const message = form.elements.namedItem("message").value.trim();
     if (!name || message.length < 10) { announce("Escribe tu nombre y una consulta de al menos 10 caracteres."); return; }
-    inquiryText = `CONSULTA PARA TIENDA LYSA\n\nNombre: ${name}\nEmail: ${email}\n\n${message}\n\nConsulta preparada desde el MVP de demostración. No enviada.`;
+    inquiryText = `CONSULTA PARA TIENDA LYSA\n\nNombre: ${name}\nEmail: ${email}\n\n${message}\n\nConsulta preparada en Tienda Lysa. No enviada.`;
     $("#contact-summary").textContent = inquiryText;
     form.hidden = true;
     $("#contact-result").hidden = false;
@@ -655,6 +668,7 @@ const DEMO_CATALOG = {
   }
   $("#current-year").textContent = String(new Date().getFullYear());
   createBrandControls();
+  $("#whatsapp-setup-note").hidden = whatsAppReady();
   renderProducts(false);
   syncMarqueePreference();
 })();

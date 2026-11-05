@@ -1,5 +1,17 @@
 # Tienda Lysa · instrucciones y decisiones
 
+## Estado vigente · presentación del 5 de noviembre de 2026
+
+Las decisiones de esta sección actualizan las referencias históricas al catálogo vacío y a ejemplos públicos que aparecen más abajo. La web mantiene su diseño y usa exclusivamente HTML, CSS y JavaScript nativo.
+
+- `catalog-data.js` es la única fuente de `BRANDS`, categorías y `CATALOG_PRODUCTS`. Contiene 14 productos individuales públicos y 16 registros `review` internos. El renderizado filtra `recordType === "product"` antes de filtros, fichas, favoritos y recuentos; no hay catálogo demo alternativo.
+- Conservar los IDs existentes y las referencias `LYSA-NNN`, únicas e inmutables. No reutilizarlas ni calcularlas por posición al renderizar. Las referencias son internas, no códigos oficiales de fabricantes.
+- Las ocho fotos nuevas del día 5 están en `assets/products/`, con copias completas `photo-025.webp` a `photo-032.webp` para el inventario interno. Dos carteras Cacharel se han aislado mediante recortes revisados, `lysa-033.webp` y `lysa-034.webp`. Original y coordenadas relativas están en cada imagen del catálogo. No publicar las composiciones colectivas como productos ni lotes.
+- Las tres piezas Nicole Lee USA tienen marca identificada visualmente en `observedBrand` y `brandStatus: "visually-identified"`; `brand` sigue a null. Se muestra el nombre observado en esas fichas, sin añadir marcas al menú principal. Las marcas desconocidas se omiten. Precio, disponibilidad y confirmación comercial permanecen en datos internos y `REVISION_PRODUCTOS.md`; las tarjetas muestran «Consultar precio».
+- `store-config.js` contiene `WHATSAPP_NUMBER`, entregado vacío. Solo un teléfono real en formato internacional, sin símbolos, activa enlaces `wa.me` con mensaje codificado, nombre, marca identificada y referencia. Cada tarjeta y ficha tiene su acción. Sin número válido se muestra un botón desactivado y una explicación visible; nunca enlaces ficticios. Enlaces activos con `_blank` y `noopener noreferrer`.
+- Las fotografías ilustrativas del hero, categorías y editorial se mantienen, sin aparecer como productos reales. No hay checkout, backend ni Supabase. El formulario general sigue siendo una consulta local descargable, sin envío.
+- Activación del teléfono y recorrido de demostración en `PRESENTACION.md`. Comprobación en Edge headless sin paquetes: 14 fichas, 40 combinaciones de filtros, 12 anchos de 320 a 1920 px, alineación, favoritos, carrusel, menús, foco/Escape, descarga real del `.txt`, carga `file://` y 28 enlaces de WhatsApp con configuración temporal solo en memoria. No se enviaron mensajes ni se probó un dispositivo físico.
+
 ## Proyecto y ejecución
 
 MVP local de una home de ecommerce multimarca. Abrir `index.html` directamente en un navegador moderno. No requiere servidor, instalación, compilación ni conexión a Internet.

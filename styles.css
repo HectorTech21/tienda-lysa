@@ -769,11 +769,14 @@ h2 {
   opacity:.35
 }
 .product-card {
+  display:flex;
+  flex-direction:column;
   scroll-snap-align:start;
   min-width:0;
   animation:entry .45s both
 }
 .product-image {
+  flex-shrink:0;
   position:relative;
   aspect-ratio:4/5;
   overflow:hidden;
@@ -863,7 +866,88 @@ h2 {
   transform:translateY(0)
 }
 .product-info {
-  padding-top:14px
+  flex:1;
+  display:grid;
+  grid-template-rows:17px minmax(62px,auto) auto auto auto auto 1fr;
+  padding-top:16px
+}
+.product-info>.product-brand {
+  grid-row:1
+}
+.product-title {
+  grid-row:2;
+  padding-top:5px
+}
+.product-info>.product-note {
+  grid-row:3
+}
+.product-info>.product-catalog-status {
+  grid-row:4;
+  color:var(--chocolate);
+  font-size:12px;
+  margin-top:9px
+}
+.product-info>.product-description {
+  grid-row:5
+}
+.product-info>.product-discover {
+  grid-row:6;
+  justify-self:start
+}
+.product-actions {
+  grid-row:7;
+  align-self:end;
+  margin-top:17px
+}
+.whatsapp-button {
+  width:100%;
+  min-height:46px;
+  justify-content:center;
+  gap:9px;
+  padding:12px;
+  text-align:center;
+  line-height:1.4
+}
+.whatsapp-button>span {
+  font:inherit;
+  line-height:1.4
+}
+.whatsapp-button svg {
+  width:18px;
+  height:18px;
+  flex-shrink:0;
+  fill:currentColor;
+  stroke:none
+}
+.whatsapp-button:disabled {
+  opacity:1;
+  background:#ded3c9;
+  border-color:#d1c1b6;
+  color:#685047;
+  transform:none;
+  cursor:not-allowed
+}
+.whatsapp-setup-note {
+  padding:12px 16px;
+  border-left:2px solid var(--pink);
+  background:#f1e8e2;
+  color:var(--chocolate);
+  font-size:12px;
+  line-height:1.7;
+  margin-bottom:22px
+}
+.whatsapp-unavailable {
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.7;
+  margin-top:12px
+}
+.product-track.is-single .product-info {
+  display:block
+}
+.product-detail-copy>.product-reference {
+  font-size:11px;
+  letter-spacing:.6px
 }
 .product-brand {
   font-size:10px;
@@ -1387,7 +1471,7 @@ h2 {
   border-top:1px solid #795347;
   padding-block:20px;
   color:#d5beb1;
-  font-size:8px
+  font-size:12px
 }
 .footer-demo {
   color:#bda194;
@@ -1399,7 +1483,7 @@ h2 {
   gap:25px
 }
 .footer-bottom button {
-  font-size:8px;
+  font-size:12px;
   padding:0
 }
 
@@ -1471,6 +1555,11 @@ dialog[open] {
 }
 .product-detail-copy .product-example-note {
   font-size:11px
+}
+.product-detail-copy>p.product-detail-price {
+  font-size:18px;
+  color:var(--chocolate);
+  margin-bottom:0
 }
 .contact-dialog {
   width:590px;
@@ -2241,8 +2330,8 @@ textarea {
     aspect-ratio:4/5
   }
   .product-favorite {
-    width:29px;
-    height:29px;
+    width:44px;
+    height:44px;
     right:9px;
     top:9px
   }
@@ -2251,7 +2340,7 @@ textarea {
     height:15px
   }
   .product-name {
-    font-size:21px;
+    font-size:20px;
     line-height:1.2;
     margin-top:5px
   }
@@ -2260,7 +2349,25 @@ textarea {
     letter-spacing:1px
   }
   .product-info {
-    padding-top:11px
+    padding-top:12px;
+    grid-template-rows:15px minmax(60px,auto) auto auto auto auto 1fr
+  }
+  .whatsapp-button {
+    min-height:64px;
+    padding:10px 8px;
+    gap:6px;
+    font-size:11px
+  }
+  .whatsapp-button>span {
+    max-width:110px
+  }
+  .whatsapp-button svg {
+    width:16px;
+    height:16px
+  }
+  .whatsapp-setup-note {
+    font-size:11px;
+    padding:11px 12px
   }
   .product-note {
     font-size:10px;
@@ -2476,20 +2583,24 @@ textarea {
     margin-bottom:7px
   }
   .footer-column>a,.footer-column>button {
-    font-size:10px
+    font-size:12px;
+    min-height:32px;
+    display:inline-flex;
+    align-items:center
   }
   .footer-bottom {
     flex-direction:column;
     gap:15px;
     padding-block:20px;
-    font-size:8px
+    font-size:12px
   }
   .footer-bottom>div {
-    gap:25px;
+    gap:12px;
+    flex-wrap:wrap;
     justify-content:space-between
   }
   .footer-bottom button {
-    font-size:8px
+    font-size:12px
   }
   .product-detail-layout {
     display:block
@@ -2498,6 +2609,12 @@ textarea {
     height:280px;
     min-height:0;
     object-position:center 43%
+  }
+  .product-gallery .product-detail-image {
+    height:245px;
+    max-height:36dvh;
+    aspect-ratio:auto;
+    object-position:center
   }
   .product-detail-copy {
     padding:26px
@@ -2540,6 +2657,26 @@ textarea {
   }
   .empty-state p.eyebrow {
     font-size:8px
+  }
+}
+
+/* Zonas de pulsación cómodas sin cambiar la composición editorial. */
+@media(max-width:850px) {
+  .product-favorite,.carousel-controls .circle-button,.dialog-close {
+    width:44px;
+    height:44px
+  }
+  .category-filters button {
+    min-height:44px;
+    min-width:44px
+  }
+  .brand-select-label select {
+    min-height:44px
+  }
+  .footer-bottom button,.footer-bottom a {
+    display:inline-flex;
+    align-items:center;
+    min-height:32px
   }
 }
 
