@@ -1,5 +1,14 @@
 # Tienda Lysa · instrucciones y decisiones
 
+## Contacto vigente · 6 de noviembre de 2026
+
+Esta sección sustituye las referencias históricas al teléfono vacío y al formulario local de las auditorías anteriores.
+
+- La clienta ha confirmado el WhatsApp y el Instagram oficiales. `store-config.js` centraliza `WHATSAPP_NUMBER`, `WHATSAPP_GENERAL_MESSAGE` e `INSTAGRAM_URL`; no duplicar los contactos en otros archivos de código.
+- `buildWhatsAppUrl` en `script.js` construye todos los enlaces con `encodeURIComponent`. Tarjetas y fichas consultan su artículo, marca identificada y referencia inmutable; el contacto general usa un mensaje sin productos. No se envían mensajes automáticamente.
+- «Hablemos», «Consultar a la tienda», «Contacto» y el icono de WhatsApp del footer abren la consulta general. El formulario local y su descarga se han sustituido por el canal real. El footer conserva sus columnas e incorpora «Síguenos y contacta» con SVG locales de WhatsApp e Instagram. Enlaces externos con `_blank` y `noopener noreferrer`.
+- Mantener los avisos sobre titularidad, identificación fiscal, domicilio y URL pública pendientes. Hero, marcas, catálogo, filtros, favoritos, fotografías y editorial se conservan.
+
 ## Estado vigente · presentación del 5 de noviembre de 2026
 
 Las decisiones de esta sección actualizan las referencias históricas al catálogo vacío y a ejemplos públicos que aparecen más abajo. La web mantiene su diseño y usa exclusivamente HTML, CSS y JavaScript nativo.

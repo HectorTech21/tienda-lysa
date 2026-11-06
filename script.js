@@ -37,7 +37,6 @@
   let renderTimer;
   let hoverTimer;
   let lastOpener;
-  let inquiryText = "";
 
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
@@ -49,7 +48,7 @@
   }
 
   function productBrandName(product) {
-    if (product.brandStatus !== "visually-identified") return "";
+    if (!["visually-identified", "confirmed"].includes(product.brandStatus)) return "";
     return BRANDS.find(brand => brand.id === product.brand)?.name || product.observedBrand || "";
   }
 
@@ -57,31 +56,39 @@
     return typeof WHATSAPP_NUMBER === "string" && /^[1-9]\d{7,14}$/.test(WHATSAPP_NUMBER);
   }
 
-  function createWhatsAppAction(product, detail = false) {
+  // La misma construcción sirve para tarjetas, fichas y contacto general.
+  // Usar siempre la referencia del registro, nunca la posición en la selección.
+  function buildWhatsAppUrl(product = null) {
+    if (!whatsAppReady()) return "";
+    const brand = product ? productBrandName(product) : "";
+    const message = product
+      ? `¡Hola! He visto en la web de Tienda Lysa el artículo «${product.name}»${brand ? " de " + brand : ""} (ref. ${product.reference}) y me gustaría conocer su precio y disponibilidad. ¡Gracias!`
+      : WHATSAPP_GENERAL_MESSAGE;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  }
+
+  function createWhatsAppAction(product) {
     const wrapper = document.createElement("div");
     wrapper.className = "product-actions";
     const ready = whatsAppReady();
     const action = document.createElement(ready ? "a" : "button");
     action.className = "button button-dark whatsapp-button";
-    action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 3.6A11.7 11.7 0 0 0 2 17.7L.5 23.5l6-1.5a11.7 11.7 0 0 0 5.5 1.4A11.7 11.7 0 0 0 20.4 3.6ZM12 21.4a9.6 9.6 0 0 1-4.9-1.3l-.4-.2-3.5.9.9-3.4-.2-.4A9.7 9.7 0 1 1 12 21.4Zm5.3-7.2c-.3-.1-1.7-.8-1.9-.9s-.5-.1-.7.2l-.9 1c-.1.2-.3.2-.6.1a7.9 7.9 0 0 1-2.3-1.4 8.5 8.5 0 0 1-1.6-2c-.2-.3 0-.4.1-.6l.4-.5.3-.5c.1-.2 0-.4 0-.5L9.2 7c-.2-.5-.5-.4-.7-.4H8c-.2 0-.5.1-.7.3a3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1.1 2.7.1.2 1.8 2.8 4.4 3.9l1.5.5a3.6 3.6 0 0 0 1.7.1c.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.1-1.3l-.8-.4Z"/></svg><span>Consultar por WhatsApp</span>';
-    const brand = productBrandName(product);
+    action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-whatsapp"/></svg><span>Consultar por WhatsApp</span>';
     if (ready) {
-      const message = `¡Hola! He visto en la web de Tienda Lysa el artículo «${product.name}»${brand ? " de " + brand : ""} (ref. ${product.reference}) y me gustaría saber su precio y si está disponible. ¡Gracias!`;
-      action.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      action.href = buildWhatsAppUrl(product);
       action.target = "_blank";
       action.rel = "noopener noreferrer";
       action.setAttribute("aria-label", `Consultar por WhatsApp: ${product.name}, ref. ${product.reference} (abre una nueva pestaña)`);
     } else {
       action.type = "button";
       action.disabled = true;
-      action.setAttribute("aria-describedby", detail ? "product-whatsapp-note" : "whatsapp-setup-note");
+      action.setAttribute("aria-label", "Consulta por WhatsApp no disponible");
     }
     wrapper.append(action);
-    if (!ready && detail) {
+    if (!ready) {
       const note = document.createElement("p");
-      note.id = "product-whatsapp-note";
       note.className = "whatsapp-unavailable";
-      note.textContent = "Falta configurar el teléfono de WhatsApp de la tienda para activar las consultas.";
+      note.textContent = "Las consultas por WhatsApp no están disponibles en este momento.";
       wrapper.append(note);
     }
     return wrapper;
@@ -476,25 +483,15 @@
     price.className = "product-detail-price";
     price.textContent = "Consultar precio";
     if (brand.textContent) copy.append(brand);
-    copy.append(title, category, description, reference, price, createWhatsAppAction(product, true));
+    copy.append(title, category, description, reference, price, createWhatsAppAction(product));
     layout.append(gallery, copy);
     content.append(layout);
     openDialog($("#product-dialog"), opener);
   }
 
-  function openContact(opener) {
-    const originalOpener = lastOpener;
-    const fromProduct = !!opener?.dataset.inquiry;
-    $("#contact-form").hidden = false;
-    $("#contact-result").hidden = true;
-    if (fromProduct) $("textarea[name=message]").value = `Hola, me interesa «${opener.dataset.inquiry}», que aparece en las fotografías de la tienda. ¿Podríais confirmar sus detalles, precio y disponibilidad?`;
-    else if (opener?.closest(".empty-state") && filterState.brand !== "all") $("textarea[name=message]").value = `Hola, me gustaría conocer la selección de ${brandName(filterState.brand)}${filterState.category !== "all" ? " en " + categories[filterState.category].toLowerCase() : ""} en Tienda Lysa. ¿Podríais orientarme?`;
-    openDialog($("#contact-dialog"), fromProduct ? originalOpener : opener);
-  }
-
   const policies = {
-    legal: { title: "Información de esta web", html: "<p>Esta web presenta una selección fotografiada en Tienda Lysa. Los nombres de los artículos son descriptivos y las referencias LYSA sirven para identificarlos en las consultas; no son referencias oficiales del fabricante.</p><p>El precio y la disponibilidad se consultan con la tienda. No se realizan pagos ni pedidos desde esta página. Las imágenes del hero, las categorías y el editorial son ilustrativas y no representan artículos del catálogo.</p><h3>Información del negocio</h3><p>Los datos de titularidad, identificación fiscal, domicilio y contacto están pendientes de incorporar. El aviso legal definitivo deberá completarse con los datos verificados de la tienda antes de publicar.</p>" },
-    privacy: { title: "Tu privacidad", html: "<p>Esta página no utiliza analítica, publicidad ni cookies de seguimiento. Las imágenes y los estilos se cargan desde el propio proyecto.</p><h3>Tus favoritos</h3><p>Al guardar una pieza se conserva únicamente su identificador en el almacenamiento local de tu navegador. Puedes retirarla con el mismo corazón. Eliminar todos los favoritos borra ese registro. Si el navegador bloquea el almacenamiento, los favoritos funcionan durante la visita.</p><h3>Consultas por WhatsApp</h3><p>Cuando el teléfono de la tienda esté configurado, «Consultar por WhatsApp» abrirá WhatsApp en una nueva pestaña con el nombre, la marca identificada y la referencia del artículo. El mensaje no se envía automáticamente: puedes revisarlo y decidir si lo envías. Al abrir WhatsApp se aplican las condiciones y la política de privacidad de ese servicio.</p><h3>Preparar una consulta</h3><p>Los datos del formulario permanecen en memoria durante esta visita. No se envían a ningún servidor ni se guardan en el navegador. Solo se genera un archivo de texto en tu dispositivo cuando pulsas «Guardar consulta .txt».</p><p>La política definitiva deberá completarse con los datos del responsable del negocio antes de publicar.</p>" }
+    legal: { title: "Información de esta web", html: "<p>Esta web presenta una selección fotografiada en Tienda Lysa. Los nombres de los artículos son descriptivos y las referencias LYSA sirven para identificarlos en las consultas; no son referencias oficiales del fabricante.</p><p>El precio y la disponibilidad se consultan con la tienda. No se realizan pagos ni pedidos desde esta página. Las imágenes del hero, las categorías y el editorial son ilustrativas y no representan artículos del catálogo.</p><h3>Contacto con la tienda</h3><p>Puedes contactar por WhatsApp desde las fichas de producto, la sección de contacto o el pie de página. El perfil oficial de Instagram también está enlazado en el pie de página.</p><h3>Información del negocio</h3><p>Los datos de titularidad, identificación fiscal y domicilio están pendientes de incorporar. El aviso legal definitivo deberá completarse con los datos verificados de la tienda antes de publicar.</p>" },
+    privacy: { title: "Tu privacidad", html: "<p>Esta página no utiliza analítica, publicidad ni cookies de seguimiento. Las imágenes y los estilos se cargan desde el propio proyecto.</p><h3>Tus favoritos</h3><p>Al guardar una pieza se conserva únicamente su identificador en el almacenamiento local de tu navegador. Puedes retirarla con el mismo corazón. Eliminar todos los favoritos borra ese registro. Si el navegador bloquea el almacenamiento, los favoritos funcionan durante la visita.</p><h3>Consultas por WhatsApp</h3><p>«Consultar por WhatsApp» abre una nueva pestaña con el nombre, la marca identificada y la referencia del artículo. Los enlaces de contacto general preparan una consulta sin mencionar productos. El mensaje no se envía automáticamente: puedes revisarlo y decidir si lo envías en WhatsApp.</p><h3>Enlaces sociales</h3><p>Los enlaces de WhatsApp e Instagram te llevan a servicios externos, donde se aplican sus condiciones y políticas de privacidad. Esta web no recoge datos personales mediante un formulario ni envía mensajes por ti.</p><p>La política definitiva deberá completarse con los datos del responsable del negocio antes de publicar.</p>" }
   };
 
   document.addEventListener("click", event => {
@@ -540,8 +537,6 @@
       }
       return;
     }
-    const contact = event.target.closest("[data-contact]");
-    if (contact) { openContact(contact); return; }
     const closeButton = event.target.closest("[data-close]");
     if (closeButton) { closeButton.closest("dialog").close(); return; }
     const policyButton = event.target.closest("[data-policy]");
@@ -630,36 +625,6 @@
     });
   });
 
-  $("#contact-form").addEventListener("submit", event => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const name = form.elements.namedItem("name").value.trim();
-    const email = form.elements.namedItem("email").value.trim();
-    const message = form.elements.namedItem("message").value.trim();
-    if (!name || message.length < 10) { announce("Escribe tu nombre y una consulta de al menos 10 caracteres."); return; }
-    inquiryText = `CONSULTA PARA TIENDA LYSA\n\nNombre: ${name}\nEmail: ${email}\n\n${message}\n\nConsulta preparada en Tienda Lysa. No enviada.`;
-    $("#contact-summary").textContent = inquiryText;
-    form.hidden = true;
-    $("#contact-result").hidden = false;
-    $("#download-inquiry").focus();
-  });
-  $("#edit-inquiry").addEventListener("click", () => {
-    $("#contact-result").hidden = true;
-    $("#contact-form").hidden = false;
-    $("textarea[name=message]").focus();
-  });
-  $("#download-inquiry").addEventListener("click", () => {
-    const url = URL.createObjectURL(new Blob(["\uFEFF" + inquiryText], { type: "text/plain;charset=utf-8" }));
-    const download = document.createElement("a");
-    download.href = url;
-    download.download = "consulta-tienda-lysa.txt";
-    document.body.append(download);
-    download.click();
-    download.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    announce("Consulta preparada para guardar en tu dispositivo");
-  });
-
   if ("IntersectionObserver" in window && !reducedMotion.matches) {
     const observer = new IntersectionObserver(entries => entries.forEach(entry => {
       if (entry.isIntersecting) { entry.target.classList.remove("is-pending"); entry.target.classList.add("is-visible"); observer.unobserve(entry.target); }
@@ -668,7 +633,18 @@
   }
   $("#current-year").textContent = String(new Date().getFullYear());
   createBrandControls();
-  $("#whatsapp-setup-note").hidden = whatsAppReady();
+  const generalWhatsAppUrl = buildWhatsAppUrl();
+  $$("[data-contact]").forEach(link => {
+    if (generalWhatsAppUrl) {
+      link.href = generalWhatsAppUrl;
+      if (!link.hasAttribute("aria-label")) link.setAttribute("aria-label", `${link.textContent.replace("↗", "").trim()}: WhatsApp de Tienda Lysa (abre una nueva pestaña)`);
+    } else {
+      link.removeAttribute("href");
+      link.setAttribute("aria-disabled", "true");
+    }
+  });
+  $$("[data-instagram]").forEach(link => { link.href = INSTAGRAM_URL; });
+  if (generalWhatsAppUrl) $("#contact-phone").textContent = " al +" + WHATSAPP_NUMBER.replace(/^(34)(\d{3})(\d{2})(\d{2})(\d{2})$/, "$1 $2 $3 $4 $5");
   renderProducts(false);
   syncMarqueePreference();
 })();

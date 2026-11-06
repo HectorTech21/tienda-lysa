@@ -1,10 +1,10 @@
 ﻿# Presentación y auditoría final de Tienda Lysa
 
-## Estado para mañana
+## Contacto definitivo · 6 de noviembre de 2026
 
 La web está lista para enseñar el MVP a la clienta en una demostración local o con Live Server. Conserva el diseño, las fotografías, las siete marcas principales y los 14 artículos. No está preparada todavía para un lanzamiento comercial definitivo ni se ha publicado desde esta tarea.
 
-Faltan tres datos para cerrar la presentación con contacto y vista previa externos: teléfono real de WhatsApp, Instagram oficial confirmado y URL pública definitiva de este proyecto. No se han inventado ni tomado teléfonos de directorios.
+WhatsApp e Instagram están activos con los datos oficiales facilitados por la clienta, centralizados en `store-config.js`. El número es `34644016917` y el perfil es `https://www.instagram.com/tienda.lysa/`. Sigue pendiente la URL pública definitiva del proyecto.
 
 ## Recorrido breve · 4 minutos
 
@@ -13,13 +13,24 @@ Faltan tres datos para cerrar la presentación con contacto y vista previa exter
 3. Elegir Pepe Moll y Bolsos; después Mochilas para enseñar la composición de una pieza. Abrir la ficha: fotografía completa, referencia y acción de WhatsApp.
 4. Limpiar filtros; elegir Cacharel y Complementos para mostrar las dos carteras. Las fotos colectivas pendientes permanecen fuera del catálogo público.
 5. Guardar una pieza con el corazón y abrir favoritos desde la cabecera. Mostrar también el menú móvil.
-6. Si el número sigue pendiente, explicar que WhatsApp está preparado y desactivado. El formulario general solo prepara, edita y descarga una consulta; no envía mensajes.
+6. Mostrar «Hablemos» y «Síguenos y contacta» en el footer. Preparan una consulta general en WhatsApp; Instagram abre @tienda.lysa. Las tarjetas y fichas preparan exclusivamente la consulta de su artículo. El visitante revisa y decide enviar el mensaje en WhatsApp.
 
-## Activar WhatsApp
+## Configuración de contacto
 
-Editar `store-config.js`, línea 5: rellenar `WHATSAPP_NUMBER` entre comillas con el teléfono **real y verificado**, incluido el prefijo internacional, solo dígitos, sin `+`, espacios ni guiones. Guardar y recargar.
+`WHATSAPP_NUMBER` ya contiene el teléfono oficial, con prefijo internacional y solo dígitos. `WHATSAPP_GENERAL_MESSAGE` define la consulta general e `INSTAGRAM_URL` el perfil oficial. Modificar únicamente esta configuración si la tienda cambia sus contactos y recargar.
 
-Sin número o con formato inválido no hay enlaces a WhatsApp; los botones están desactivados con aviso visible. Con número válido, las acciones pasan a chocolate y abren otra pestaña con el nombre, marca identificada, referencia y pregunta sobre precio y disponibilidad. El usuario revisa el mensaje y decide enviarlo. Comprobar mañana el destinatario real: la prueba controlada valida la URL, no la titularidad de una cuenta de WhatsApp.
+`buildWhatsAppUrl` es la única función que construye las URLs y codifica el mensaje con `encodeURIComponent`. Las tarjetas y fichas usan nombre, marca identificada y referencia inmutable del registro. El contacto general usa otro mensaje, sin producto. Todos los enlaces externos abren una nueva pestaña con `noopener noreferrer`. Se ha sustituido el formulario de descarga local por el contacto real; no se envían mensajes automáticamente.
+
+Las secciones de auditoría anteriores que siguen documentan el estado histórico del MVP. La activación de contacto de esta sección sustituye sus referencias al teléfono vacío y al formulario local.
+
+## Verificación de contacto · 6 de noviembre de 2026
+
+- Edge headless con Live Server 5.7.10 ya instalado y carga directa `file://`, sin instalar paquetes. Teléfono exacto comprobado en configuración y URLs.
+- Los 28 enlaces de las 14 tarjetas y 14 fichas coinciden con nombre, marca identificada y referencia del catálogo. Mensajes decodificados y codificación `encodeURIComponent` comprobados, incluidas tildes, signos y comillas. Marcas desconocidas omitidas.
+- Los cuatro accesos generales usan el mensaje general exacto, sin referencias a productos. Instagram dirige al perfil oficial. Enlaces con nombres accesibles, nueva pestaña y `noopener noreferrer`; clics de ficha, contacto y redes interceptados localmente antes de navegar, sin abrir servicios externos ni enviar mensajes.
+- Revisión visual del footer a 1440 y 320 px, del contacto y ficha en móvil y de la ficha en escritorio. Geometría comprobada a 1440, 768, 390 y 320 px: sin desbordamiento horizontal, iconos alineados y enlaces sociales de 44 × 44 px. Preferencia de movimiento reducido respetada. Móviles emulados; sin prueba en dispositivo físico.
+- Regresión breve de filtro con estado vacío y consulta general, restauración, favoritos y eliminación del último, cierre de fichas con Escape y diálogo de privacidad. Sin errores JavaScript ni recursos HTTP fallidos en el recorrido. Sintaxis de los tres JavaScript y `git diff --check` correctos.
+- Comparación automática: HTML del hero, categorías, marcas, editorial y tienda idéntico al original; `catalog-data.js` intacto. Sin frameworks, backend ni cambios en precios o disponibilidad.
 
 ## Problemas encontrados y correcciones
 
@@ -51,10 +62,10 @@ Las 14 fotos públicas reutilizan los WebP existentes: unos 665 KiB en total, m�
 
 **URL pública y Open Graph.** No hay un dominio de despliegue confirmado en el proyecto. Al disponer de él, añadir en el HTML estático `canonical`, `og:url` y `og:image` con las URLs definitivas. Imagen prevista: el banner corporativo original `assets/images/banner.jpg`; acompañarlo de sus dimensiones 1320 × 633, tipo JPEG y alt descriptivo. No se han puesto URLs de localhost, rutas de imagen relativas en Open Graph ni un sitemap ficticio. La vista previa con imagen no puede darse por terminada hasta publicar y verificar las URLs. Referencia: [protocolo Open Graph](https://ogp.me/). No basta con modificar estos metadatos desde JavaScript, porque los robots pueden leer únicamente el HTML inicial.
 
-**Instagram.** El proyecto no contiene enlace de Instagram. La búsqueda encontró como candidato `https://www.instagram.com/tienda.lysa/` en un [directorio del negocio](https://www.paginasamarillas.es/f/madrid/tienda-lysa-moda-y-complementos_234300606_000000001.html), pero no se pudo verificar el perfil directamente. Está pendiente de confirmación de la tienda; no se ha añadido al footer un enlace cuya titularidad no está confirmada.
+**Instagram y WhatsApp.** Confirmados por la clienta e integrados el 6 de noviembre. No quedan pendientes de configuración.
 
-**Datos del negocio.** Confirmar teléfono comercial, dirección, horarios y datos identificativos del titular. Siguen pendientes; no se ha atribuido a la tienda información encontrada en directorios.
+**Datos del negocio.** Siguen pendientes dirección, horarios y datos identificativos del titular. El WhatsApp comercial ya lo ha confirmado la clienta.
 
-**Legal y privacidad.** Los diálogos actuales explican honestamente el alcance del MVP y el uso de favoritos, formulario local y WhatsApp. Antes del lanzamiento comercial, completar el aviso con los datos reales del titular y contacto; confirmar responsable y canal de privacidad; adaptar los textos al alojamiento, canales y tratamiento de datos que efectivamente se utilicen. Revisar los textos definitivos con el negocio. No hay carrito, pagos ni condiciones de venta simuladas.
+**Legal y privacidad.** Los diálogos explican el uso de favoritos y los enlaces externos de WhatsApp e Instagram. Antes del lanzamiento comercial, completar el aviso con los datos reales del titular; confirmar responsable y canal de privacidad; adaptar los textos al alojamiento, canales y tratamiento de datos que efectivamente se utilicen. Revisar los textos definitivos con el negocio. No hay carrito, pagos ni condiciones de venta simuladas.
 
-El MVP puede demostrarse con estas limitaciones explícitas. Activar WhatsApp, verificar Instagram, cerrar metadatos con el dominio público y completar la información del negocio son pasos distintos de la revisión visual y funcional ya terminada.
+El MVP puede demostrarse con el contacto activo. Cerrar metadatos con el dominio público y completar la información del negocio siguen pendientes.
