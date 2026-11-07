@@ -1,5 +1,16 @@
 # Tienda Lysa · instrucciones y decisiones
 
+## Auditoría responsive · 7 de noviembre de 2026
+
+Esta sección sustituye las descripciones anteriores de la franja de marcas (botón de pausa, modo teclado con scroll manual y animación desactivada con movimiento reducido).
+
+- Franja de marcas: marquee infinito con dos mitades idénticas (la segunda `aria-hidden`, botones con `tabindex=-1` pero clicables) y `@keyframes marquee` de 0 a -50 %. `script.js` calcula `--marquee-duration` en px/s (`MARQUEE_SPEED` 40, `MARQUEE_SPEED_REDUCED` 20) para que la velocidad sea igual en todos los anchos. No hay botón de pausa. Pausa solo con hover de puntero preciso y mientras un logo tiene el foco; al tabular, la línea de tiempo se ajusta para que el logo enfocado quede visible.
+- `prefers-reduced-motion` NO detiene la franja: solo la ralentiza. Windows activa esa preferencia al apagar «Efectos de animación», y era la causa de que no se moviera en escritorio. La regla global `*{animation:none!important}` tiene una excepción explícita para `.marquee-track`.
+- Logos: caja común `--logo-h`/`--logo-w` (44×170 escritorio, 38×145 tablet, 34×120 móvil), `object-fit: contain` y `--logo-scale` por marca para compensar el margen en blanco de cada archivo. Gladiator recorta su banda de 1880×108 px con `--gh`. Fundido lateral con `mask-image`.
+- Sistema de botones en `:root` (`--tap` 44 px, `--btn-h`, `--btn-font`, `--btn-radius` 0): `.button.button-dark` (primario), `.text-link` (enlace) y `.circle-button` (icono). Todos los controles tienen 44 px de zona táctil, sin `appearance` nativa ni tap highlight. No existe variante secundaria.
+- Menú móvil: panel fijo hasta el borde inferior, bloquea el scroll con `body.menu-open` y se cierra al pulsar un enlace o con Escape.
+- Ritmo vertical con `--section-y`; titulares con `clamp()`; texto mínimo de 9 px en eyebrows y de 11 px en textos auxiliares.
+
 ## Contacto vigente · 6 de noviembre de 2026
 
 Esta sección sustituye las referencias históricas al teléfono vacío y al formulario local de las auditorías anteriores.

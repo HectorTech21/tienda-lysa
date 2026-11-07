@@ -8,7 +8,14 @@
   --line:#ded3c9;
   --serif:"Bodoni MT","Didot","Iowan Old Style","Palatino Linotype",Georgia,serif;
   --sans:"Segoe UI",Arial,sans-serif;
-  --gutter:clamp(22px,5vw,84px)
+  --gutter:clamp(22px,5vw,84px);
+  /* Ritmo vertical común de las secciones */
+  --section-y:clamp(46px,6vw,86px);
+  /* Sistema de botones: primario (.button-dark), enlace (.text-link) e icono (.circle-button) */
+  --tap:44px;
+  --btn-h:48px;
+  --btn-font:12px;
+  --btn-radius:0
 }
 *,*::before,*::after {
   box-sizing:border-box
@@ -33,25 +40,27 @@ a {
   color:inherit;
   text-decoration:none
 }
-button,input,textarea,select {
+button,select {
   font:inherit;
   color:inherit
 }
-button,a,input,select,textarea {
+button,a,select {
   -webkit-tap-highlight-color:transparent
 }
-button {
-  cursor:pointer
-}
-button {
+/* Sin estilos nativos de iOS/Android: ni relieve, ni bordes, ni esquinas del sistema. */
+button,select {
+  -webkit-appearance:none;
+  appearance:none;
   background:none;
-  border:0
+  border:0;
+  border-radius:var(--btn-radius);
+  cursor:pointer
 }
 button:disabled {
   cursor:default;
   opacity:.3
 }
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible {
+button:focus-visible,a:focus-visible,select:focus-visible,[tabindex]:focus-visible {
   outline:2px solid var(--chocolate);
   outline-offset:5px
 }
@@ -96,7 +105,7 @@ button,a {
   margin-inline:auto
 }
 .section-space {
-  padding-block:86px
+  padding-block:var(--section-y)
 }
 .eyebrow {
   font-size:10px;
@@ -104,34 +113,47 @@ button,a {
   letter-spacing:2.2px;
   line-height:1.7
 }
+/* Variante enlace: subrayado fino y flecha. Zona táctil de 44 px. */
 .text-link {
   display:inline-flex;
   align-items:center;
-  gap:26px;
-  font-size:12px;
+  gap:22px;
+  min-height:var(--tap);
+  font-size:var(--btn-font);
   font-weight:500;
-  padding-block:8px;
+  white-space:nowrap;
+  padding:8px 0;
   border-bottom:1px solid currentColor;
-  transition:gap .25s
+  transition:gap .25s,color .25s
 }
 .text-link:hover {
-  gap:34px
+  gap:30px
+}
+.text-link:active {
+  color:#885563
 }
 .text-link span,.button span {
   font-size:19px;
   line-height:1
 }
+/* Variante primaria */
 .button {
   display:inline-flex;
   justify-content:space-between;
   align-items:center;
-  gap:35px;
-  min-height:49px;
-  padding:14px 24px;
-  font-size:12px;
+  gap:28px;
+  min-height:var(--btn-h);
+  padding:12px 24px;
+  font-size:var(--btn-font);
   font-weight:500;
+  line-height:1.3;
+  white-space:nowrap;
   border:1px solid transparent;
+  border-radius:var(--btn-radius);
   transition:background .25s,color .25s,transform .25s
+}
+.button:focus-visible {
+  outline-offset:3px
 }
 .button-dark {
   background:var(--chocolate);
@@ -140,6 +162,10 @@ button,a {
 .button-dark:hover {
   background:#6d4235;
   transform:translateY(-2px)
+}
+.button-dark:active {
+  background:#3a2019;
+  transform:none
 }
 .sr-only {
   position:absolute;
@@ -181,7 +207,10 @@ button,a {
   letter-spacing:.65px
 }
 .announcement a {
-  font-size:9px
+  display:inline-flex;
+  align-items:center;
+  min-height:32px;
+  font-size:10px
 }
 .announcement a span {
   margin-left:15px
@@ -251,15 +280,29 @@ button,a {
 }
 .favorites-toggle {
   position:relative;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  min-width:44px;
-  min-height:44px;
-  padding:7px
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+  width:var(--tap);
+  height:var(--tap);
+  padding:0
 }
+/* Contador como insignia sobre el corazón */
 .favorites-count {
-  font-size:10px
+  position:absolute;
+  top:3px;
+  right:0;
+  min-width:17px;
+  height:17px;
+  padding:0 4px;
+  border-radius:9px;
+  background:var(--pink);
+  color:var(--chocolate);
+  font-size:10px;
+  font-weight:600;
+  line-height:17px;
+  text-align:center;
+  font-variant-numeric:tabular-nums
 }
 .favorites-toggle.is-active svg {
   fill:var(--pink)
@@ -396,9 +439,9 @@ button,a {
   margin-bottom:24px
 }
 .hero h1 {
-  font-size:clamp(62px,6.05vw,94px);
+  font-size:clamp(46px,3.3vw + 40px,94px);
   line-height:.98;
-  letter-spacing:-3.8px
+  letter-spacing:-.04em
 }
 .hero h1 em {
   color:#885d51
@@ -546,7 +589,7 @@ button,a {
   margin-bottom:11px
 }
 h2 {
-  font-size:clamp(35px,3.5vw,53px);
+  font-size:clamp(32px,3.5vw,53px);
   line-height:1.12;
   letter-spacing:-1.5px
 }
@@ -614,17 +657,18 @@ h2 {
 /* Cat?logo, filtros y carrusel */
 .selection {
   background:#f1ebe4;
-  padding-top:70px;
-  padding-bottom:52px
+  padding-top:calc(var(--section-y)*.82);
+  padding-bottom:calc(var(--section-y)*.6)
 }
 .carousel-controls {
   display:flex;
   gap:10px;
   padding-bottom:3px
 }
+/* Variante icono */
 .circle-button {
-  width:41px;
-  height:41px;
+  width:var(--tap);
+  height:var(--tap);
   display:grid;
   place-items:center;
   border:1px solid #baa99e;
@@ -632,10 +676,13 @@ h2 {
   font-size:20px;
   transition:background .25s,color .25s
 }
-.circle-button:not(:disabled):hover {
+.circle-button:not(:disabled):hover,.circle-button:not(:disabled):active {
   background:var(--chocolate);
   color:var(--ivory);
   border-color:var(--chocolate)
+}
+.circle-button:focus-visible {
+  outline-offset:3px
 }
 .catalog-toolbar {
   display:flex;
@@ -653,9 +700,14 @@ h2 {
 .category-filters button {
   font-size:12px;
   white-space:nowrap;
+  min-height:var(--tap);
   padding:6px 0;
   position:relative;
-  color:var(--muted)
+  color:var(--muted);
+  transition:color .2s
+}
+.category-filters button:hover {
+  color:var(--chocolate)
 }
 .category-filters button[aria-pressed=true] {
   color:var(--chocolate);
@@ -671,10 +723,12 @@ h2 {
   bottom:0
 }
 .brand-select-label select {
-  background:transparent;
+  /* Flecha propia: el selector nativo pierde su estilo con appearance:none. */
+  background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%234B2A21' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 2px center;
   border:0;
   border-bottom:1px solid #b8a99e;
-  padding:8px 20px 8px 0;
+  min-height:var(--tap);
+  padding:8px 26px 8px 0;
   max-width:190px;
   font-size:12px;
   cursor:pointer
@@ -689,6 +743,10 @@ h2 {
   color:var(--muted)
 }
 .reset-filters {
+  display:inline-flex;
+  align-items:center;
+  min-height:var(--tap);
+  padding:0;
   font-size:11px;
   text-decoration:underline;
   text-underline-offset:3px
@@ -825,22 +883,32 @@ h2 {
   font-size:11px
 }
 .product-gallery-controls button {
-  padding:8px 2px
+  min-height:var(--tap);
+  padding:0 6px;
+  white-space:nowrap
 }
 .product-card:hover img {
   transform:scale(1.035)
 }
 .product-favorite {
   position:absolute;
-  top:12px;
-  right:12px;
-  width:34px;
-  height:34px;
+  top:8px;
+  right:8px;
+  width:var(--tap);
+  height:var(--tap);
   border-radius:50%;
   display:grid;
   place-items:center;
   background:#faf6f1dd;
-  color:var(--chocolate)
+  color:var(--chocolate);
+  transition:background .2s
+}
+.product-favorite:hover {
+  background:var(--ivory)
+}
+/* La imagen recorta su contenido: el foco se dibuja hacia dentro para verse completo. */
+.product-favorite:focus-visible,.product-image>a:focus-visible {
+  outline-offset:-3px
 }
 .product-favorite svg {
   width:17px;
@@ -900,16 +968,16 @@ h2 {
 }
 .whatsapp-button {
   width:100%;
-  min-height:46px;
   justify-content:center;
   gap:9px;
-  padding:12px;
+  padding:10px 12px;
   text-align:center;
-  line-height:1.4
+  white-space:normal
 }
 .whatsapp-button>span {
   font:inherit;
-  line-height:1.4
+  line-height:1.3;
+  text-wrap:balance
 }
 .whatsapp-button svg {
   width:18px;
@@ -959,16 +1027,6 @@ h2 {
   color:var(--muted);
   font-size:11px;
   margin-top:4px
-}
-.color-swatch {
-  display:inline-block;
-  width:9px;
-  height:9px;
-  background:var(--swatch,#8a5a3d);
-  border-radius:50%;
-  outline:1px solid #b8a99e;
-  outline-offset:2px;
-  margin-right:4px
 }
 .catalog-bottom {
   display:flex;
@@ -1038,7 +1096,7 @@ h2 {
 
 /* Franja de marcas */
 .brands-section {
-  padding:57px 0 32px;
+  padding:calc(var(--section-y)*.66) 0 calc(var(--section-y)*.4);
   border-top:1px solid var(--line);
   border-bottom:1px solid var(--line);
   background:#f5ede8;
@@ -1060,40 +1118,35 @@ h2 {
   color:var(--muted);
   margin-top:16px
 }
-.marquee-toggle {
-  font-size:11px;
-  white-space:nowrap;
-  padding:9px 0
-}
-.marquee-toggle>span {
-  margin-left:10px
-}
+/* Marquee infinito. Dos mitades idénticas (la segunda con aria-hidden) y
+   translateX de 0 a -50 %. La duración la fija script.js en px/s (--marquee-duration).
+   Se mueve siempre: con movimiento reducido solo va más lento. */
 .marquee-window {
+  --logo-h:44px;
+  --logo-w:170px;
+  --marquee-gap:clamp(28px,4vw,56px);
   overflow:hidden;
   margin:38px 0 28px;
-  padding-block:14px;
+  padding-block:22px;
   background:#fff;
-  scrollbar-width:none
-}
-.marquee-window::-webkit-scrollbar {
-  display:none
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)
 }
 .marquee-track {
   display:flex;
   width:max-content;
   will-change:transform;
-  animation:marquee 75s linear infinite
+  animation:marquee var(--marquee-duration,60s) linear infinite
 }
-.marquee-track.is-paused {
-  animation-play-state:paused
-}
-.marquee-window.is-keyboard-navigation .marquee-track {
-  animation-play-state:paused
-}
+/* Pausa al pasar el ratón solo con puntero de escritorio; también mientras
+   un logo tiene el foco de teclado, para que no se escape. */
 @media(hover:hover) and (pointer:fine) {
   .marquee-window:hover .marquee-track {
     animation-play-state:paused
   }
+}
+.marquee-window:focus-within .marquee-track {
+  animation-play-state:paused
 }
 .marquee-group {
   display:flex;
@@ -1102,61 +1155,72 @@ h2 {
 .marquee-sequence {
   display:flex;
   align-items:center;
-  justify-content:space-around;
-  gap:clamp(24px,3vw,48px);
+  gap:var(--marquee-gap);
   flex-shrink:0;
-  padding:0 var(--gutter)
+  /* El padding derecho equivale al gap para que la unión entre copias no se note. */
+  padding-right:var(--marquee-gap)
 }
 .brand-item {
   display:grid;
   place-items:center;
-  flex:0 0 240px;
-  width:240px;
-  min-width:240px;
-  min-height:112px;
-  padding:14px 10px;
+  flex:0 0 auto;
+  width:calc(var(--logo-w) + 16px);
+  min-height:calc(var(--logo-h) + 24px);
+  padding:12px 8px;
   border-bottom:1px solid transparent;
   transition:color .25s,border-color .25s
 }
-.brand-item .brand-identity {
-  width:100%;
-  height:80px;
-  position:relative
+.brand-item:focus-visible {
+  outline-offset:-3px
 }
+.brand-item .brand-identity {
+  width:var(--logo-w);
+  height:var(--logo-h);
+  overflow:visible
+}
+/* Altura visual uniforme: todas las imágenes comparten caja y object-fit: contain.
+   --logo-scale compensa el margen en blanco propio de cada archivo. */
 .brand-item .brand-identity img {
-  position:absolute;
-  width:190px;
-  height:80px;
-  max-width:100%;
+  width:auto;
+  height:calc(var(--logo-h)*var(--logo-scale,1));
+  max-width:var(--logo-w);
+  /* El margen negativo mantiene la caja en --logo-h y centra el logo escalado. */
+  margin-block:calc(var(--logo-h)*(1 - var(--logo-scale,1))/2);
   object-fit:contain
 }
+.brand-item .brand-identity--cacharel img {
+  --logo-scale:2
+}
 .brand-item .brand-identity--anekke img {
-  width:155px
+  --logo-scale:1.5
 }
 .brand-item .brand-identity--totto img {
-  width:170px
-}
-.brand-item .brand-identity--pepe-moll img {
-  width:200px
+  --logo-scale:1.45
 }
 .brand-item .brand-identity--gabol img {
-  width:210px;
-  height:110px
+  --logo-scale:2.6
 }
-/* El archivo Gladiator tiene amplios márgenes lisos: solo se oculta ese fondo.
-   La imagen conserva su proporción; el símbolo y el nombre se ven completos. */
+/* El archivo de Gladiator es una banda de 1880×108 px con amplios márgenes
+   lisos: se muestra solo la zona del símbolo y el nombre, sin deformar. */
+.brand-item .brand-identity--gladiator {
+  /* Altura que permite mostrar símbolo y nombre (proporción 3,9:1) sin superar --logo-w. */
+  --gh:min(var(--logo-h),calc(var(--logo-w)/3.9))
+}
 .brand-item .brand-identity--gladiator.has-logo {
+  position:relative;
+  width:calc(var(--gh)*3.9);
+  height:var(--gh);
   overflow:hidden;
-  background:#30302f;
-  height:60px
+  background:#30302f
 }
 .brand-item .brand-identity--gladiator img {
-  width:1044px;
-  height:60px;
+  position:absolute;
+  top:0;
+  left:calc(var(--gh)*-6.3);
+  width:calc(var(--gh)*17.41);
+  height:var(--gh);
   max-width:none;
-  left:50%;
-  top:50%;
-  transform:translate(-47.2%,-50%)
+  margin:0
 }
 .brand-item:hover,.brand-item[aria-pressed=true] {
   color:#885563;
@@ -1164,11 +1228,10 @@ h2 {
 }
 .brand-item .brand-text {
   font-family:var(--serif);
-  font-size:32px;
-  line-height:1.5;
+  font-size:calc(var(--logo-h)*.68);
+  line-height:1.2;
   letter-spacing:.5px;
-  white-space:nowrap;
-  padding:0
+  white-space:nowrap
 }
 .marquee-sequence>.brand-separator {
   flex:0 0 1px;
@@ -1176,17 +1239,6 @@ h2 {
   height:24px;
   background:var(--pink);
   font-size:0
-}
-.marquee-window.is-keyboard-navigation {
-  overflow-x:auto
-}
-.marquee-window.is-keyboard-navigation .marquee-track {
-  /* Conserva el reloj pausado para reanudar desde la misma posición al salir. */
-  transform:none!important
-}
-.marquee-window.is-keyboard-navigation [aria-hidden=true].marquee-group,
-.marquee-window.is-keyboard-navigation [aria-hidden=true].marquee-sequence {
-  display:none
 }
 .brands-bottom {
   display:flex;
@@ -1200,12 +1252,6 @@ h2 {
   letter-spacing:.5px;
   color:var(--muted)
 }
-.brands-caption>span {
-  display:block;
-  margin-top:4px;
-  font-size:11px;
-  letter-spacing:0
-}
 .brands-bottom .text-link {
   flex-shrink:0
 }
@@ -1216,7 +1262,7 @@ h2 {
   grid-template-columns:1.05fr 1fr;
   gap:8%;
   align-items:center;
-  padding-block:100px
+  padding-block:calc(var(--section-y)*1.15)
 }
 .editorial-image {
   position:relative;
@@ -1248,7 +1294,7 @@ h2 {
   margin-bottom:23px
 }
 .editorial-copy h2 {
-  font-size:clamp(49px,5vw,76px);
+  font-size:clamp(44px,5vw,76px);
   line-height:1.03;
   letter-spacing:-2px;
   margin-bottom:26px
@@ -1273,7 +1319,7 @@ h2 {
 }
 .about {
   background:#f0e1e5;
-  padding-block:clamp(48px,5.5vw,80px)
+  padding-block:var(--section-y)
 }
 .about-inner {
   display:grid;
@@ -1334,7 +1380,7 @@ h2 {
   margin-bottom:17px
 }
 .about-copy h2 {
-  font-size:clamp(35px,3.5vw,52px);
+  font-size:clamp(33px,3.5vw,52px);
   line-height:1.12;
   max-width:450px
 }
@@ -1373,13 +1419,13 @@ h2 {
   grid-template-columns:1fr 1fr;
   align-items:center;
   gap:8%;
-  padding-block:77px
+  padding-block:var(--section-y)
 }
 .contact .eyebrow {
   margin-bottom:18px
 }
 .contact h2 {
-  font-size:clamp(43px,4.5vw,65px)
+  font-size:clamp(40px,4.5vw,65px)
 }
 .contact-copy>p:first-child {
   font-size:13px;
@@ -1440,7 +1486,7 @@ h2 {
   margin-bottom:11px
 }
 .footer-column>a,.footer-column>button {
-  font-size:10px;
+  font-size:12px;
   color:#ddc9bd;
   padding:2px 0;
   text-align:left
@@ -1486,7 +1532,7 @@ h2 {
   height:22px
 }
 .footer-invitation>.eyebrow {
-  font-size:8px;
+  font-size:9px;
   letter-spacing:1.1px;
   color:#ddc9bd
 }
@@ -1499,8 +1545,10 @@ h2 {
 .footer-invitation>a {
   display:flex;
   justify-content:space-between;
+  align-items:center;
+  min-height:var(--tap);
   max-width:220px;
-  font-size:10px;
+  font-size:12px;
   border-bottom:1px solid #957366;
   padding-bottom:9px
 }
@@ -1510,24 +1558,29 @@ h2 {
 .footer-bottom {
   display:flex;
   justify-content:space-between;
+  align-items:center;
   gap:20px;
   border-top:1px solid #795347;
   padding-block:20px;
   color:#d5beb1;
   font-size:12px
 }
-.footer-demo {
-  color:#bda194;
-  margin-left:6px
-}
 .footer-bottom>div {
   display:flex;
   align-items:center;
   gap:25px
 }
-.footer-bottom button {
+.footer-bottom button,.footer-bottom a {
+  display:inline-flex;
+  align-items:center;
+  min-height:var(--tap);
   font-size:12px;
   padding:0
+}
+.footer-bottom button:hover,.footer-bottom a:hover {
+  color:white;
+  text-decoration:underline;
+  text-underline-offset:4px
 }
 
 /* Di?logos y formularios */
@@ -1551,8 +1604,8 @@ dialog[open] {
   position:absolute;
   right:15px;
   top:15px;
-  width:33px;
-  height:33px;
+  width:var(--tap);
+  height:var(--tap);
   z-index:2;
   background:var(--ivory);
   font-size:22px
@@ -1590,77 +1643,10 @@ dialog[open] {
   font-size:11px;
   padding-inline:17px
 }
-.detail-demo-label {
-  display:inline-block;
-  color:var(--muted);
-  font-size:11px;
-  margin-bottom:18px
-}
-.product-detail-copy .product-example-note {
-  font-size:11px
-}
 .product-detail-copy>p.product-detail-price {
   font-size:18px;
   color:var(--chocolate);
   margin-bottom:0
-}
-.contact-dialog {
-  width:590px;
-  padding:48px 40px 32px
-}
-.contact-dialog h2 {
-  font-size:37px;
-  margin-top:10px
-}
-.dialog-intro {
-  font-size:12px;
-  line-height:1.8;
-  color:var(--muted);
-  margin:20px 0 24px
-}
-form label {
-  display:flex;
-  flex-direction:column;
-  font-size:11px;
-  gap:7px;
-  margin-bottom:17px
-}
-input,textarea {
-  width:100%;
-  background:transparent;
-  border:1px solid #cbbcaf;
-  padding:11px 12px;
-  border-radius:0;
-  font-size:12px
-}
-textarea {
-  resize:vertical;
-  min-height:105px
-}
-.form-note {
-  font-size:10px;
-  color:var(--muted);
-  line-height:1.7;
-  margin-top:14px
-}
-#contact-result {
-  margin-top:25px
-}
-#contact-summary {
-  font-family:var(--sans);
-  font-size:12px;
-  white-space:pre-wrap;
-  overflow-wrap:anywhere;
-  background:#eee5db;
-  padding:20px;
-  margin-block:15px;
-  line-height:1.8
-}
-.result-actions {
-  display:flex;
-  align-items:center;
-  gap:20px;
-  flex-wrap:wrap
 }
 .policy-dialog {
   width:600px;
@@ -1807,18 +1793,12 @@ textarea {
     min-height:575px;
     grid-template-columns:47% 53%
   }
-  .hero h1 {
-    font-size:75px
-  }
   .hero-actions {
     gap:15px
   }
   .hero-actions .button {
     padding-inline:18px;
     gap:20px
-  }
-  .hero-actions .text-link {
-    font-size:9px
   }
   .hero-description {
     font-size:12px
@@ -1840,6 +1820,15 @@ textarea {
   }
   .footer-main {
     gap:25px
+  }
+  /* Tablet horizontal y menores: enlaces del pie con zona táctil de 44 px */
+  .footer-column {
+    gap:0
+  }
+  .footer-column>a,.footer-column>button {
+    display:inline-flex;
+    align-items:center;
+    min-height:var(--tap)
   }
   .footer-invitation>p {
     font-size:28px
@@ -1864,10 +1853,11 @@ textarea {
     align-items:center;
     justify-content:center;
     gap:10px;
-    min-height:44px;
+    min-height:var(--tap);
+    min-width:var(--tap);
     margin-left:auto;
-    font-size:11px;
-    padding:5px 0
+    font-size:12px;
+    padding:0 6px
   }
   .menu-lines {
     display:block;
@@ -1901,17 +1891,23 @@ textarea {
   .mobile-toggle[aria-expanded=true] .menu-lines::after {
     transform:rotate(-45deg)
   }
+  /* Panel fijo desde el borde inferior de la cabecera hasta el final de la
+     pantalla: el fondo queda tapado y bloqueado (body.menu-open). */
   .main-navigation {
-    position:absolute;
+    position:fixed;
     left:0;
     right:0;
-    top:100%;
+    top:var(--nav-top,78px);
+    bottom:0;
     background:var(--ivory);
-    padding:15px var(--gutter) 25px;
+    padding:8px var(--gutter) calc(30px + env(safe-area-inset-bottom));
     display:none;
-    max-height:calc(100dvh - 80px);
-    overflow:auto;
-    border-bottom:1px solid var(--line)
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    border-top:1px solid var(--line)
+  }
+  body.menu-open {
+    overflow:hidden
   }
   .main-navigation.is-open {
     display:flex;
@@ -1922,8 +1918,10 @@ textarea {
   .main-navigation>a,.brand-dropdown>button {
     display:flex;
     justify-content:space-between;
-    padding:13px 0;
-    font-size:14px;
+    align-items:center;
+    min-height:52px;
+    padding:12px 0;
+    font-size:15px;
     width:100%;
     border-bottom:1px solid var(--line)
   }
@@ -1960,29 +1958,15 @@ textarea {
   .hero-copy {
     padding-right:20px
   }
-  .hero h1 {
-    font-size:clamp(55px,8.3vw,75px);
-    letter-spacing:-2.5px
-  }
   .hero .eyebrow {
-    font-size:8px;
+    font-size:9px;
     margin-bottom:20px
-  }
-  .hero-description {
-    font-size:11px
   }
   .hero-actions {
     align-items:flex-start;
     flex-direction:column;
     margin-top:24px;
     gap:11px
-  }
-  .hero-actions .button {
-    font-size:11px;
-    min-height:45px
-  }
-  .hero-actions .text-link {
-    font-size:10px
   }
   .hero-footnote {
     margin-top:25px;
@@ -1992,7 +1976,7 @@ textarea {
   .hero-image-caption {
     left:18px;
     right:18px;
-    font-size:7px
+    font-size:8px
   }
   .hero-image-caption>span:last-child {
     display:none
@@ -2010,7 +1994,7 @@ textarea {
     height:35px
   }
   .intro-line>span:first-child {
-    font-size:8px;
+    font-size:9px;
     letter-spacing:1px
   }
   .intro-line p {
@@ -2023,15 +2007,8 @@ textarea {
   .intro-flower {
     font-size:25px
   }
-  .section-space {
-    padding-block:60px
-  }
-  .section-heading>.text-link {
-    font-size:10px;
-    gap:15px
-  }
   .section-heading .eyebrow {
-    font-size:8px
+    font-size:9px
   }
   .category-grid {
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -2058,8 +2035,7 @@ textarea {
     --catalog-columns:3
   }
   .category-filters {
-    gap:20px;
-    flex:1 1 100%
+    gap:0 20px
   }
   .catalog-toolbar {
     flex-wrap:wrap
@@ -2074,41 +2050,26 @@ textarea {
     font-size:12px;
     max-width:145px
   }
-  .selection {
-    padding-top:55px;
-    padding-bottom:40px
-  }
-  .marquee-sequence {
-    gap:42px;
-    padding:0 25px
+  .marquee-window {
+    --logo-h:38px;
+    --logo-w:145px
   }
   .editorial {
-    gap:6%;
-    padding-block:75px
+    gap:6%
   }
   .editorial-image {
     aspect-ratio:3/4
   }
-  .editorial-copy h2 {
-    font-size:49px
-  }
-  .editorial-copy>p:not(.eyebrow) {
-    font-size:11px
-  }
   .editorial-copy .eyebrow {
-    font-size:8px
+    font-size:9px
   }
   .editorial-copy .button {
-    font-size:10px;
     gap:20px;
-    padding-inline:16px
+    padding-inline:18px
   }
   .about-inner {
     gap:6%;
     grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)
-  }
-  .about-copy h2 {
-    font-size:35px
   }
   .about-copy>p:not(.eyebrow) {
     font-size:13px
@@ -2121,9 +2082,6 @@ textarea {
   }
   .contact {
     gap:6%
-  }
-  .contact h2 {
-    font-size:45px
   }
   .contact-copy>p:first-child {
     font-size:12px
@@ -2177,14 +2135,9 @@ textarea {
     max-width:none
   }
   .hero .eyebrow {
-    font-size:8px;
+    font-size:9px;
     margin-bottom:19px;
     letter-spacing:2px
-  }
-  .hero h1 {
-    font-size:clamp(49px,14vw,64px);
-    line-height:.98;
-    letter-spacing:-2.5px
   }
   .hero-description {
     font-size:12px;
@@ -2198,13 +2151,11 @@ textarea {
     margin-top:23px
   }
   .hero-actions .button {
-    font-size:10px;
-    gap:20px;
-    padding-inline:17px
+    gap:18px;
+    padding-inline:18px
   }
   .hero-actions .text-link {
-    font-size:9px;
-    gap:10px
+    gap:12px
   }
   .hero-footnote {
     display:none
@@ -2237,9 +2188,9 @@ textarea {
     padding-block:23px
   }
   .intro-line>span:first-child {
-    font-size:7px;
+    font-size:9px;
     letter-spacing:1px;
-    max-width:78px
+    max-width:86px
   }
   .intro-line p {
     font-size:17px;
@@ -2251,30 +2202,24 @@ textarea {
   .mobile-only {
     display:block
   }
-  .section-space {
-    padding-block:46px
-  }
   .section-heading {
     margin-bottom:26px;
     align-items:flex-start;
     gap:15px
   }
   .section-heading .eyebrow {
-    font-size:7px;
+    font-size:9px;
     letter-spacing:1.5px;
     margin-bottom:11px
   }
   h2 {
-    font-size:34px;
     letter-spacing:-1.1px
   }
   .categories .section-heading {
     display:block
   }
   .section-heading>.text-link {
-    font-size:9px;
-    margin-top:15px;
-    padding:3px 0
+    margin-top:10px
   }
   .category-grid {
     gap:23px 12px
@@ -2285,7 +2230,7 @@ textarea {
   .category-index {
     top:12px;
     left:12px;
-    font-size:8px
+    font-size:9px
   }
   .category-image-arrow {
     width:29px;
@@ -2305,19 +2250,11 @@ textarea {
     display:block;
     text-align:left;
     max-width:none;
-    font-size:10px;
+    font-size:11px;
     margin-top:3px
   }
   .selection .section-heading {
     align-items:flex-end
-  }
-  .selection h2 {
-    font-size:33px
-  }
-  .circle-button {
-    width:34px;
-    height:34px;
-    font-size:18px
   }
   .carousel-controls {
     gap:7px;
@@ -2372,12 +2309,6 @@ textarea {
   .product-track.is-compact .product-image {
     aspect-ratio:4/5
   }
-  .product-favorite {
-    width:44px;
-    height:44px;
-    right:9px;
-    top:9px
-  }
   .product-favorite svg {
     width:15px;
     height:15px
@@ -2396,29 +2327,21 @@ textarea {
     grid-template-rows:15px minmax(60px,auto) auto auto auto auto 1fr
   }
   .whatsapp-button {
-    min-height:64px;
-    padding:10px 8px;
+    padding:8px;
     gap:6px;
     font-size:11px
-  }
-  .whatsapp-button>span {
-    max-width:110px
   }
   .whatsapp-button svg {
     width:16px;
     height:16px
   }
   .product-note {
-    font-size:10px;
+    font-size:11px;
     line-height:1.7;
     margin-top:9px;
     align-items:baseline;
     flex-wrap:wrap;
     gap:5px
-  }
-  .color-swatch {
-    height:7px;
-    width:7px
   }
   .product-view {
     display:none
@@ -2429,20 +2352,17 @@ textarea {
     padding-top:14px
   }
   .demo-note {
-    font-size:10px
+    font-size:11px
   }
   .carousel-status {
-    font-size:10px;
+    font-size:11px;
     margin-top:9px
-  }
-  .brands-section {
-    padding:35px 0 26px
   }
   .brands-heading {
     display:block
   }
   .brands-heading .eyebrow {
-    font-size:8px;
+    font-size:9px;
     letter-spacing:1.5px
   }
   .brands-heading h2 {
@@ -2452,27 +2372,15 @@ textarea {
     font-size:13px;
     margin-top:13px
   }
-  .marquee-toggle {
-    font-size:11px;
-    margin-top:16px;
-    padding-block:5px
-  }
-  .marquee-toggle>span {
-    margin-left:5px
-  }
   .marquee-window {
-    margin:15px 0 18px
+    --logo-h:34px;
+    --logo-w:120px;
+    --marquee-gap:24px;
+    margin:22px 0 18px;
+    padding-block:14px
   }
-  .marquee-sequence {
-    gap:30px;
-    padding:0 23px
-  }
-  .brand-item {
-    min-width:240px;
-    min-height:100px
-  }
-  .brand-item .brand-text {
-    font-size:29px
+  .marquee-sequence>.brand-separator {
+    height:18px
   }
   .brands-bottom {
     align-items:flex-start;
@@ -2485,8 +2393,7 @@ textarea {
   .editorial {
     display:flex;
     flex-direction:column;
-    gap:33px;
-    padding-block:50px
+    gap:33px
   }
   .editorial-image {
     width:100%;
@@ -2502,10 +2409,9 @@ textarea {
   }
   .editorial-copy .eyebrow {
     margin-bottom:17px;
-    font-size:8px
+    font-size:9px
   }
   .editorial-copy h2 {
-    font-size:53px;
     margin-bottom:22px
   }
   .editorial-copy>p:not(.eyebrow) {
@@ -2514,18 +2420,12 @@ textarea {
     max-width:370px
   }
   .editorial-copy .button {
-    font-size:11px;
-    gap:35px;
-    margin-top:23px;
-    min-height:46px;
-    padding-inline:22px
+    gap:28px;
+    margin-top:23px
   }
   .editorial-signature {
     font-size:25px;
     margin:25px 0 5px 31px
-  }
-  .about {
-    padding-block:45px
   }
   .about-inner {
     display:flex;
@@ -2534,7 +2434,7 @@ textarea {
     align-items:stretch
   }
   .about-caption-heading {
-    font-size:8px;
+    font-size:9px;
     letter-spacing:.9px
   }
   .about-caption-heading>span+span {
@@ -2549,16 +2449,12 @@ textarea {
     margin-bottom:14px
   }
   .about-copy h2 {
-    font-size:clamp(33px,8.8vw,43px);
     letter-spacing:-.6px;
     max-width:420px
   }
   .about-copy>p:not(.eyebrow) {
     font-size:13px;
     line-height:1.9
-  }
-  .about-copy .text-link {
-    font-size:12px
   }
   .about-identity {
     margin-top:25px;
@@ -2567,15 +2463,11 @@ textarea {
   }
   .contact {
     display:block;
-    text-align:center;
-    padding-block:46px
+    text-align:center
   }
   .contact .eyebrow {
-    font-size:8px;
+    font-size:9px;
     margin-bottom:15px
-  }
-  .contact h2 {
-    font-size:43px
   }
   .contact-copy>p:first-child {
     margin:22px auto;
@@ -2583,8 +2475,7 @@ textarea {
     font-size:11px
   }
   .contact-copy .button {
-    font-size:11px;
-    min-width:150px
+    min-width:180px
   }
   .footer-main {
     grid-template-columns:1fr 1fr;
@@ -2613,12 +2504,7 @@ textarea {
     font-size:10px;
     margin-bottom:7px
   }
-  .footer-column>a,.footer-column>button {
-    font-size:12px;
-    min-height:32px;
-    display:inline-flex;
-    align-items:center
-  }
+
   .footer-bottom {
     flex-direction:column;
     gap:15px;
@@ -2629,9 +2515,6 @@ textarea {
     gap:12px;
     flex-wrap:wrap;
     justify-content:space-between
-  }
-  .footer-bottom button {
-    font-size:12px
   }
   .product-detail-layout {
     display:block
@@ -2656,24 +2539,14 @@ textarea {
   .product-detail-copy .button {
     margin-top:5px
   }
-  .contact-dialog {
-    padding:52px 23px 25px
-  }
-  .contact-dialog h2 {
-    font-size:32px
-  }
-  .contact-dialog .eyebrow {
-    font-size:8px
-  }
-  .dialog-intro {
-    font-size:11px;
-    margin-block:17px
-  }
   .policy-dialog {
     padding:55px 25px 25px
   }
   .policy-dialog h2 {
     font-size:32px
+  }
+  .button {
+    font-size:11px
   }
   .toast {
     font-size:11px;
@@ -2685,29 +2558,6 @@ textarea {
   }
   .empty-state p {
     font-size:13px
-  }
-  .empty-state p.eyebrow {
-    font-size:8px
-  }
-}
-
-/* Zonas de pulsación cómodas sin cambiar la composición editorial. */
-@media(max-width:850px) {
-  .product-favorite,.carousel-controls .circle-button,.dialog-close {
-    width:44px;
-    height:44px
-  }
-  .category-filters button {
-    min-height:44px;
-    min-width:44px
-  }
-  .brand-select-label select {
-    min-height:44px
-  }
-  .footer-bottom button,.footer-bottom a {
-    display:inline-flex;
-    align-items:center;
-    min-height:32px
   }
 }
 
@@ -2724,17 +2574,21 @@ textarea {
     opacity:1;
     transform:none
   }
+  /* Excepción deliberada: la franja de marcas sigue en movimiento (más lenta,
+     ver MARQUEE_SPEED_REDUCED en script.js). Su especificidad de clase gana a «*». */
   .marquee-track {
-    transform:none
+    animation:marquee var(--marquee-duration,120s) linear infinite!important
   }
-  .marquee-window {
-    overflow-x:auto
-  }
-  .marquee-group[aria-hidden=true],.marquee-sequence[aria-hidden=true] {
-    display:none
+  .marquee-window:focus-within .marquee-track {
+    animation-play-state:paused!important
   }
   .hero-visual>img {
     opacity:1;
     transform:none
+  }
+}
+@media(prefers-reduced-motion:reduce) and (hover:hover) and (pointer:fine) {
+  .marquee-window:hover .marquee-track {
+    animation-play-state:paused!important
   }
 }

@@ -110,9 +110,12 @@
   }
 
   function setMobileOpen(open, returnFocus = false) {
+    if (open) navigation.style.setProperty("--nav-top", `${Math.max(0, $(".site-header").getBoundingClientRect().bottom)}px`);
     mobileToggle.setAttribute("aria-expanded", String(open));
     $(".mobile-menu-label").textContent = open ? "Cerrar" : "Menú";
     navigation.classList.toggle("is-open", open);
+    // Bloquea el scroll del fondo mientras el panel móvil está abierto.
+    document.body.classList.toggle("menu-open", open && !desktopMenu.matches);
     if (!open) setBrandsOpen(false);
     if (returnFocus) mobileToggle.focus();
   }
@@ -222,19 +225,26 @@
       });
       return copy;
     }
+    // Marquee infinito: el track contiene dos mitades idénticas y la animación CSS
+    // lo desplaza de 0 a -50 %. Cada mitad repite la secuencia las veces necesarias
+    // para cubrir la ventana, y la duración se calcula en px/s para que la velocidad
+    // percibida sea la misma en móvil, tablet y escritorio.
+    const MARQUEE_SPEED = 40; // px/s
+    const MARQUEE_SPEED_REDUCED = 20; // px/s con «movimiento reducido»: más lento, nunca parado
     let repetitions = 0;
     function sizeMarquee() {
       const sequenceWidth = sequence.getBoundingClientRect().width;
       if (!sequenceWidth) return;
       const count = Math.max(1, Math.ceil(marqueeWindow.clientWidth / sequenceWidth));
-      if (count === repetitions) return;
-      repetitions = count;
-      $$(".marquee-sequence[aria-hidden]", group).forEach(copy => copy.remove());
-      duplicate.replaceChildren();
-      for (let index = 1; index < count; index++) group.append(copySequence());
-      for (let index = 0; index < count; index++) duplicate.append(copySequence());
-      // Cada mitad incluye las mismas secuencias, gaps y padding. La velocidad no cambia.
-      marquee.style.animationDuration = `${75 * count}s`;
+      if (count !== repetitions) {
+        repetitions = count;
+        $$(".marquee-sequence[aria-hidden]", group).forEach(copy => copy.remove());
+        duplicate.replaceChildren();
+        for (let index = 1; index < count; index++) group.append(copySequence());
+        for (let index = 0; index < count; index++) duplicate.append(copySequence());
+      }
+      const speed = reducedMotion.matches ? MARQUEE_SPEED_REDUCED : MARQUEE_SPEED;
+      marquee.style.setProperty("--marquee-duration", `${(sequenceWidth * count / speed).toFixed(2)}s`);
     }
     sizeMarquee();
     if ("ResizeObserver" in window) {
@@ -242,18 +252,20 @@
       observer.observe(marqueeWindow);
       observer.observe(sequence);
     } else window.addEventListener("resize", sizeMarquee);
+    reducedMotion.addEventListener("change", sizeMarquee);
+    // Teclado: la animación se pausa con :focus-within y se lleva su línea de tiempo
+    // al punto en que el logo enfocado queda dentro de la zona visible (fuera del
+    // fundido). Al salir, el movimiento continúa desde ahí, sin saltos.
     marqueeWindow.addEventListener("focusin", event => {
-      if (!event.target.matches(":focus-visible")) return;
-      marqueeWindow.classList.add("is-keyboard-navigation");
-      requestAnimationFrame(() => {
-        if (marqueeWindow.contains(document.activeElement)) event.target.scrollIntoView({ behavior: "instant", block: "nearest", inline: "center" });
-      });
-    });
-    marqueeWindow.addEventListener("focusout", event => {
-      if (!marqueeWindow.contains(event.relatedTarget)) {
-        marqueeWindow.classList.remove("is-keyboard-navigation");
-        marqueeWindow.scrollLeft = 0;
-      }
+      const item = event.target.closest(".brand-item");
+      const animation = marquee.getAnimations?.()[0];
+      marqueeWindow.scrollLeft = 0;
+      if (!item || !animation) return;
+      const half = group.getBoundingClientRect().width;
+      const itemLeft = item.getBoundingClientRect().left - marquee.getBoundingClientRect().left;
+      const offset = Math.max(-half, Math.min(0, marqueeWindow.clientWidth * .35 - itemLeft));
+      animation.currentTime = (-offset / half) * animation.effect.getComputedTiming().duration;
+      requestAnimationFrame(() => { marqueeWindow.scrollLeft = 0; });
     });
   }
 
@@ -434,6 +446,9 @@
     image.className = "product-detail-image";
     image.src = product.image;
     image.alt = product.alt;
+    image.width = 1024;
+    image.height = 1280;
+    image.decoding = "async";
     image.draggable = false;
     const gallery = document.createElement("div");
     gallery.className = "product-gallery";
@@ -598,20 +613,6 @@
   if ("ResizeObserver" in window) new ResizeObserver(updateCarousel).observe(track);
   else window.addEventListener("resize", updateCarousel);
 
-  const marqueeToggle = $("#marquee-toggle");
-  function syncMarqueePreference() {
-    marqueeToggle.hidden = reducedMotion.matches;
-    if (reducedMotion.matches) $("#marquee-track").classList.add("is-paused");
-    else $("#marquee-track").classList.toggle("is-paused", marqueeToggle.getAttribute("aria-pressed") === "true");
-  }
-  marqueeToggle.addEventListener("click", () => {
-    const paused = marqueeToggle.getAttribute("aria-pressed") !== "true";
-    marqueeToggle.setAttribute("aria-pressed", String(paused));
-    marqueeToggle.textContent = paused ? "Reanudar movimiento ▷" : "Pausar movimiento Ⅱ";
-    $("#marquee-track").classList.toggle("is-paused", paused);
-  });
-  reducedMotion.addEventListener("change", syncMarqueePreference);
-
   $$("dialog").forEach(dialog => {
     dialog.addEventListener("click", event => {
       if (event.target !== dialog) return;
@@ -654,5 +655,4 @@
   $$("[data-instagram]").forEach(link => { link.href = INSTAGRAM_URL; });
   if (generalWhatsAppUrl) $("#contact-phone").textContent = " al +" + WHATSAPP_NUMBER.replace(/^(34)(\d{3})(\d{2})(\d{2})(\d{2})$/, "$1 $2 $3 $4 $5");
   renderProducts(false);
-  syncMarqueePreference();
 })();
