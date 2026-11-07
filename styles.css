@@ -647,9 +647,8 @@ h2 {
 }
 .category-filters {
   display:flex;
-  gap:24px;
-  overflow-x:auto;
-  scrollbar-width:none
+  flex-wrap:wrap;
+  gap:4px 24px
 }
 .category-filters button {
   font-size:12px;
@@ -1304,20 +1303,29 @@ h2 {
   object-fit:contain
 }
 .about-visual figcaption {
+  padding-top:16px
+}
+.about-caption-heading {
   display:flex;
   justify-content:space-between;
   align-items:center;
   flex-wrap:wrap;
   gap:8px 18px;
-  padding-top:16px;
   font-size:9px;
   letter-spacing:1.3px
 }
-.about-visual figcaption>span+span {
+.about-caption-heading>span+span {
   font-family:var(--serif);
   font-style:italic;
   font-size:17px;
   letter-spacing:0
+}
+.about-visual figcaption p {
+  max-width:62ch;
+  margin:14px 0 0;
+  color:#67493f;
+  font-size:14px;
+  line-height:1.8
 }
 .about-copy {
   min-width:0
@@ -1333,30 +1341,32 @@ h2 {
 .about-copy>p:not(.eyebrow) {
   font-size:14px;
   line-height:1.9;
-  max-width:430px;
-  margin:23px 0;
+  max-width:54ch;
+  margin:14px 0;
   color:#67493f
+}
+.about-copy>h2+p {
+  margin-top:23px
 }
 .about-identity {
   display:flex;
-  align-items:flex-end;
+  align-items:center;
   gap:22px;
   margin-top:30px;
   padding-top:24px;
   border-top:1px solid #d6b8c3
 }
 .about-identity img {
-  width:clamp(150px,14vw,200px);
-  max-width:60%;
+  width:clamp(84px,10vw,120px);
+  max-width:45%;
   height:auto;
-  object-fit:contain
+  border-radius:50%
 }
 .about-identity>span {
   font-family:var(--serif);
   font-style:italic;
   font-size:21px;
-  line-height:1.2;
-  padding-bottom:5px
+  line-height:1.2
 }
 .contact {
   display:grid;
@@ -2319,7 +2329,7 @@ textarea {
     padding-bottom:13px
   }
   .category-filters {
-    gap:23px;
+    gap:2px 18px;
     padding-bottom:13px
   }
   .category-filters button {
@@ -2523,11 +2533,11 @@ textarea {
     gap:34px;
     align-items:stretch
   }
-  .about-visual figcaption {
+  .about-caption-heading {
     font-size:8px;
     letter-spacing:.9px
   }
-  .about-visual figcaption>span+span {
+  .about-caption-heading>span+span {
     font-size:16px
   }
   .about-copy {
@@ -2545,9 +2555,7 @@ textarea {
   }
   .about-copy>p:not(.eyebrow) {
     font-size:13px;
-    line-height:1.9;
-    max-width:430px;
-    margin:20px 0
+    line-height:1.9
   }
   .about-copy .text-link {
     font-size:12px
@@ -2556,9 +2564,6 @@ textarea {
     margin-top:25px;
     padding-top:22px;
     gap:22px
-  }
-  .about-identity img {
-    width:160px
   }
   .contact {
     display:block;

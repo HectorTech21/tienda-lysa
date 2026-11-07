@@ -165,8 +165,8 @@
     sequence.className = "marquee-sequence";
     group.append(sequence);
     BRANDS.forEach(brand => {
-      const option = new Option(brand.name, brand.id);
-      brandSelect.add(option);
+      brandSelect.add(new Option(brand.name, brand.id));
+      if (brand.catalogOnly) return;
       const button = document.createElement("button");
       button.type = "button";
       button.dataset.brand = brand.id;
@@ -632,6 +632,14 @@
     $$(".reveal").forEach(element => { element.classList.add("is-pending"); observer.observe(element); });
   }
   $("#current-year").textContent = String(new Date().getFullYear());
+  CATALOG_CATEGORIES.filter(category => !category.internalOnly).forEach(category => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.filterCategory = category.id;
+    button.setAttribute("aria-pressed", "false");
+    button.textContent = category.name;
+    $(".category-filters").append(button);
+  });
   createBrandControls();
   const generalWhatsAppUrl = buildWhatsAppUrl();
   $$("[data-contact]").forEach(link => {

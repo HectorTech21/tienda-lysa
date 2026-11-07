@@ -86,7 +86,10 @@
     <section class="selection section-space" id="seleccion" aria-labelledby="selection-title">
       <div class="container">
         <div class="section-heading reveal"><div><p class="eyebrow">EL FLECHAZO ESTÁ EN LOS DETALLES</p><h2 id="selection-title">Tu próximo <em>favorito.</em></h2></div><div class="carousel-controls"><button type="button" id="products-prev" class="circle-button" aria-label="Ver piezas anteriores" aria-controls="product-track"><span aria-hidden="true">←</span></button><button type="button" id="products-next" class="circle-button" aria-label="Ver piezas siguientes" aria-controls="product-track"><span aria-hidden="true">→</span></button></div></div>
-        <div class="catalog-toolbar"><div class="category-filters" role="group" aria-label="Filtrar por categoría"><button type="button" data-filter-category="all" aria-pressed="true">Todas las categorías</button><button type="button" data-filter-category="bolsos" aria-pressed="false">Bolsos</button><button type="button" data-filter-category="mochilas" aria-pressed="false">Mochilas</button><button type="button" data-filter-category="maletas" aria-pressed="false">Maletas</button><button type="button" data-filter-category="complementos" aria-pressed="false">Complementos</button></div><label class="brand-select-label"><span class="sr-only">Filtrar por marca</span><select id="brand-select" aria-label="Filtrar por marca"><option value="all" selected>Todas las marcas</option></select></label></div>
+        <div class="catalog-toolbar">
+          <div class="category-filters" role="group" aria-label="Filtrar por categoría"><button type="button" data-filter-category="all" aria-pressed="true">Todas las categorías</button></div>
+          <label class="brand-select-label"><span class="sr-only">Filtrar por marca</span><select id="brand-select" aria-label="Filtrar por marca"><option value="all" selected>Todas las marcas</option></select></label>
+        </div>
         <div class="active-filters"><span id="filter-description">Todas las categorías · Todas las marcas</span><button class="reset-filters" type="button" hidden>Limpiar filtros <span aria-hidden="true">×</span></button></div>
         <div class="product-track" id="product-track" tabindex="0" role="region" aria-roledescription="carrusel" aria-label="Piezas de la selección; usa las flechas para desplazarte"></div>
         <div class="empty-state" hidden><span class="empty-state-mark" aria-hidden="true"><svg width="38" height="42" viewBox="0 0 38 42"><path d="M7 14h24l3 24H4l3-24Z M12 14V9a7 7 0 0 1 14 0v5"/></svg></span><p class="eyebrow">CADA SELECCIÓN EMPIEZA CON UNA HISTORIA</p><h3 id="empty-title">Tu próxima pieza está por descubrir.</h3><p id="empty-description">Prueba con otra categoría o vuelve a toda la selección.</p><div class="empty-state-actions"><a class="button button-dark" href="#contacto" data-contact target="_blank" rel="noopener noreferrer">Consultar a la tienda <span aria-hidden="true">↗</span></a><button class="text-link" type="button" data-reset>Limpiar filtros <span aria-hidden="true">↗</span></button></div></div>
@@ -101,14 +104,18 @@
       <div class="container about-inner">
         <figure class="about-visual reveal">
           <div class="about-photo"><img src="assets/images/escaparate.jpg" width="1600" height="1200" alt="Escaparate y entrada de Tienda Lysa, con su rótulo y una selección de bolsos, mochilas y maletas" loading="lazy" decoding="async"></div>
-          <figcaption><span>CONOCE TIENDA LYSA</span><span>La historia empieza aquí <span aria-hidden="true">↗</span></span></figcaption>
+          <figcaption>
+            <div class="about-caption-heading"><span>CONOCE TIENDA LYSA</span><span>La historia empieza aquí <span aria-hidden="true">↗</span></span></div>
+            <p>Tienda Lysa. Tu tienda con estilo y diseño, donde encontrarás las últimas tendencias en Bolsos, Mochilas, Maletas, Zapatillas, Accesorios y artículos en piel.<br>Una tienda multimarca que te ofrece diseño y novedad.</p>
+          </figcaption>
         </figure>
         <div class="about-copy reveal">
           <p class="eyebrow">MÁS QUE UNA TIENDA</p>
           <h2 id="about-title">Un lugar para encontrar tu próximo <em>favorito.</em></h2>
-          <p>En Tienda Lysa nos encanta descubrir bolsos, mochilas, maletas y complementos para cada estilo y cada ocasión. Un espacio donde explorar diferentes marcas, encontrar novedades y elegir aquello que mejor te acompaña.</p>
+          <p>Tienda Lysa. Tu tienda con estilo y diseño, donde encontrarás las últimas tendencias en Bolsos, Mochilas, Maletas, Zapatillas, Accesorios y artículos en piel.</p>
+          <p>En diferentes Marcas como Totto, Anekke, Pepe moll, Caramelo, Pepe Jeans, Cacharel, Nicole lee USA, Victorio &amp; Lucchino, Torrens, Gabol, Matties, Ventis, Stamp, Privata, Gladiator, StiviBags, Benzi, complementa tú Look en Tienda Lysa.</p>
           <a class="text-link" href="#marcas">Descubre nuestras marcas <span aria-hidden="true">↗</span></a>
-          <div class="about-identity"><img src="assets/images/banner.jpg" width="1320" height="633" alt="Identidad corporativa de Tienda Lysa: logotipo blanco y motivos ornamentales sobre fondo morado" loading="lazy" decoding="async"><span>A tu lado,<br>con estilo.</span></div>
+          <div class="about-identity"><img src="assets/logo.jpg" width="150" height="150" alt="Logotipo de Tienda Lysa" loading="lazy" decoding="async"><span>A tu lado,<br>con estilo.</span></div>
         </div>
       </div>
     </section>
