@@ -660,11 +660,6 @@ h2 {
   padding-top:calc(var(--section-y)*.82);
   padding-bottom:calc(var(--section-y)*.6)
 }
-.carousel-controls {
-  display:flex;
-  gap:10px;
-  padding-bottom:3px
-}
 /* Variante icono */
 .circle-button {
   width:var(--tap);
@@ -755,87 +750,73 @@ h2 {
   padding-left:8px;
   font-size:15px
 }
-.product-track {
-  --catalog-columns:4;
-  --catalog-gap:22px;
+/* Listado de productos: cuadrícula vertical (2 / 3 / 4 columnas), sin scroll lateral. */
+.product-grid {
   display:grid;
-  grid-template-columns:repeat(var(--result-columns,4),minmax(0,1fr));
-  gap:var(--catalog-gap);
-  overflow:visible;
-  scrollbar-width:none;
-  overscroll-behavior-x:contain;
-  padding-bottom:10px;
-  transition:opacity .18s;
-  min-height:100px
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:28px 10px;
+  min-height:100px;
+  transition:opacity .18s
 }
-.product-track.is-carousel {
-  grid-template-columns:none;
-  grid-auto-flow:column;
-  grid-auto-columns:calc((100% - (var(--catalog-columns) - 1)*var(--catalog-gap))/var(--catalog-columns));
-  overflow-x:auto;
-  scroll-snap-type:x mandatory
+@media(min-width:768px) {
+  .product-grid {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:38px 18px
+  }
 }
-.product-track.is-single .product-card {
-  display:grid;
-  grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+@media(min-width:1024px) {
+  .product-grid {
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:44px 22px
+  }
+}
+.product-grid.is-updating {
+  opacity:.35
+}
+/* «Ver más productos»: solo en Inicio, centrado bajo la cuadrícula */
+.load-more {
+  display:flex;
+  flex-direction:column;
   align-items:center;
-  background:#faf6f1b3
+  gap:12px;
+  margin-top:clamp(32px,4vw,48px);
+  /* Sin anclaje de scroll en el botón: al añadir productos la página no se desplaza
+     siguiéndolo y las piezas nuevas aparecen debajo de las que ya se ven. */
+  overflow-anchor:none
 }
-.product-track.is-single .product-image {
-  width:100%;
-  max-height:430px;
-  aspect-ratio:4/5
+.load-more-button {
+  min-width:240px;
+  justify-content:center
 }
-.product-track.is-single .product-image img {
-  object-fit:contain
+.load-more-status {
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:.3px
 }
-.product-track.is-single .product-info {
-  padding:clamp(24px,4.5vw,65px)
+.product-card.is-new {
+  animation:fade-in .35s ease-out both
 }
-.product-track.is-single .product-name {
-  font-size:clamp(32px,3vw,46px);
-  line-height:1.2;
-  margin:14px 0
+@keyframes fade-in {
+  from {
+    opacity:0
+  }
+  to {
+    opacity:1
+  }
 }
 .product-description,.product-discover {
   display:none
 }
-.product-track.is-single .product-description {
-  display:block;
-  max-width:380px;
-  margin:24px 0;
-  font-size:14px;
-  color:var(--muted);
-  line-height:1.9
-}
-.product-track.is-single .product-discover {
-  display:inline-flex
-}
-.product-track.is-compact .product-image {
-  width:100%;
-  aspect-ratio:4/3;
-  max-height:390px
-}
-.product-track.is-compact .product-image img {
-  object-fit:contain
-}
-.product-track::-webkit-scrollbar {
-  display:none
-}
-.product-track.is-updating {
-  opacity:.35
-}
 .product-card {
   display:flex;
   flex-direction:column;
-  scroll-snap-align:start;
   min-width:0;
   animation:entry .45s both
 }
 .product-image {
   flex-shrink:0;
   position:relative;
-  aspect-ratio:4/5;
+  aspect-ratio:3/4;
   overflow:hidden;
   background:#e8e0d7
 }
@@ -935,7 +916,7 @@ h2 {
 .product-info {
   flex:1;
   display:grid;
-  grid-template-rows:17px minmax(62px,auto) auto auto auto auto 1fr;
+  grid-template-rows:17px minmax(66px,auto) auto auto auto auto 1fr;
   padding-top:16px
 }
 .product-info>.product-brand {
@@ -974,7 +955,7 @@ h2 {
   text-align:center;
   white-space:normal
 }
-.whatsapp-button>span {
+.whatsapp-button span {
   font:inherit;
   line-height:1.3;
   text-wrap:balance
@@ -1000,9 +981,6 @@ h2 {
   line-height:1.7;
   margin-top:12px
 }
-.product-track.is-single .product-info {
-  display:block
-}
 .product-detail-copy>.product-reference {
   font-size:11px;
   letter-spacing:.6px
@@ -1017,7 +995,11 @@ h2 {
   font-family:var(--serif);
   font-size:23px;
   line-height:1.4;
-  display:block
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  overflow:hidden
 }
 .product-note {
   display:flex;
@@ -1049,11 +1031,6 @@ h2 {
   background:#a77e6d;
   border-radius:50%;
   margin:0 7px 1px 0
-}
-.carousel-status {
-  font-size:11px;
-  color:var(--muted);
-  white-space:nowrap
 }
 .empty-state {
   text-align:center;
@@ -2031,9 +2008,6 @@ dialog[open] {
     max-width:110px;
     text-align:right
   }
-  .product-track {
-    --catalog-columns:3
-  }
   .category-filters {
     gap:0 20px
   }
@@ -2256,11 +2230,6 @@ dialog[open] {
   .selection .section-heading {
     align-items:flex-end
   }
-  .carousel-controls {
-    gap:7px;
-    margin-bottom:0;
-    padding-bottom:2px
-  }
   .catalog-toolbar {
     display:block;
     padding-bottom:13px
@@ -2289,56 +2258,60 @@ dialog[open] {
     flex-wrap:wrap;
     gap:6px 14px
   }
-  .product-track {
-    --catalog-columns:2;
-    --catalog-gap:14px
+  /* Corazón compacto: 34 px visibles y 44 px de zona táctil */
+  .product-favorite {
+    width:34px;
+    height:34px;
+    top:6px;
+    right:6px
   }
-  .product-track.is-single .product-card {
-    display:block
-  }
-  .product-track.is-single .product-image {
-    max-height:350px
-  }
-  .product-track.is-single .product-info {
-    padding:25px
-  }
-  .product-track.is-single .product-description {
-    margin-block:18px;
-    font-size:13px
-  }
-  .product-track.is-compact .product-image {
-    aspect-ratio:4/5
+  .product-favorite::before {
+    content:"";
+    position:absolute;
+    inset:-5px
   }
   .product-favorite svg {
     width:15px;
     height:15px
   }
   .product-name {
-    font-size:20px;
-    line-height:1.2;
-    margin-top:5px
+    font-size:17px;
+    line-height:1.25
   }
   .product-brand {
     font-size:9px;
     letter-spacing:1px
   }
   .product-info {
-    padding-top:12px;
-    grid-template-rows:15px minmax(60px,auto) auto auto auto auto 1fr
+    padding-top:10px;
+    grid-template-rows:14px minmax(46px,auto) auto auto auto auto 1fr
   }
+  .product-info>.product-catalog-status {
+    font-size:11px;
+    margin-top:6px
+  }
+  .product-actions {
+    margin-top:12px
+  }
+  /* Botón compacto: icono + «Consultar» */
   .whatsapp-button {
+    min-height:var(--tap);
     padding:8px;
     gap:6px;
-    font-size:11px
+    font-size:11px;
+    white-space:nowrap
+  }
+  .product-card .whatsapp-long {
+    display:none
   }
   .whatsapp-button svg {
     width:16px;
     height:16px
   }
   .product-note {
-    font-size:11px;
-    line-height:1.7;
-    margin-top:9px;
+    font-size:10px;
+    line-height:1.6;
+    margin-top:4px;
     align-items:baseline;
     flex-wrap:wrap;
     gap:5px
@@ -2353,10 +2326,6 @@ dialog[open] {
   }
   .demo-note {
     font-size:11px
-  }
-  .carousel-status {
-    font-size:11px;
-    margin-top:9px
   }
   .brands-heading {
     display:block

@@ -8,7 +8,8 @@ const BRANDS = [
   { id: "pepe-moll", name: "Pepe Moll", families: ["Bolsos", "Mochilas", "Complementos"], website: "https://pepemoll.es/", logo: "assets/marcas/pepemoll-logo.jpg", logoStatus: "approved" },
   { id: "torrens", name: "Torrens", identity: "Torrens Hermanos · marroquinería", families: ["Bolsos", "Bandoleras", "Mochilas", "Carteras"], website: "https://www.torrenshermanos.com/", logo: null, logoStatus: "pending-verification" },
   { id: "gabol", name: "Gabol", families: ["Maletas", "Mochilas", "Estuches", "Neceseres", "Complementos"], website: "https://gabol.com/", logo: "assets/marcas/gabol-logo.png", logoStatus: "approved" },
-  { id: "nicole-lee-usa", name: "Nicole Lee USA", catalogOnly: true }
+  { id: "nicole-lee-usa", name: "Nicole Lee USA", catalogOnly: true },
+  { id: "bienoti", name: "Bienoti", catalogOnly: true }
 ];
 
 const CATALOG_CATEGORIES = [
@@ -759,6 +760,17 @@ const CATALOG_PRODUCTS = [
         "src": "assets/products/photo-024.webp",
         "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.54.jpeg",
         "alt": "Bolso de leopardo marrón"
+      },
+      {
+        "src": "assets/products/lysa-024-2.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.53 (6).jpeg",
+        "alt": "Bolso de leopardo marrón, otra vista",
+        "crop": [
+          0.1,
+          0.43,
+          0.5,
+          0.52
+        ]
       }
     ],
     "description": "Dos asas negras, pequeñas hebillas y estampado de manchas.",
@@ -797,7 +809,11 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Texto Nikky by Nicole Lee USA en las asas. Dos artículos: bolso de asas y bandolera; no son un lote confirmado.",
     "reference": "LYSA-009",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-060",
+      "LYSA-061"
+    ]
   },
   {
     "id": "lysa-photo-004",
@@ -825,7 +841,11 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Nombre Pepe Moll visible en ambos. Bolso de hombro trasero y bolso de asas delantero: dos artículos.",
     "reference": "LYSA-004",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-056",
+      "LYSA-057"
+    ]
   },
   {
     "id": "lysa-photo-005",
@@ -853,7 +873,11 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Placas Pepe Moll legibles en ambos productos. Las fichas LYSA-045 y LYSA-046 usan recortes individuales; esta toma se conserva como fuente.",
     "reference": "LYSA-005",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-045",
+      "LYSA-046"
+    ]
   },
   {
     "id": "lysa-photo-006",
@@ -892,7 +916,13 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Pepe Moll visible en los cuatro artículos de 53 (1). Las carteras están publicadas como LYSA-040 y LYSA-041; los dos bolsos siguen pendientes. 53 (2) es duplicado binario de 52 (5).",
     "reference": "LYSA-006",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-058",
+      "LYSA-059",
+      "LYSA-040",
+      "LYSA-041"
+    ]
   },
   {
     "id": "lysa-photo-012",
@@ -920,11 +950,15 @@ const CATALOG_PRODUCTS = [
     "confidence": "baja",
     "evidence": "Pepe Moll confirmado solo en el bolso beige delantero. Bolso camel trasero con R: marca sin confirmar.",
     "reference": "LYSA-012",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-062",
+      "LYSA-063"
+    ]
   },
   {
     "id": "lysa-photo-014",
-    "name": "Fotografía por revisar: bandolera negra",
+    "name": "Bandolera negra de nailon",
     "brand": "pepe-moll",
     "observedBrand": null,
     "brandStatus": "visually-identified",
@@ -932,21 +966,27 @@ const CATALOG_PRODUCTS = [
       "bolsos"
     ],
     "color": "Negro",
-    "swatch": "#272727",
+    "swatch": "#1f1f21",
     "images": [
       {
-        "src": "assets/products/photo-014.webp",
+        "src": "assets/products/lysa-014.webp",
         "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.53 (5).jpeg",
-        "alt": "Fotografía por revisar: bandolera negra — varios artículos, fotografía pendiente de revisión"
+        "alt": "Bandolera negra de nailon",
+        "crop": [
+          0.12,
+          0.54,
+          0.84,
+          0.41
+        ]
       }
     ],
-    "description": "Bandolera negra con dos bolsillos, fotografiada junto a un bolso de asas.",
+    "description": "Banda gris, dos bolsillos con cremallera y cordones laterales.",
     "availability": "pending",
     "price": null,
     "featured": false,
-    "recordType": "review",
+    "recordType": "product",
     "confidence": "alta",
-    "evidence": "Pepe Moll visible en la bandolera delantera. El bolso trasero ya está registrado en 53 (4).",
+    "evidence": "Logotipo Pepe Moll en la bandolera delantera. Recorte de la composición; el bolso trasero es LYSA-013.",
     "reference": "LYSA-014",
     "commercialStatus": "pending"
   },
@@ -977,7 +1017,12 @@ const CATALOG_PRODUCTS = [
     "confidence": "media",
     "evidence": "Se ven etiquetas Pepe Moll en parte de la imagen, no en todos. Incluye el bolso de 54; comparar colores con 53 (7) y 54 (2) antes de crear variantes.",
     "reference": "LYSA-015",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-064",
+      "LYSA-065",
+      "LYSA-066"
+    ]
   },
   {
     "id": "lysa-photo-019",
@@ -1006,7 +1051,11 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Placas Pepe Moll en ambos artículos. Posible relación con la composición 53 (6); confirmar variantes.",
     "reference": "LYSA-019",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-067",
+      "LYSA-068"
+    ]
   },
   {
     "id": "lysa-photo-021",
@@ -1034,7 +1083,11 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Pepe Moll visible en ambas. El soporte Anekke es ajeno a la identificación.",
     "reference": "LYSA-021",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-069",
+      "LYSA-070"
+    ]
   },
   {
     "id": "lysa-photo-023",
@@ -1063,7 +1116,11 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Nombre Pepe Moll legible en ambos productos. Dos artículos independientes.",
     "reference": "LYSA-023",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-071",
+      "LYSA-072"
+    ]
   },
   {
     "id": "lysa-photo-025",
@@ -1097,7 +1154,12 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Tres artículos diferentes. 19.21.23 y 19.21.23 (1) muestran las mismas piezas. Cacharel legible en bolso plisado y correa del bolso con solapa. No publicar el conjunto. El bolso superior podría repetirse en 19.21.24 (3), sin confirmación suficiente.",
     "relatedProductIds": [],
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-075",
+      "LYSA-076",
+      "LYSA-077"
+    ]
   },
   {
     "id": "lysa-photo-027",
@@ -1126,7 +1188,12 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Tres artículos independientes; nombre Cacharel legible en cada frontal. Dos bolsos de asas y una bandolera. Los de asas están cortados por los bordes. No separar sin nuevas tomas.",
     "relatedProductIds": [],
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-078",
+      "LYSA-079",
+      "LYSA-080"
+    ]
   },
   {
     "id": "lysa-photo-028",
@@ -1158,7 +1225,12 @@ const CATALOG_PRODUCTS = [
     "relatedProductIds": [
       "lysa-product-033"
     ],
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-081",
+      "LYSA-082",
+      "LYSA-033"
+    ]
   },
   {
     "id": "lysa-photo-029",
@@ -1190,7 +1262,12 @@ const CATALOG_PRODUCTS = [
     "relatedProductIds": [
       "lysa-product-033"
     ],
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-089",
+      "LYSA-090",
+      "LYSA-033"
+    ]
   },
   {
     "id": "lysa-photo-030",
@@ -1227,7 +1304,13 @@ const CATALOG_PRODUCTS = [
     "relatedProductIds": [
       "lysa-product-034"
     ],
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-083",
+      "LYSA-084",
+      "LYSA-085",
+      "LYSA-034"
+    ]
   },
   {
     "id": "lysa-photo-032",
@@ -1256,7 +1339,12 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Tres artículos independientes. Cacharel legible en etiqueta; monogramas coincidentes en los tres. Los bolsos de asas están cortados por los bordes. Posible repetición del bolso pequeño con LYSA-025: no crear ficha sin confirmar.",
     "relatedProductIds": [],
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-086",
+      "LYSA-087",
+      "LYSA-088"
+    ]
   },
   {
     "id": "lysa-product-033",
@@ -1280,6 +1368,17 @@ const CATALOG_PRODUCTS = [
           0.745,
           0.38,
           0.2
+        ]
+      },
+      {
+        "src": "assets/products/lysa-033-2.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.23 (3).jpeg",
+        "alt": "Cartera negra, otra vista",
+        "crop": [
+          0.35,
+          0.73,
+          0.31,
+          0.22
         ]
       }
     ],
@@ -1357,7 +1456,11 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Tres tamaños por color, solapados. Bienoti es legible en las etiquetas y carcasas. Confirmar variantes y aportar tomas individuales.",
     "reference": "LYSA-047",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-091",
+      "LYSA-092"
+    ]
   },
   {
     "id": "lysa-photo-048",
@@ -1390,7 +1493,10 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Bienoti es legible en las etiquetas y en el cuerpo de la bolsa delantera.",
     "reference": "LYSA-048",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-093"
+    ]
   },
   {
     "id": "lysa-photo-049",
@@ -1459,7 +1565,13 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Totto legible en las piezas rosas. Hay tres tamaños de maleta, una mochila y dos bolsos. Las piezas se solapan.",
     "reference": "LYSA-050",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-094",
+      "LYSA-095",
+      "LYSA-096",
+      "LYSA-097"
+    ]
   },
   {
     "id": "lysa-photo-051",
@@ -1474,18 +1586,24 @@ const CATALOG_PRODUCTS = [
     "swatch": "#ac9383",
     "images": [
       {
-        "src": "assets/products/WhatsApp Image 2026-11-07 at 11.48.38 (6).jpeg",
+        "src": "assets/products/lysa-051.webp",
         "original": "assets/products/WhatsApp Image 2026-11-07 at 11.48.38 (6).jpeg",
-        "alt": "Bolso beige con corazones"
+        "alt": "Bolso beige con corazones",
+        "crop": [
+          0.08,
+          0.52,
+          0.77,
+          0.43
+        ]
       }
     ],
-    "description": "Pieza inferior. Su correa coincide en el encuadre con la base de la mochila publicada como LYSA-039. Pendiente de toma individual.",
+    "description": "Bordado de corazón, ribetes granate y laterales de pelo.",
     "availability": "pending",
     "price": null,
     "featured": false,
-    "recordType": "review",
+    "recordType": "product",
     "confidence": "alta",
-    "evidence": "Pieza inferior. Su correa coincide en el encuadre con la base de la mochila publicada como LYSA-039. Pendiente de toma individual.",
+    "evidence": "Misma colección que la mochila LYSA-039, con etiqueta Pepe Moll. Recorte de la pieza inferior.",
     "reference": "LYSA-051",
     "commercialStatus": "pending"
   },
@@ -1515,7 +1633,11 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Monograma Pepe Moll visible en ambos. El asa del bolso inferior se cruza con el borde del superior.",
     "reference": "LYSA-052",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-073",
+      "LYSA-074"
+    ]
   },
   {
     "id": "lysa-photo-053",
@@ -1543,7 +1665,12 @@ const CATALOG_PRODUCTS = [
     "confidence": "media",
     "evidence": "Captura con varias piezas superpuestas. Confirmar marca y relación con las vistas generales de la tienda.",
     "reference": "LYSA-053",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-101",
+      "LYSA-102",
+      "LYSA-103"
+    ]
   },
   {
     "id": "lysa-photo-054",
@@ -1571,7 +1698,12 @@ const CATALOG_PRODUCTS = [
     "confidence": "alta",
     "evidence": "Gladiator en el cartel. Captura de exposición con varios tamaños, colores y texto superpuesto. Requiere fotografías individuales.",
     "reference": "LYSA-054",
-    "commercialStatus": "pending"
+    "commercialStatus": "pending",
+    "publishedItems": [
+      "LYSA-098",
+      "LYSA-099",
+      "LYSA-100"
+    ]
   },
   {
     "id": "lysa-photo-055",
@@ -1599,6 +1731,1730 @@ const CATALOG_PRODUCTS = [
     "confidence": "media",
     "evidence": "Captura publicitaria con precio y oferta. Requiere confirmar la marca de las piezas, variantes y vigencia de la promoción.",
     "reference": "LYSA-055",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-056",
+    "name": "Bolso de ante marrón grande",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Marrón chocolate",
+    "swatch": "#4a2a20",
+    "images": [
+      {
+        "src": "assets/products/lysa-056.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.52 (3).jpeg",
+        "alt": "Bolso de ante marrón grande",
+        "crop": [
+          0.12,
+          0,
+          0.78,
+          0.95
+        ]
+      }
+    ],
+    "description": "Bolso de hombro en ante con asas largas y hebillas laterales.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "media",
+    "evidence": "Etiqueta Pepe Moll en el bolso trasero. Se ve detrás del bolso LYSA-057: no hay toma individual.",
+    "sourceRecord": "LYSA-004",
+    "reference": "LYSA-056",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-057",
+    "name": "Bolso de ante marrón con asas",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Marrón chocolate",
+    "swatch": "#4f2c22",
+    "images": [
+      {
+        "src": "assets/products/lysa-057.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.52 (3).jpeg",
+        "alt": "Bolso de ante marrón con asas",
+        "crop": [
+          0.12,
+          0.31,
+          0.78,
+          0.62
+        ]
+      }
+    ],
+    "description": "Bolso de mano en ante con asas cortas, hebillas y logotipo grabado.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta o nombre Pepe Moll legible en la pieza.",
+    "sourceRecord": "LYSA-004",
+    "reference": "LYSA-057",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-058",
+    "name": "Bolso verde oliva con tachuelas",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Verde oliva",
+    "swatch": "#5b5e3a",
+    "images": [
+      {
+        "src": "assets/products/lysa-058.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.53 (1).jpeg",
+        "alt": "Bolso verde oliva con tachuelas",
+        "crop": [
+          0.26,
+          0.03,
+          0.56,
+          0.48
+        ]
+      },
+      {
+        "src": "assets/products/lysa-058-2.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.52 (5).jpeg",
+        "alt": "Bolso verde oliva con tachuelas, otra vista",
+        "crop": [
+          0.33,
+          0.12,
+          0.55,
+          0.44
+        ]
+      }
+    ],
+    "description": "Forma de media luna, tachuelas doradas, hebillas laterales y borla.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta o nombre Pepe Moll legible en la pieza.",
+    "sourceRecord": "LYSA-006",
+    "reference": "LYSA-058",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-059",
+    "name": "Bolso negro con tachuelas",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Negro",
+    "swatch": "#1d1c1c",
+    "images": [
+      {
+        "src": "assets/products/lysa-059.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.53 (1).jpeg",
+        "alt": "Bolso negro con tachuelas",
+        "crop": [
+          0.19,
+          0.43,
+          0.64,
+          0.36
+        ]
+      },
+      {
+        "src": "assets/products/lysa-059-2.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.52 (5).jpeg",
+        "alt": "Bolso negro con tachuelas, otra vista",
+        "crop": [
+          0.29,
+          0.48,
+          0.66,
+          0.36
+        ]
+      }
+    ],
+    "description": "Forma de media luna, tachuelas doradas, hebillas laterales y borla.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta o nombre Pepe Moll legible en la pieza.",
+    "sourceRecord": "LYSA-006",
+    "reference": "LYSA-059",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-060",
+    "name": "Bolso estampado Nikky",
+    "brand": "nicole-lee-usa",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Multicolor",
+    "swatch": "#2b2b33",
+    "images": [
+      {
+        "src": "assets/products/lysa-060.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.52.jpeg",
+        "alt": "Bolso estampado Nikky",
+        "crop": [
+          0.24,
+          0,
+          0.62,
+          0.61
+        ]
+      }
+    ],
+    "description": "Estampado de grafitis, asas con letras y bolsillo frontal naranja.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Texto Nikky by Nicole Lee USA en las asas.",
+    "sourceRecord": "LYSA-009",
+    "reference": "LYSA-060",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-061",
+    "name": "Bandolera estampada Nikky",
+    "brand": "nicole-lee-usa",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Multicolor",
+    "swatch": "#2d2a30",
+    "images": [
+      {
+        "src": "assets/products/lysa-061.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.52.jpeg",
+        "alt": "Bandolera estampada Nikky",
+        "crop": [
+          0.1,
+          0.56,
+          0.8,
+          0.44
+        ]
+      }
+    ],
+    "description": "Estampado de grafitis, cremalleras con ribete rojo y borlas naranjas.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Texto Nikky en el estampado y la correa, misma línea Nikky by Nicole Lee USA.",
+    "sourceRecord": "LYSA-009",
+    "reference": "LYSA-061",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-062",
+    "name": "Bolso camel fruncido",
+    "brand": null,
+    "observedBrand": null,
+    "brandStatus": "pending-commercial-confirmation",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Camel",
+    "swatch": "#9a5a2e",
+    "images": [
+      {
+        "src": "assets/products/lysa-062.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.53 (3).jpeg",
+        "alt": "Bolso camel fruncido",
+        "crop": [
+          0.13,
+          0,
+          0.79,
+          0.63
+        ]
+      }
+    ],
+    "description": "Bolso de hombro fruncido con asas de hebilla y emblema metálico.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "baja",
+    "evidence": "Emblema metálico con R no identificable como marca. Sin marca.",
+    "sourceRecord": "LYSA-012",
+    "reference": "LYSA-062",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-063",
+    "name": "Bolso crema con detalles camel",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Crema y camel",
+    "swatch": "#ddd3cc",
+    "images": [
+      {
+        "src": "assets/products/lysa-063.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.53 (3).jpeg",
+        "alt": "Bolso crema con detalles camel",
+        "crop": [
+          0.1,
+          0.5,
+          0.84,
+          0.5
+        ]
+      }
+    ],
+    "description": "Bolso de mano con asa superior, cordones laterales y borla camel.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre Pepe Moll en el frontal y en la etiqueta.",
+    "sourceRecord": "LYSA-012",
+    "reference": "LYSA-063",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-064",
+    "name": "Bolso de leopardo marrón acolchado",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Leopardo marrón y negro",
+    "swatch": "#7a5232",
+    "images": [
+      {
+        "src": "assets/products/lysa-064.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.53 (6).jpeg",
+        "alt": "Bolso de leopardo marrón acolchado",
+        "crop": [
+          0.15,
+          0,
+          0.37,
+          0.62
+        ]
+      }
+    ],
+    "description": "Bolso de hombro acolchado con parte superior negra y asas largas.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta Pepe Moll en la mochila de la misma serie Ultra Light Bag y mismo parche que LYSA-016.",
+    "sourceRecord": "LYSA-015",
+    "reference": "LYSA-064",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-065",
+    "name": "Bandolera de leopardo marrón",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Leopardo marrón y negro",
+    "swatch": "#7a5232",
+    "images": [
+      {
+        "src": "assets/products/lysa-065.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.53 (6).jpeg",
+        "alt": "Bandolera de leopardo marrón",
+        "crop": [
+          0.49,
+          0.22,
+          0.33,
+          0.3
+        ]
+      }
+    ],
+    "description": "Bandolera acolchada con franja superior negra y parche frontal.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Serie Ultra Light Bag con etiqueta Pepe Moll en la mochila.",
+    "sourceRecord": "LYSA-015",
+    "reference": "LYSA-065",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-066",
+    "name": "Mochila de leopardo marrón",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "mochilas"
+    ],
+    "color": "Leopardo marrón y negro",
+    "swatch": "#7a5232",
+    "images": [
+      {
+        "src": "assets/products/lysa-066.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.53 (6).jpeg",
+        "alt": "Mochila de leopardo marrón",
+        "crop": [
+          0.58,
+          0.36,
+          0.37,
+          0.54
+        ]
+      }
+    ],
+    "description": "Mochila acolchada con parte superior negra, asa y parche frontal.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta colgante Pepe Moll en la mochila.",
+    "sourceRecord": "LYSA-015",
+    "reference": "LYSA-066",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-067",
+    "name": "Mochila de leopardo gris",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "mochilas"
+    ],
+    "color": "Leopardo gris metalizado",
+    "swatch": "#8a8478",
+    "images": [
+      {
+        "src": "assets/products/lysa-067.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.54 (2).jpeg",
+        "alt": "Mochila de leopardo gris",
+        "crop": [
+          0.03,
+          0.09,
+          0.43,
+          0.72
+        ]
+      }
+    ],
+    "description": "Mochila acolchada con leopardo metalizado, parte superior negra y placa frontal.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta o nombre Pepe Moll legible en la pieza.",
+    "sourceRecord": "LYSA-019",
+    "reference": "LYSA-067",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-068",
+    "name": "Bandolera de leopardo gris",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Leopardo gris metalizado",
+    "swatch": "#8a8478",
+    "images": [
+      {
+        "src": "assets/products/lysa-068.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.54 (2).jpeg",
+        "alt": "Bandolera de leopardo gris",
+        "crop": [
+          0.44,
+          0.12,
+          0.56,
+          0.8
+        ]
+      }
+    ],
+    "description": "Bandolera acolchada con leopardo metalizado, franja negra y placa frontal.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta o nombre Pepe Moll legible en la pieza.",
+    "sourceRecord": "LYSA-019",
+    "reference": "LYSA-068",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-069",
+    "name": "Mochila camel con cremallera naranja",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "mochilas"
+    ],
+    "color": "Camel y naranja",
+    "swatch": "#c99a6c",
+    "images": [
+      {
+        "src": "assets/products/lysa-069.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.54 (4).jpeg",
+        "alt": "Mochila camel con cremallera naranja",
+        "crop": [
+          0.04,
+          0.15,
+          0.48,
+          0.68
+        ]
+      }
+    ],
+    "description": "Bordado think different, bolsillo frontal con cremallera naranja y asas cortas.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta o nombre Pepe Moll legible en la pieza.",
+    "sourceRecord": "LYSA-021",
+    "reference": "LYSA-069",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-070",
+    "name": "Mochila negra y gris",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "mochilas"
+    ],
+    "color": "Negro y gris",
+    "swatch": "#2a2a2c",
+    "images": [
+      {
+        "src": "assets/products/lysa-070.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.54 (4).jpeg",
+        "alt": "Mochila negra y gris",
+        "crop": [
+          0.5,
+          0.11,
+          0.46,
+          0.7
+        ]
+      }
+    ],
+    "description": "Bordado think different, bolsillo gris con cremallera y asa superior.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta o nombre Pepe Moll legible en la pieza.",
+    "sourceRecord": "LYSA-021",
+    "reference": "LYSA-070",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-071",
+    "name": "Mochila verde acolchada",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "mochilas"
+    ],
+    "color": "Verde",
+    "swatch": "#4f6b62",
+    "images": [
+      {
+        "src": "assets/products/lysa-071.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.54 (6).jpeg",
+        "alt": "Mochila verde acolchada",
+        "crop": [
+          0.25,
+          0,
+          0.58,
+          0.62
+        ]
+      }
+    ],
+    "description": "Acolchado geométrico, asas negras y llavero de pompón.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta o nombre Pepe Moll legible en la pieza.",
+    "sourceRecord": "LYSA-023",
+    "reference": "LYSA-071",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-072",
+    "name": "Bandolera verde de media luna",
+    "brand": "pepe-moll",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Verde",
+    "swatch": "#4f6b62",
+    "images": [
+      {
+        "src": "assets/products/lysa-072.webp",
+        "original": "assets/photos/WhatsApp Image 2026-11-04 at 22.19.54 (6).jpeg",
+        "alt": "Bandolera verde de media luna",
+        "crop": [
+          0.1,
+          0.56,
+          0.82,
+          0.44
+        ]
+      }
+    ],
+    "description": "Acolchado geométrico, correa negra y llavero de pompón.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta o nombre Pepe Moll legible en la pieza.",
+    "sourceRecord": "LYSA-023",
+    "reference": "LYSA-072",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-073",
+    "name": "Bolso crema con asa de cadena",
+    "brand": null,
+    "observedBrand": null,
+    "brandStatus": "pending-commercial-confirmation",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Crema y azul marino",
+    "swatch": "#e8e4da",
+    "images": [
+      {
+        "src": "assets/products/lysa-073.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.48.38 (7).jpeg",
+        "alt": "Bolso crema con asa de cadena",
+        "crop": [
+          0.42,
+          0.08,
+          0.47,
+          0.42
+        ]
+      }
+    ],
+    "description": "Bolso de solapa con asa de cadena trenzada y emblema en relieve.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "baja",
+    "evidence": "Solo el cartel del expositor dice Pepe Moll; el emblema de la pieza no se identifica. Sin marca.",
+    "sourceRecord": "LYSA-052",
+    "reference": "LYSA-073",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-074",
+    "name": "Bolso topo con asa de cadena",
+    "brand": null,
+    "observedBrand": null,
+    "brandStatus": "pending-commercial-confirmation",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Topo",
+    "swatch": "#a99780",
+    "images": [
+      {
+        "src": "assets/products/lysa-074.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.48.38 (7).jpeg",
+        "alt": "Bolso topo con asa de cadena",
+        "crop": [
+          0.42,
+          0.45,
+          0.47,
+          0.41
+        ]
+      }
+    ],
+    "description": "Bolso de solapa con asa de cadena trenzada y emblema en relieve.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "baja",
+    "evidence": "Solo el cartel del expositor dice Pepe Moll; el emblema de la pieza no se identifica. Sin marca.",
+    "sourceRecord": "LYSA-052",
+    "reference": "LYSA-074",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-075",
+    "name": "Bolso metalizado de leopardo",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Gris metalizado",
+    "swatch": "#6d6a5f",
+    "images": [
+      {
+        "src": "assets/products/lysa-075.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.23 (1).jpeg",
+        "alt": "Bolso metalizado de leopardo",
+        "crop": [
+          0.03,
+          0.25,
+          0.48,
+          0.28
+        ]
+      }
+    ],
+    "description": "Bolso de mano metalizado con leopardo en relieve y monograma frontal.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-025",
+    "reference": "LYSA-075",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-076",
+    "name": "Bolso plisado metalizado",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Gris plomo",
+    "swatch": "#6b6660",
+    "images": [
+      {
+        "src": "assets/products/lysa-076.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.23 (1).jpeg",
+        "alt": "Bolso plisado metalizado",
+        "crop": [
+          0.48,
+          0.4,
+          0.52,
+          0.28
+        ]
+      }
+    ],
+    "description": "Bolso alargado plisado con asa de cadena y placa con el nombre.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-025",
+    "reference": "LYSA-076",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-077",
+    "name": "Bandolera bronce con solapa",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Bronce",
+    "swatch": "#8e7c6c",
+    "images": [
+      {
+        "src": "assets/products/lysa-077.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.23 (1).jpeg",
+        "alt": "Bandolera bronce con solapa",
+        "crop": [
+          0.05,
+          0.56,
+          0.47,
+          0.36
+        ]
+      },
+      {
+        "src": "assets/products/lysa-077-2.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.23.jpeg",
+        "alt": "Bandolera bronce con solapa, otra vista",
+        "crop": [
+          0.17,
+          0.52,
+          0.68,
+          0.31
+        ]
+      }
+    ],
+    "description": "Bandolera de solapa con monograma metálico y correa con el nombre.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-025",
+    "reference": "LYSA-077",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-078",
+    "name": "Bolso tote marrón acolchado",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Marrón y bronce",
+    "swatch": "#6b4a32",
+    "images": [
+      {
+        "src": "assets/products/lysa-078.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.23 (2).jpeg",
+        "alt": "Bolso tote marrón acolchado",
+        "crop": [
+          0,
+          0,
+          0.56,
+          0.59
+        ]
+      }
+    ],
+    "description": "Acolchado de logotipos, franja bronce y asas de cinta.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-027",
+    "reference": "LYSA-078",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-079",
+    "name": "Bandolera taupe con bolsillo frontal",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Taupe",
+    "swatch": "#7d6a5c",
+    "images": [
+      {
+        "src": "assets/products/lysa-079.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.23 (2).jpeg",
+        "alt": "Bandolera taupe con bolsillo frontal",
+        "crop": [
+          0.09,
+          0.56,
+          0.53,
+          0.31
+        ]
+      }
+    ],
+    "description": "Bandolera de nailon con dos cremalleras, bolsillo frontal y logotipo.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-027",
+    "reference": "LYSA-079",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-080",
+    "name": "Bolso marrón de asas cortas",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Marrón chocolate",
+    "swatch": "#4e3527",
+    "images": [
+      {
+        "src": "assets/products/lysa-080.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.23 (2).jpeg",
+        "alt": "Bolso marrón de asas cortas",
+        "crop": [
+          0.54,
+          0.34,
+          0.46,
+          0.41
+        ]
+      }
+    ],
+    "description": "Franja bronce, logotipos en relieve y laterales beige.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-027",
+    "reference": "LYSA-080",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-081",
+    "name": "Bolso tote con monograma",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Marrón oscuro",
+    "swatch": "#3d3530",
+    "images": [
+      {
+        "src": "assets/products/lysa-081.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.23 (3).jpeg",
+        "alt": "Bolso tote con monograma",
+        "crop": [
+          0,
+          0,
+          0.58,
+          0.68
+        ]
+      }
+    ],
+    "description": "Monograma en toda la pieza, bolsillo con cremallera y asas con hebillas.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-028",
+    "reference": "LYSA-081",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-082",
+    "name": "Bandolera con monograma",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Marrón oscuro",
+    "swatch": "#3d3530",
+    "images": [
+      {
+        "src": "assets/products/lysa-082.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.23 (3).jpeg",
+        "alt": "Bandolera con monograma",
+        "crop": [
+          0.55,
+          0.43,
+          0.45,
+          0.33
+        ]
+      }
+    ],
+    "description": "Bandolera rectangular con monograma, cremallera dorada y bolsillo frontal.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-028",
+    "reference": "LYSA-082",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-083",
+    "name": "Bolso patchwork animal print",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Multicolor",
+    "swatch": "#c88a2c",
+    "images": [
+      {
+        "src": "assets/products/lysa-083.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.24 (1).jpeg",
+        "alt": "Bolso patchwork animal print",
+        "crop": [
+          0,
+          0.3,
+          0.47,
+          0.36
+        ]
+      }
+    ],
+    "description": "Bolso alargado con patchwork de estampados animales y cuadros.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-030",
+    "reference": "LYSA-083",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-084",
+    "name": "Bandolera patchwork con solapa",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Multicolor",
+    "swatch": "#c88a2c",
+    "images": [
+      {
+        "src": "assets/products/lysa-084.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.24 (1).jpeg",
+        "alt": "Bandolera patchwork con solapa",
+        "crop": [
+          0.48,
+          0.2,
+          0.5,
+          0.28
+        ]
+      }
+    ],
+    "description": "Solapa con patchwork de estampados animales y bolsillos laterales.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-030",
+    "reference": "LYSA-084",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-085",
+    "name": "Bandolera patchwork pequeña",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Multicolor",
+    "swatch": "#c88a2c",
+    "images": [
+      {
+        "src": "assets/products/lysa-085.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.24 (1).jpeg",
+        "alt": "Bandolera patchwork pequeña",
+        "crop": [
+          0.35,
+          0.48,
+          0.36,
+          0.22
+        ]
+      }
+    ],
+    "description": "Formato pequeño con solapa de patchwork animal print y base de cuadros.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-030",
+    "reference": "LYSA-085",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-086",
+    "name": "Bolso bronce de leopardo con asas",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Bronce",
+    "swatch": "#6e5338",
+    "images": [
+      {
+        "src": "assets/products/lysa-086.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.24 (3).jpeg",
+        "alt": "Bolso bronce de leopardo con asas",
+        "crop": [
+          0,
+          0.11,
+          0.48,
+          0.54
+        ]
+      }
+    ],
+    "description": "Leopardo metalizado, asas doradas anudadas y monograma frontal.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-032",
+    "reference": "LYSA-086",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-087",
+    "name": "Bolso negro de leopardo en relieve",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Negro",
+    "swatch": "#1f1d1d",
+    "images": [
+      {
+        "src": "assets/products/lysa-087.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.24 (3).jpeg",
+        "alt": "Bolso negro de leopardo en relieve",
+        "crop": [
+          0.47,
+          0,
+          0.5,
+          0.56
+        ]
+      }
+    ],
+    "description": "Leopardo tono sobre tono, asas redondas y monograma frontal.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-032",
+    "reference": "LYSA-087",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-088",
+    "name": "Bolso plateado de leopardo",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Plata envejecida",
+    "swatch": "#8f8a7a",
+    "images": [
+      {
+        "src": "assets/products/lysa-088.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.24 (3).jpeg",
+        "alt": "Bolso plateado de leopardo",
+        "crop": [
+          0.22,
+          0.52,
+          0.52,
+          0.31
+        ]
+      }
+    ],
+    "description": "Bolso pequeño metalizado con leopardo y monograma frontal.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-032",
+    "reference": "LYSA-088",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-089",
+    "name": "Bolso beige de asas plateadas",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Beige y plata",
+    "swatch": "#c4a78a",
+    "images": [
+      {
+        "src": "assets/products/lysa-089.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.24.jpeg",
+        "alt": "Bolso beige de asas plateadas",
+        "crop": [
+          0,
+          0.13,
+          0.48,
+          0.52
+        ]
+      }
+    ],
+    "description": "Bolso de mano con asas plateadas y monograma en relieve.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-029",
+    "reference": "LYSA-089",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-090",
+    "name": "Bolso negro de asas metalizadas",
+    "brand": "cacharel",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Negro",
+    "swatch": "#1c1c1c",
+    "images": [
+      {
+        "src": "assets/products/lysa-090.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-05 at 19.21.24.jpeg",
+        "alt": "Bolso negro de asas metalizadas",
+        "crop": [
+          0.53,
+          0.24,
+          0.45,
+          0.54
+        ]
+      }
+    ],
+    "description": "Bolso de mano con asas metalizadas y monograma en relieve.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Nombre o monograma Cacharel legible en la pieza o su etiqueta.",
+    "sourceRecord": "LYSA-029",
+    "reference": "LYSA-090",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-091",
+    "name": "Maleta rígida turquesa",
+    "brand": "bienoti",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Turquesa",
+    "swatch": "#3cc7c8",
+    "images": [
+      {
+        "src": "assets/products/lysa-091.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.42.58 (1).jpeg",
+        "alt": "Maleta rígida turquesa",
+        "crop": [
+          0.1,
+          0.09,
+          0.42,
+          0.83
+        ]
+      }
+    ],
+    "description": "Carcasa con relieve, asa granate y ruedas dobles. Se muestra en tres tamaños.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta y nombre Bienoti en la carcasa.",
+    "sourceRecord": "LYSA-047",
+    "reference": "LYSA-091",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-092",
+    "name": "Maleta rígida lila con ruedas naranjas",
+    "brand": "bienoti",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Lila",
+    "swatch": "#7a5c78",
+    "images": [
+      {
+        "src": "assets/products/lysa-092.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.42.58 (1).jpeg",
+        "alt": "Maleta rígida lila con ruedas naranjas",
+        "crop": [
+          0.52,
+          0.09,
+          0.42,
+          0.83
+        ]
+      }
+    ],
+    "description": "Carcasa con relieve, asa y ruedas naranjas. Se muestra en tres tamaños.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta y nombre Bienoti en la carcasa.",
+    "sourceRecord": "LYSA-047",
+    "reference": "LYSA-092",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-093",
+    "name": "Bolsa de viaje naranja con ruedas",
+    "brand": "bienoti",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Naranja",
+    "swatch": "#d9622b",
+    "images": [
+      {
+        "src": "assets/products/lysa-093.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.42.58 (2).jpeg",
+        "alt": "Bolsa de viaje naranja con ruedas",
+        "crop": [
+          0.09,
+          0.04,
+          0.43,
+          0.58
+        ]
+      },
+      {
+        "src": "assets/products/lysa-093-2.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.42.58 (2).jpeg",
+        "alt": "Bolsa de viaje naranja con ruedas, otra vista",
+        "crop": [
+          0.3,
+          0.45,
+          0.67,
+          0.49
+        ]
+      }
+    ],
+    "description": "Asa telescópica, ruedas y correas de compresión. Se muestra en tres tamaños.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta Bienoti en las bolsas.",
+    "sourceRecord": "LYSA-048",
+    "reference": "LYSA-093",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-094",
+    "name": "Bolsa de viaje rosa",
+    "brand": "totto",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Rosa",
+    "swatch": "#d9b9cb",
+    "images": [
+      {
+        "src": "assets/products/lysa-094.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.42.58.jpeg",
+        "alt": "Bolsa de viaje rosa",
+        "crop": [
+          0.04,
+          0.07,
+          0.47,
+          0.27
+        ]
+      }
+    ],
+    "description": "Bolsillos frontales con cremallera, asas y etiqueta de la marca.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Logotipo Totto en la pieza y en la etiqueta.",
+    "sourceRecord": "LYSA-050",
+    "reference": "LYSA-094",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-095",
+    "name": "Bolso shopper rosa",
+    "brand": "totto",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "bolsos"
+    ],
+    "color": "Rosa",
+    "swatch": "#d6b6c7",
+    "images": [
+      {
+        "src": "assets/products/lysa-095.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.42.58.jpeg",
+        "alt": "Bolso shopper rosa",
+        "crop": [
+          0.5,
+          0.21,
+          0.45,
+          0.23
+        ]
+      }
+    ],
+    "description": "Asas largas, bolsillo frontal con cremallera y correa.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta Totto colgada del bolso.",
+    "sourceRecord": "LYSA-050",
+    "reference": "LYSA-095",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-096",
+    "name": "Mochila rosa",
+    "brand": "totto",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "mochilas"
+    ],
+    "color": "Rosa",
+    "swatch": "#d3a9bd",
+    "images": [
+      {
+        "src": "assets/products/lysa-096.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.42.58.jpeg",
+        "alt": "Mochila rosa",
+        "crop": [
+          0.24,
+          0.28,
+          0.36,
+          0.35
+        ]
+      }
+    ],
+    "description": "Varios compartimentos, placa frontal y llavero de pompón.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Placa Totto en el frontal.",
+    "sourceRecord": "LYSA-050",
+    "reference": "LYSA-096",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-097",
+    "name": "Maleta rígida rosa",
+    "brand": "totto",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Rosa",
+    "swatch": "#d8b5c4",
+    "images": [
+      {
+        "src": "assets/products/lysa-097.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.42.58.jpeg",
+        "alt": "Maleta rígida rosa",
+        "crop": [
+          0.21,
+          0.58,
+          0.42,
+          0.36
+        ]
+      }
+    ],
+    "description": "Polipropileno con relieve horizontal y ruedas dobles.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "alta",
+    "evidence": "Etiqueta Totto Travel con el material en la maleta.",
+    "sourceRecord": "LYSA-050",
+    "reference": "LYSA-097",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-098",
+    "name": "Maleta Neon Lux roja",
+    "brand": "gladiator",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Rojo",
+    "swatch": "#9e1d22",
+    "images": [
+      {
+        "src": "assets/products/lysa-098.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.53.02 (3).jpeg",
+        "alt": "Maleta Neon Lux roja",
+        "crop": [
+          0,
+          0.43,
+          0.37,
+          0.345
+        ]
+      }
+    ],
+    "description": "Policarbonato con relieve vertical y ruedas dobles.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "media",
+    "evidence": "Captura de una historia: texto «Maletas Gladiator en policarbonato» y rótulo Neon Lux. Calidad de imagen limitada.",
+    "sourceRecord": "LYSA-054",
+    "reference": "LYSA-098",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-099",
+    "name": "Maleta Neon Lux rosa dorado",
+    "brand": "gladiator",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Rosa dorado",
+    "swatch": "#c08f78",
+    "images": [
+      {
+        "src": "assets/products/lysa-099.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.53.02 (3).jpeg",
+        "alt": "Maleta Neon Lux rosa dorado",
+        "crop": [
+          0.35,
+          0.43,
+          0.31,
+          0.345
+        ]
+      }
+    ],
+    "description": "Policarbonato con relieve vertical y ruedas dobles.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "media",
+    "evidence": "Captura de una historia: texto «Maletas Gladiator en policarbonato» y rótulo Neon Lux. Calidad de imagen limitada.",
+    "sourceRecord": "LYSA-054",
+    "reference": "LYSA-099",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-100",
+    "name": "Maleta Neon Lux azul",
+    "brand": "gladiator",
+    "observedBrand": null,
+    "brandStatus": "visually-identified",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Azul",
+    "swatch": "#5d7fb5",
+    "images": [
+      {
+        "src": "assets/products/lysa-100.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.53.02 (3).jpeg",
+        "alt": "Maleta Neon Lux azul",
+        "crop": [
+          0.64,
+          0.43,
+          0.33,
+          0.345
+        ]
+      }
+    ],
+    "description": "Policarbonato con relieve vertical y ruedas dobles.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "media",
+    "evidence": "Captura de una historia: texto «Maletas Gladiator en policarbonato» y rótulo Neon Lux. Calidad de imagen limitada.",
+    "sourceRecord": "LYSA-054",
+    "reference": "LYSA-100",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-101",
+    "name": "Maleta roja con relieve horizontal",
+    "brand": null,
+    "observedBrand": null,
+    "brandStatus": "pending-commercial-confirmation",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Rojo",
+    "swatch": "#d2342a",
+    "images": [
+      {
+        "src": "assets/products/lysa-101.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.53.02 (2).jpeg",
+        "alt": "Maleta roja con relieve horizontal",
+        "crop": [
+          0.05,
+          0.53,
+          0.3,
+          0.28
+        ]
+      }
+    ],
+    "description": "Carcasa rígida con relieve horizontal, neceser a juego y ruedas dobles.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "media",
+    "evidence": "Captura de una historia. Solo el rótulo de la pared dice Gladiator; la pieza no muestra marca legible. Sin marca.",
+    "sourceRecord": "LYSA-053",
+    "reference": "LYSA-101",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-102",
+    "name": "Maleta beige con relieve horizontal",
+    "brand": null,
+    "observedBrand": null,
+    "brandStatus": "pending-commercial-confirmation",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Beige",
+    "swatch": "#cbb59a",
+    "images": [
+      {
+        "src": "assets/products/lysa-102.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.53.02 (2).jpeg",
+        "alt": "Maleta beige con relieve horizontal",
+        "crop": [
+          0.3,
+          0.54,
+          0.4,
+          0.29
+        ]
+      }
+    ],
+    "description": "Carcasa rígida con relieve horizontal, neceser a juego y ruedas dobles.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "media",
+    "evidence": "Captura de una historia. Solo el rótulo de la pared dice Gladiator; la pieza no muestra marca legible. Sin marca.",
+    "sourceRecord": "LYSA-053",
+    "reference": "LYSA-102",
+    "commercialStatus": "pending"
+  },
+  {
+    "id": "lysa-product-103",
+    "name": "Maleta verde con relieve horizontal",
+    "brand": null,
+    "observedBrand": null,
+    "brandStatus": "pending-commercial-confirmation",
+    "categories": [
+      "maletas"
+    ],
+    "color": "Verde botella",
+    "swatch": "#2f4d43",
+    "images": [
+      {
+        "src": "assets/products/lysa-103.webp",
+        "original": "assets/products/WhatsApp Image 2026-11-07 at 11.53.02 (2).jpeg",
+        "alt": "Maleta verde con relieve horizontal",
+        "crop": [
+          0.59,
+          0.56,
+          0.39,
+          0.32
+        ]
+      }
+    ],
+    "description": "Carcasa rígida con relieve horizontal y ruedas dobles.",
+    "availability": "pending",
+    "price": null,
+    "featured": false,
+    "recordType": "product",
+    "confidence": "media",
+    "evidence": "Captura de una historia. Solo el rótulo de la pared dice Gladiator; la pieza no muestra marca legible. Sin marca.",
+    "sourceRecord": "LYSA-053",
+    "reference": "LYSA-103",
     "commercialStatus": "pending"
   }
 ];

@@ -21,14 +21,13 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const desktopMenu = window.matchMedia("(min-width: 851px)");
   const hoverPointer = window.matchMedia("(hover: hover) and (pointer: fine)");
-  const track = $("#product-track");
+  // Listado en cuadrícula vertical: sin carrusel, flechas ni scroll horizontal.
+  const grid = $("#product-grid");
   const brandToggle = $("#brands-toggle");
   const brandPanel = $("#brands-panel");
   const brandSelect = $("#brand-select");
   const navigation = $("#main-navigation");
   const mobileToggle = $(".mobile-toggle");
-  const prev = $("#products-prev");
-  const next = $("#products-next");
   const filterState = { category: "all", brand: "all", favorites: false };
   const storageKey = "lysa-demo-favorites-v1";
   let favorites = new Set();
@@ -73,7 +72,8 @@
     const ready = whatsAppReady();
     const action = document.createElement(ready ? "a" : "button");
     action.className = "button button-dark whatsapp-button";
-    action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-whatsapp"/></svg><span>Consultar por WhatsApp</span>';
+    // En móvil el texto se reduce a «Consultar»; el nombre accesible conserva la frase completa.
+    action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-whatsapp"/></svg><span>Consultar<span class="whatsapp-long"> por WhatsApp</span></span>';
     if (ready) {
       action.href = buildWhatsAppUrl(product);
       action.target = "_blank";
@@ -276,7 +276,8 @@
   function createProductCard(product, index) {
     const card = document.createElement("article");
     card.className = "product-card product-card--real";
-    card.style.animationDelay = `${index * 35}ms`;
+    card.setAttribute("role", "listitem");
+    card.style.animationDelay = `${Math.min(index, 11) * 35}ms`;
     card.setAttribute("aria-label", `${index + 1} de ${filteredProducts.length}: ${product.name}`);
     const imageBox = document.createElement("div");
     imageBox.className = "product-image";
@@ -364,18 +365,62 @@
     syncFavoriteCount();
   }
 
-  function renderProducts(animate = true) {
+  // Paginación «Ver más» solo en Inicio (categoría «Todas»): dos filas completas por
+  // tanda según las columnas de la cuadrícula (mismos cortes que styles.css).
+  // Las categorías concretas muestran todo. Las tarjetas no mostradas no se crean,
+  // así que sus imágenes no se descargan hasta que se piden.
+  const tabletUp = window.matchMedia("(min-width: 768px)");
+  const desktopUp = window.matchMedia("(min-width: 1024px)");
+  const gridColumns = () => desktopUp.matches ? 4 : tabletUp.matches ? 3 : 2;
+  const batchSize = () => gridColumns() * 2;
+  const isPaginated = () => filterState.category === "all";
+
+  function syncLoadMore() {
+    const total = filteredProducts.length;
+    const shown = grid.children.length;
+    $(".load-more").hidden = !isPaginated() || shown >= total;
+    $(".load-more-status").textContent = `Mostrando ${shown} de ${total} ${total === 1 ? "producto" : "productos"}`;
+  }
+
+  function appendProducts(count) {
+    const start = grid.children.length;
+    const cards = filteredProducts.slice(start, start + count).map((product, offset) => {
+      const card = createProductCard(product, start + offset);
+      card.classList.add("is-new");
+      card.style.animationDelay = `${Math.min(offset, 7) * 40}ms`;
+      return card;
+    });
+    grid.append(...cards);
+    syncLoadMore();
+    return cards;
+  }
+
+  // Al cambiar el número de columnas se completa la última fila visible.
+  function fitToColumns() {
+    if (!isPaginated() || !filteredProducts.length) return;
+    const shown = grid.children.length;
+    const columns = gridColumns();
+    const target = Math.min(filteredProducts.length, Math.max(batchSize(), Math.ceil(shown / columns) * columns));
+    if (target > shown) appendProducts(target - shown);
+    else syncLoadMore();
+  }
+
+  function renderProducts(animate = true, keepCount = false) {
     clearTimeout(renderTimer);
-    if (animate && !reducedMotion.matches) track.classList.add("is-updating");
+    if (animate && !reducedMotion.matches) grid.classList.add("is-updating");
     const render = () => {
       filteredProducts = products.filter(product =>
         (filterState.category === "all" || (product.categories || [product.category]).includes(filterState.category)) &&
         (filterState.brand === "all" || product.brand === filterState.brand) &&
         (!filterState.favorites || favorites.has(product.id))
       );
-      track.replaceChildren(...filteredProducts.map(createProductCard));
-      track.scrollLeft = 0;
-      track.hidden = filteredProducts.length === 0;
+      const previous = grid.children.length;
+      const visible = !isPaginated() ? filteredProducts.length
+        : Math.min(filteredProducts.length, keepCount ? Math.max(batchSize(), previous) : batchSize());
+      grid.replaceChildren(...filteredProducts.slice(0, visible).map(createProductCard));
+      grid.hidden = filteredProducts.length === 0;
+      if (keepCount) fitToColumns();
+      syncLoadMore();
       $(".empty-state").hidden = filteredProducts.length > 0;
       const hasBrand = filterState.brand !== "all";
       $("#empty-title").textContent = hasBrand ? `${brandName(filterState.brand)}, a tu estilo.` : "Tu próxima pieza está por descubrir.";
@@ -384,43 +429,10 @@
         : filterState.favorites && favorites.size === 0 ? "Toca el corazón de una pieza para guardarla y volver a encontrarla aquí." : "No hay piezas con esta combinación. Prueba otra categoría o vuelve a toda la selección.";
       $("#catalog-note").textContent = "Fotografías reales de nuestra selección. Consulta el precio de tu favorito.";
       syncFilterUI();
-      track.classList.remove("is-updating");
-      requestAnimationFrame(updateCarousel);
+      grid.classList.remove("is-updating");
     };
     if (animate && !reducedMotion.matches) renderTimer = setTimeout(render, 130);
     else render();
-  }
-
-  function updateCarousel() {
-    const cards = $$(".product-card", track);
-    const columns = parseInt(getComputedStyle(track).getPropertyValue("--catalog-columns"), 10) || 4;
-    const isCarousel = cards.length > columns;
-    track.classList.toggle("is-carousel", isCarousel);
-    track.classList.toggle("is-single", cards.length === 1);
-    track.classList.toggle("is-compact", cards.length > 1 && cards.length < columns);
-    track.style.setProperty("--result-columns", String(Math.max(1, Math.min(cards.length, columns))));
-    $(".carousel-controls").hidden = !isCarousel;
-    track.setAttribute("role", isCarousel ? "region" : "list");
-    track.setAttribute("aria-label", isCarousel ? "Piezas de la selección; usa las flechas para desplazarte" : "Piezas de la selección");
-    if (isCarousel) { track.setAttribute("aria-roledescription", "carrusel"); track.tabIndex = 0; }
-    else { track.removeAttribute("aria-roledescription"); track.removeAttribute("tabindex"); }
-    cards.forEach(card => { if (isCarousel) card.removeAttribute("role"); else card.setAttribute("role", "listitem"); });
-    const maxScroll = track.scrollWidth - track.clientWidth;
-    prev.disabled = !cards.length || track.scrollLeft < 3;
-    next.disabled = !cards.length || track.scrollLeft >= maxScroll - 3;
-    const status = $("#carousel-status");
-    if (!cards.length) { status.textContent = `${filterState.brand === "all" ? "Esta selección" : brandName(filterState.brand)}: sin resultados${filterState.category !== "all" ? " en " + categories[filterState.category] : ""}`; return; }
-    if (!isCarousel) { status.textContent = `${cards.length} ${cards.length === 1 ? "pieza en esta selección" : "piezas en esta selección"}`; return; }
-    const bounds = track.getBoundingClientRect();
-    const visible = cards.map((card, index) => ({ rect: card.getBoundingClientRect(), index })).filter(({ rect }) => rect.left < bounds.right - 25 && rect.right > bounds.left + 25);
-    if (visible.length) status.textContent = `Viendo ${visible[0].index + 1}–${visible[visible.length - 1].index + 1} de ${cards.length} piezas`;
-  }
-
-  function moveCarousel(direction) {
-    const card = $(".product-card", track);
-    if (!card) return;
-    const gap = parseFloat(getComputedStyle(track).gap) || 0;
-    track.scrollBy({ left: direction * (card.getBoundingClientRect().width + gap), behavior: reducedMotion.matches ? "instant" : "smooth" });
   }
 
   function resetFilters() {
@@ -544,9 +556,9 @@
       syncFavoriteCount();
       announce(wasSaved ? "Pieza retirada de tus favoritos" : "Pieza guardada en tus favoritos");
       if (filterState.favorites) {
-        const index = $$("[data-favorite]", track).indexOf(favoriteButton);
-        renderProducts(false);
-        const remaining = $$("[data-favorite]", track);
+        const index = $$("[data-favorite]", grid).indexOf(favoriteButton);
+        renderProducts(false, true);
+        const remaining = $$("[data-favorite]", grid);
         if (remaining.length) remaining[Math.min(index, remaining.length - 1)].focus();
         else $("[data-reset]").focus();
       }
@@ -596,22 +608,6 @@
     renderProducts();
     focusCatalog();
   });
-  prev.addEventListener("click", () => moveCarousel(-1));
-  next.addEventListener("click", () => moveCarousel(1));
-  let scrollTimer;
-  track.addEventListener("scroll", () => { clearTimeout(scrollTimer); scrollTimer = setTimeout(updateCarousel, 100); }, { passive: true });
-  track.addEventListener("keydown", event => {
-    if (event.target !== track || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-    event.preventDefault();
-    if (event.key === "Home" || event.key === "End") track.scrollTo({ left: event.key === "Home" ? 0 : track.scrollWidth, behavior: reducedMotion.matches ? "instant" : "smooth" });
-    else moveCarousel(event.key === "ArrowRight" ? 1 : -1);
-  });
-  track.addEventListener("focusin", event => {
-    const card = event.target.closest(".product-card");
-    if (card && track.classList.contains("is-carousel")) card.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "instant" });
-  });
-  if ("ResizeObserver" in window) new ResizeObserver(updateCarousel).observe(track);
-  else window.addEventListener("resize", updateCarousel);
 
   $$("dialog").forEach(dialog => {
     dialog.addEventListener("click", event => {
@@ -654,5 +650,12 @@
   });
   $$("[data-instagram]").forEach(link => { link.href = INSTAGRAM_URL; });
   if (generalWhatsAppUrl) $("#contact-phone").textContent = " al +" + WHATSAPP_NUMBER.replace(/^(34)(\d{3})(\d{2})(\d{2})(\d{2})$/, "$1 $2 $3 $4 $5");
+  $(".load-more-button").addEventListener("click", event => {
+    const added = appendProducts(batchSize());
+    // Con teclado, el foco pasa a la primera pieza nueva; con ratón o dedo la página no se mueve.
+    if (event.detail === 0 && added[0]) added[0].querySelector("a[data-product]")?.focus();
+  });
+  tabletUp.addEventListener("change", fitToColumns);
+  desktopUp.addEventListener("change", fitToColumns);
   renderProducts(false);
 })();

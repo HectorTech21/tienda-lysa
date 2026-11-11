@@ -148,3 +148,11 @@ Los sufijos de la tabla se leen tras el prefijo `WhatsApp Image 2026-11-07 at ` 
 - LYSA-005 queda como fuente de las dos bandoleras publicadas. En LYSA-006 ya se han aislado las dos carteras y siguen pendientes los bolsos. Las demás composiciones anteriores conservan el estado indicado en su inventario.
 - Los WebP `lysa-035.webp` a `lysa-046.webp` proceden de tres tomas completas y nueve recortes rectangulares revisados. Se registran el original y, en los recortes, las coordenadas relativas en `images[].crop`. En las tomas de la mochila beige y el bolso granate aparecen pequeños fragmentos de otra pieza en el borde, con el artículo de la ficha claramente distinguible.
 - Precios, disponibilidad, materiales, medidas y variantes comerciales requieren confirmación. La marca sin identificar queda pendiente en el inventario y se omite en la web.
+
+## Incorporación del 11 de noviembre de 2026
+
+A petición de la clienta se publican todos los artículos distinguibles de las fotos, también los de las composiciones colectivas. Se revisaron una a una las 82 fotos originales (80 distintas por SHA-256). El catálogo público pasa de **26 a 76 fichas**: 48 altas (`LYSA-056` a `LYSA-103`) y dos registros internos convertidos en ficha (`LYSA-014` bandolera negra de nailon y `LYSA-051` bolso beige con corazones). Se añaden galerías a `LYSA-024`, `LYSA-033`, `LYSA-058`, `LYSA-059`, `LYSA-077` y `LYSA-093`.
+
+- Cada recorte guarda `original` y `crop`. Cada ficha nueva indica su registro de origen en `sourceRecord`, y los registros `review` enlazan sus fichas en `publishedItems`.
+- Marca: solo si se lee en la pieza o en su etiqueta. Sin marca: `LYSA-062`, `LYSA-073`, `LYSA-074` (emblema «R» sin identificar; el cartel Pepe Moll es del expositor) y `LYSA-101` a `LYSA-103`. Bienoti figura como marca de catálogo, sin entrar en menú ni franja.
+- Revisión pendiente de la clienta: `LYSA-056` (bolso trasero tapado por `LYSA-057`, sin toma individual) y `LYSA-098` a `LYSA-103` (capturas de historias, de baja resolución y con varias piezas apiladas). No se publican la vista general de la tienda (`11.42.58 (3)` / `11.48.42 (2)`) ni el cartel de oferta (`11.53.02`), que incluye un precio.

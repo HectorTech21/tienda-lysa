@@ -1,5 +1,14 @@
 # Tienda Lysa · instrucciones y decisiones
 
+## Catálogo completo y cuadrícula · 11 de noviembre de 2026
+
+Sustituye lo que se diga más abajo sobre el carrusel de productos, la composición de una pieza y el número de fichas.
+
+- La clienta pidió publicar todos los productos de las fotos. `catalog-data.js` tiene **76 fichas públicas** (antes 26): 48 altas `LYSA-056` a `LYSA-103`, recortadas de las composiciones colectivas, y dos registros `review` convertidos en ficha con su ID y referencia (`LYSA-014`, `LYSA-051`). Los `review` restantes se conservan como fuente y enlazan sus fichas en `publishedItems`; cada ficha nueva indica su origen en `sourceRecord`.
+- Recortes en `assets/products/lysa-NNN.webp` (galería: `lysa-NNN-2.webp`), WebP 0,90, máximo 1200 px, con `original` y `crop` en cada imagen. Sin marca legible en la pieza, `brand: null` y la línea de marca no se muestra; un cartel del expositor no basta. Bienoti se añade a `BRANDS` como `catalogOnly`, igual que Nicole Lee USA.
+- «Ver más productos»: solo con «Todas las categorías» (Inicio), con o sin filtro de marca o favoritos. Carga dos filas completas (4 / 6 / 8 tarjetas según 2 / 3 / 4 columnas, con los mismos cortes `matchMedia` que la cuadrícula) y añade una tanda igual por pulsación, sin mover la página (`overflow-anchor: none`). Al cambiar de columnas se completa la última fila. Cambiar de filtro vuelve a la carga inicial. Las categorías concretas muestran todo, sin botón. Las tarjetas no mostradas no se crean, así que sus imágenes no se descargan.
+- Listado de productos: cuadrícula CSS Grid vertical (`#product-grid`), 2 columnas en móvil (hueco de 10 px), 3 desde 768 px y 4 desde 1024 px. No hay carrusel, flechas, indicador de posición ni scroll horizontal. Imagen 3:4 con `object-fit: contain`, nombre limitado a dos líneas y botón de WhatsApp compacto en móvil (icono + «Consultar»; el nombre accesible conserva la frase completa).
+
 ## Auditoría responsive · 7 de noviembre de 2026
 
 Esta sección sustituye las descripciones anteriores de la franja de marcas (botón de pausa, modo teclado con scroll manual y animación desactivada con movimiento reducido).
