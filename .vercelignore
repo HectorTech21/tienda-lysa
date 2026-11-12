@@ -1,0 +1,7 @@
+# No se publican: notas internas, configuración local y las fotos originales
+# de WhatsApp (la web solo usa los .webp derivados). Siguen en el repositorio.
+*.md
+.claude
+assets/photos/WhatsApp*
+assets/products/WhatsApp*
+assets/marcas/README.md

@@ -15,6 +15,7 @@
        absolutas del despliegue. Imagen prevista: assets/images/banner.jpg.
        No usar localhost ni un dominio supuesto: los robots leen este HTML estático. -->
   <link rel="icon" href="assets/logo.jpg" type="image/jpeg">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css">
   <script src="catalog-data.js" defer></script>
   <script src="store-config.js" defer></script>
@@ -62,7 +63,7 @@
           <div class="hero-footnote hero-enter"><span class="little-star" aria-hidden="true">✳</span><span>Tu estilo. Tus planes. Tu Lysa.</span></div>
         </div>
       </div>
-      <div class="hero-visual"><img src="assets/photos/hero.jpg" alt="Bolso de muestra en tono caramelo sobre una silla de madera, iluminado por el sol" width="1536" height="1024" fetchpriority="high"><div class="hero-image-caption"><span>LA BELLEZA DE LO COTIDIANO</span><span>01 / LYSA EDIT</span></div><a class="hero-image-link" href="#coleccion" aria-label="Descubrir el editorial Esenciales con carácter"><span>Esenciales<br><em>con carácter.</em></span><span class="circle-arrow" aria-hidden="true">↗</span></a></div>
+      <div class="hero-visual"><img src="assets/photos/hero.jpg" srcset="assets/photos/hero-900.webp 900w, assets/photos/hero-1536.webp 1536w" sizes="(max-width: 580px) 100vw, 55vw" alt="Bolso de muestra en tono caramelo sobre una silla de madera, iluminado por el sol" width="1536" height="1024" fetchpriority="high"><div class="hero-image-caption"><span>LA BELLEZA DE LO COTIDIANO</span><span>01 / LYSA EDIT</span></div><a class="hero-image-link" href="#coleccion" aria-label="Descubrir el editorial Esenciales con carácter"><span>Esenciales<br><em>con carácter.</em></span><span class="circle-arrow" aria-hidden="true">↗</span></a></div>
     </section>
 
     <div class="intro-line container"><span>PARA TODOS TUS PLANES</span><p>Lo que llevas habla de ti.<br class="mobile-only"> Elige lo que va contigo.</p><span class="intro-flower" aria-hidden="true">✳</span></div>
@@ -70,10 +71,10 @@
     <section class="categories section-space container" id="categorias" aria-labelledby="categories-title">
       <div class="section-heading reveal"><div><p class="eyebrow">UN ESTILO PARA CADA MOMENTO</p><h2 id="categories-title">¿Qué te acompaña <em>hoy?</em></h2></div><a class="text-link" href="#seleccion" data-category="all">Ver toda la selección <span aria-hidden="true">↗</span></a></div>
       <div class="category-grid">
-        <a class="category-card reveal" href="#seleccion" data-category="bolsos"><div class="category-image"><img src="assets/photos/bag.jpg" alt="Bolso chocolate de muestra con asa redondeada" width="1024" height="1280" loading="lazy"><span class="category-index">01</span><span class="category-image-arrow" aria-hidden="true">↗</span></div><div class="category-caption"><h3>Bolsos</h3><span>Tu compañero inseparable</span></div></a>
-        <a class="category-card reveal" href="#seleccion" data-category="mochilas"><div class="category-image"><img src="assets/photos/backpack.jpg" alt="Mochila de muestra en tonos arena y caramelo" width="1024" height="1280" loading="lazy"><span class="category-index">02</span><span class="category-image-arrow" aria-hidden="true">↗</span></div><div class="category-caption"><h3>Mochilas</h3><span>Libertad en cada paso</span></div></a>
-        <a class="category-card reveal" href="#seleccion" data-category="maletas"><div class="category-image"><img src="assets/photos/suitcase.jpg" alt="Maleta de cabina de muestra en color marfil" width="1024" height="1280" loading="lazy"><span class="category-index">03</span><span class="category-image-arrow" aria-hidden="true">↗</span></div><div class="category-caption"><h3>Maletas</h3><span>La próxima historia empieza aquí</span></div></a>
-        <a class="category-card reveal" href="#seleccion" data-category="complementos"><div class="category-image"><img src="assets/photos/accessory.jpg" alt="Pequeño estuche chocolate de muestra junto a un pañuelo rosa" width="1024" height="1280" loading="lazy"><span class="category-index">04</span><span class="category-image-arrow" aria-hidden="true">↗</span></div><div class="category-caption"><h3>Complementos</h3><span>El encanto está en los detalles</span></div></a>
+        <a class="category-card reveal" href="#seleccion" data-category="bolsos"><div class="category-image"><img src="assets/photos/bag.jpg" srcset="assets/photos/bag-480.webp 480w, assets/photos/bag-900.webp 900w" sizes="(max-width: 850px) 50vw, 25vw" alt="Bolso chocolate de muestra con asa redondeada" width="1024" height="1280" loading="lazy"><span class="category-index">01</span><span class="category-image-arrow" aria-hidden="true">↗</span></div><div class="category-caption"><h3>Bolsos</h3><span>Tu compañero inseparable</span></div></a>
+        <a class="category-card reveal" href="#seleccion" data-category="mochilas"><div class="category-image"><img src="assets/photos/backpack.jpg" srcset="assets/photos/backpack-480.webp 480w, assets/photos/backpack-900.webp 900w" sizes="(max-width: 850px) 50vw, 25vw" alt="Mochila de muestra en tonos arena y caramelo" width="1024" height="1280" loading="lazy"><span class="category-index">02</span><span class="category-image-arrow" aria-hidden="true">↗</span></div><div class="category-caption"><h3>Mochilas</h3><span>Libertad en cada paso</span></div></a>
+        <a class="category-card reveal" href="#seleccion" data-category="maletas"><div class="category-image"><img src="assets/photos/suitcase.jpg" srcset="assets/photos/suitcase-480.webp 480w, assets/photos/suitcase-900.webp 900w" sizes="(max-width: 850px) 50vw, 25vw" alt="Maleta de cabina de muestra en color marfil" width="1024" height="1280" loading="lazy"><span class="category-index">03</span><span class="category-image-arrow" aria-hidden="true">↗</span></div><div class="category-caption"><h3>Maletas</h3><span>La próxima historia empieza aquí</span></div></a>
+        <a class="category-card reveal" href="#seleccion" data-category="complementos"><div class="category-image"><img src="assets/photos/accessory.jpg" srcset="assets/photos/accessory-480.webp 480w, assets/photos/accessory-900.webp 900w" sizes="(max-width: 850px) 50vw, 25vw" alt="Pequeño estuche chocolate de muestra junto a un pañuelo rosa" width="1024" height="1280" loading="lazy"><span class="category-index">04</span><span class="category-image-arrow" aria-hidden="true">↗</span></div><div class="category-caption"><h3>Complementos</h3><span>El encanto está en los detalles</span></div></a>
       </div>
     </section>
 
@@ -99,12 +100,12 @@
       </div>
     </section>
 
-    <section class="editorial container section-space" id="coleccion" aria-labelledby="editorial-title"><div class="editorial-image reveal"><img src="assets/photos/hero.jpg" alt="Detalle editorial de un bolso caramelo de muestra junto a una camisa de lino" width="1536" height="1024" loading="lazy"><span class="editorial-photo-label">LYSA JOURNAL / 01</span></div><div class="editorial-copy reveal"><p class="eyebrow">THE EVERYDAY EDIT</p><h2 id="editorial-title">Menos prisa.<br>Más <em>esencia.</em></h2><p>Una mañana sin reloj. Un café al sol. Ese plan que surge sin avisar. Hay piezas que encajan en todos tus momentos, sin dejar de ser tú.</p><p>Formas sencillas, tonos cálidos y detalles que se hacen querer. Descubre nuestra inspiración para el día a día.</p><a class="button button-dark" href="#seleccion" data-category="bolsos">Explorar los esenciales <span aria-hidden="true">↗</span></a><span class="editorial-signature" aria-hidden="true">Con cariño, Lysa.</span></div></section>
+    <section class="editorial container section-space" id="coleccion" aria-labelledby="editorial-title"><div class="editorial-image reveal"><img src="assets/photos/hero.jpg" srcset="assets/photos/hero-900.webp 900w, assets/photos/hero-1536.webp 1536w" sizes="(max-width: 580px) 100vw, 50vw" alt="Detalle editorial de un bolso caramelo de muestra junto a una camisa de lino" width="1536" height="1024" loading="lazy"><span class="editorial-photo-label">LYSA JOURNAL / 01</span></div><div class="editorial-copy reveal"><p class="eyebrow">THE EVERYDAY EDIT</p><h2 id="editorial-title">Menos prisa.<br>Más <em>esencia.</em></h2><p>Una mañana sin reloj. Un café al sol. Ese plan que surge sin avisar. Hay piezas que encajan en todos tus momentos, sin dejar de ser tú.</p><p>Formas sencillas, tonos cálidos y detalles que se hacen querer. Descubre nuestra inspiración para el día a día.</p><a class="button button-dark" href="#seleccion" data-category="bolsos">Explorar los esenciales <span aria-hidden="true">↗</span></a><span class="editorial-signature" aria-hidden="true">Con cariño, Lysa.</span></div></section>
 
     <section class="about" id="esencia" aria-labelledby="about-title">
       <div class="container about-inner">
         <figure class="about-visual reveal">
-          <div class="about-photo"><img src="assets/images/escaparate.jpg" width="1600" height="1200" alt="Escaparate y entrada de Tienda Lysa, con su rótulo y una selección de bolsos, mochilas y maletas" loading="lazy" decoding="async"></div>
+          <div class="about-photo"><img src="assets/images/escaparate.jpg" srcset="assets/images/escaparate-800.webp 800w, assets/images/escaparate-1600.webp 1600w" sizes="(max-width: 580px) 100vw, 55vw" width="1600" height="1200" alt="Escaparate y entrada de Tienda Lysa, con su rótulo y una selección de bolsos, mochilas y maletas" loading="lazy" decoding="async"></div>
           <figcaption>
             <div class="about-caption-heading"><span>CONOCE TIENDA LYSA</span><span>La historia empieza aquí <span aria-hidden="true">↗</span></span></div>
             <p>Tienda Lysa. Tu tienda con estilo y diseño, donde encontrarás las últimas tendencias en Bolsos, Mochilas, Maletas, Zapatillas, Accesorios y artículos en piel.<br>Una tienda multimarca que te ofrece diseño y novedad.</p>
@@ -114,7 +115,7 @@
           <p class="eyebrow">MÁS QUE UNA TIENDA</p>
           <h2 id="about-title">Un lugar para encontrar tu próximo <em>favorito.</em></h2>
           <p>Tienda Lysa. Tu tienda con estilo y diseño, donde encontrarás las últimas tendencias en Bolsos, Mochilas, Maletas, Zapatillas, Accesorios y artículos en piel.</p>
-          <p>En diferentes Marcas como Totto, Anekke, Pepe moll, Caramelo, Pepe Jeans, Cacharel, Nicole lee USA, Victorio &amp; Lucchino, Torrens, Gabol, Matties, Ventis, Stamp, Privata, Gladiator, StiviBags, Benzi, complementa tú Look en Tienda Lysa.</p>
+          <p>En diferentes Marcas como Totto, Anekke, Pepe Moll, Caramelo, Pepe Jeans, Cacharel, Nicole Lee USA, Victorio &amp; Lucchino, Torrens, Gabol, Matties, Ventis, Stamp, Privata, Gladiator, StiviBags, Benzi, complementa tu Look en Tienda Lysa.</p>
           <a class="text-link" href="#marcas">Descubre nuestras marcas <span aria-hidden="true">↗</span></a>
           <div class="about-identity"><img src="assets/logo.jpg" width="150" height="150" alt="Logotipo de Tienda Lysa" loading="lazy" decoding="async"><span>A tu lado,<br>con estilo.</span></div>
         </div>

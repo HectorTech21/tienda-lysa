@@ -1,0 +1,5 @@
+# Tienda Lysa: toda la web es pública.
+# Al confirmar el dominio, añadir aquí la línea «Sitemap: https://DOMINIO/sitemap.xml»
+# y crear sitemap.xml con esa misma URL.
+User-agent: *
+Allow: /

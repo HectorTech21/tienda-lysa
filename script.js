@@ -147,6 +147,7 @@
     // No se solicitan imágenes externas ni rutas pendientes. El nombre es el fallback.
     if (useLogo && brand.logoStatus === "approved" && /^assets\/marcas\/[^/]+\.(svg|png|jpe?g|webp)$/i.test(brand.logo || "")) {
       const image = document.createElement("img");
+      image.loading = "lazy"; // la franja queda bajo el primer pantallazo
       image.src = brand.logo;
       image.alt = ""; // El botón ya tiene un nombre accesible; evita repetir la marca.
       image.decoding = "async";
@@ -274,7 +275,8 @@
   }
 
   function createProductCard(product, index) {
-    const card = document.createElement("article");
+    // div con role=listitem: <article> no admite ese rol.
+    const card = document.createElement("div");
     card.className = "product-card product-card--real";
     card.setAttribute("role", "listitem");
     card.style.animationDelay = `${Math.min(index, 11) * 35}ms`;

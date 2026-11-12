@@ -1,5 +1,13 @@
 # Tienda Lysa · instrucciones y decisiones
 
+## Preparación para producción · 12 de noviembre de 2026
+
+- Despliegue previsto en Vercel como sitio estático, sin build. `vercel.json` añade cabeceras de seguridad y caché de `/assets/`; `.vercelignore` deja fuera los `.md`, `.claude` y las fotos originales `WhatsApp Image…` (15 MB), que siguen en el repositorio. Las fichas públicas usan `lysa-NNN.webp` y también `photo-0NN.webp`: no excluir estos últimos.
+- `404.html` usa rutas desde la raíz (`/styles.css`) porque el servidor la muestra en cualquier dirección. `robots.txt` permite todo; falta `sitemap.xml`, canonical, `og:url` y `og:image`, que necesitan el dominio definitivo.
+- Portada, categorías y escaparate se sirven en WebP con `srcset` (dos tamaños); el JPG original queda en `src` como respaldo. Los logos de la franja cargan con `loading="lazy"`. Las tarjetas son `div role="listitem"`.
+- Pendiente de datos de la clienta antes de publicar: titular, NIF, domicilio y correo para el aviso legal y la privacidad; dirección, horario y zona para título, descripción y datos estructurados `LocalBusiness`. No inventarlos.
+- Lighthouse sobre la copia de producción (Inicio): móvil 98/100/100/100, escritorio 100/100/100/100. Se ejecutó con `npx lighthouse` fuera del proyecto, a petición expresa; no se añadió ninguna dependencia.
+
 ## Catálogo completo y cuadrícula · 11 de noviembre de 2026
 
 Sustituye lo que se diga más abajo sobre el carrusel de productos, la composición de una pieza y el número de fichas.

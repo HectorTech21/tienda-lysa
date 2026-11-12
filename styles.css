@@ -360,6 +360,7 @@ button,a {
 }
 .brands-menu .all-brands {
   grid-column:1/-1;
+  min-height:var(--tap);
   font-family:var(--sans);
   font-size:11px;
   margin-top:5px
