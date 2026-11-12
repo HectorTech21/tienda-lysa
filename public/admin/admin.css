@@ -1,0 +1,152 @@
+/* Panel de Tienda Lysa. Pensado primero para el móvil: una columna, controles de 48 px
+   y texto de 16 px o más (así el iPhone no amplía la pantalla al escribir). */
+:root {
+  --marfil: #FAF6F1;
+  --chocolate: #4B2A21;
+  --rosa: #E2B9CB;
+  --rosa-suave: #F3E1E9;
+  --blanco: #FFFFFF;
+  --linea: #DCCFC6;
+  --texto-suave: #6F554C;
+  --error: #9B1C1C;
+  --error-fondo: #FBEAEA;
+  --exito: #1F5B3A;
+  --exito-fondo: #E7F3EC;
+  --tap: 48px;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+/* El margen de desplazamiento evita que la cabecera y la barra de Guardar tapen el campo activo. */
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 76px; scroll-padding-bottom: 132px; }
+body { margin: 0; background: var(--marfil); color: var(--chocolate); font: 16px/1.5 var(--sans); }
+h1, h2 { font-family: var(--serif); font-weight: 400; line-height: 1.2; margin: 0; }
+h1 { font-size: 28px; }
+h2 { font-size: 22px; }
+p { margin: 0; }
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--chocolate); outline-offset: 2px; }
+
+.oculto-visual { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Barra superior */
+.barra { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px; padding: 8px 16px; padding-top: max(8px, env(safe-area-inset-top)); background: var(--chocolate); color: var(--marfil); }
+.barra img { border-radius: 50%; flex: none; }
+.barra-titulo { flex: 1; min-width: 0; font-family: var(--serif); font-size: 18px; line-height: 1.2; }
+.barra-enlaces { display: flex; justify-content: flex-end; gap: 0 14px; }
+.barra-titulo-resto { display: none; }
+.barra-enlace { color: inherit; font-size: 15px; white-space: nowrap; min-height: var(--tap); display: inline-flex; align-items: center; text-underline-offset: 4px; }
+
+main { max-width: 760px; margin: 0 auto; padding: 20px 16px 40px; }
+
+/* Botones */
+.boton { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--tap); padding: 10px 18px; border: 1px solid var(--chocolate); border-radius: 0; background: var(--blanco); color: var(--chocolate); font-weight: 600; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; appearance: none; }
+.boton.primario { background: var(--chocolate); color: var(--marfil); }
+.boton.peligro { border-color: var(--error); color: var(--error); }
+dialog .boton.peligro { background: var(--error); color: var(--blanco); }
+.boton.pequeno { min-height: 44px; padding: 6px 12px; font-size: 15px; font-weight: 500; }
+.boton:disabled, .boton[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+label.boton:focus-within { outline: 3px solid var(--chocolate); outline-offset: 2px; }
+
+/* Campos */
+.campo { display: block; margin-top: 16px; }
+.etiqueta { display: block; font-weight: 600; margin-bottom: 6px; }
+.etiqueta small { font-weight: 400; color: var(--texto-suave); font-size: 15px; }
+.etiqueta small.obligatorio { color: var(--chocolate); font-weight: 600; }
+input[type="text"], input[type="search"], select, textarea { width: 100%; min-height: var(--tap); padding: 10px 12px; border: 1px solid var(--chocolate); border-radius: 0; background: var(--blanco); font-size: 16px; appearance: none; }
+select { padding-right: 40px; background-image: linear-gradient(45deg, transparent 50%, var(--chocolate) 50%), linear-gradient(135deg, var(--chocolate) 50%, transparent 50%); background-position: calc(100% - 21px) 50%, calc(100% - 15px) 50%; background-size: 6px 6px; background-repeat: no-repeat; }
+textarea { resize: vertical; min-height: 110px; }
+[aria-invalid="true"] { border-color: var(--error); border-width: 2px; }
+.ayuda { display: block; color: var(--texto-suave); font-size: 15px; margin-top: 6px; }
+.error-campo { display: block; color: var(--error); font-weight: 600; font-size: 15px; margin-top: 6px; }
+
+/* Listado */
+.cabecera-lista { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.filtros .campo:first-child { grid-column: 1 / -1; }
+.recuento { margin-top: 20px; color: var(--texto-suave); font-size: 15px; }
+.lista { list-style: none; margin: 8px 0 0; padding: 0; border-top: 1px solid var(--linea); }
+.producto { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; border-bottom: 1px solid var(--linea); background: var(--blanco); }
+.producto-abrir { display: grid; grid-template-columns: 72px 1fr; align-items: center; gap: 12px; min-height: 96px; padding: 8px; border: 0; background: none; text-align: left; cursor: pointer; min-width: 0; }
+.producto-foto { width: 72px; height: 96px; background: var(--marfil); object-fit: contain; display: block; }
+.producto-sin-foto { width: 72px; height: 96px; background: var(--rosa-suave); display: grid; place-items: center; font-size: 12px; text-align: center; color: var(--texto-suave); }
+.producto-nombre { display: block; font-weight: 600; overflow-wrap: anywhere; }
+.producto-datos { display: block; color: var(--texto-suave); font-size: 14px; overflow-wrap: anywhere; }
+.producto-insignias { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.insignia { font-size: 13px; padding: 1px 8px; border: 1px solid var(--chocolate); }
+.insignia.oculto { background: var(--chocolate); color: var(--marfil); }
+.insignia.destacado { background: var(--rosa); }
+.insignia.aviso { border-color: var(--error); color: var(--error); }
+.producto.es-oculto .producto-foto { opacity: .4; }
+.producto.es-oculto .producto-nombre { color: var(--texto-suave); }
+.producto-acciones { display: grid; gap: 6px; padding: 8px 8px 8px 0; }
+.producto-acciones .boton { width: 100%; }
+.vacio { margin-top: 24px; padding: 24px 16px; text-align: center; background: var(--blanco); border: 1px solid var(--linea); display: grid; gap: 16px; justify-items: center; }
+
+/* Formulario */
+.volver { min-height: var(--tap); padding: 0; margin-bottom: 4px; border: 0; background: none; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.referencia { color: var(--texto-suave); margin-top: 4px; }
+.bloque { margin: 24px 0 0; padding: 16px; border: 1px solid var(--linea); background: var(--blanco); min-width: 0; }
+.bloque legend { font-family: var(--serif); font-size: 20px; padding: 0 8px; }
+.fotos { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.fotos:empty { display: none; }
+.foto { border: 1px solid var(--linea); background: var(--marfil); position: relative; }
+.foto img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: contain; }
+.foto-principal { position: absolute; top: 0; left: 0; background: var(--chocolate); color: var(--marfil); font-size: 13px; padding: 2px 8px; }
+.foto-nueva { position: absolute; top: 0; right: 0; background: var(--rosa); font-size: 13px; padding: 2px 8px; }
+.foto-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--linea); border-top: 1px solid var(--linea); }
+.foto-botones button { min-height: 44px; border: 0; background: var(--blanco); font-size: 14px; cursor: pointer; padding: 4px; }
+.foto-botones button:disabled { color: #B9ABA4; cursor: default; }
+.foto-botones .ancho { grid-column: 1 / -1; }
+.foto-botones .quitar { color: var(--error); }
+.botones-fotos { display: grid; gap: 10px; margin-top: 14px; }
+.casilla { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; padding: 10px 0; min-height: var(--tap); cursor: pointer; }
+.casilla input { width: 26px; height: 26px; margin: 2px 0 0; accent-color: var(--chocolate); }
+
+.barra-guardar { position: sticky; bottom: 0; z-index: 4; margin: 0 -16px; padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); background: var(--marfil); border-top: 1px solid var(--chocolate); }
+.barra-guardar-botones { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+.progreso { margin-bottom: 10px; font-size: 15px; }
+progress { display: block; width: 100%; height: 10px; margin-top: 6px; appearance: none; border: 1px solid var(--chocolate); background: var(--blanco); accent-color: var(--chocolate); }
+progress::-webkit-progress-bar { background: var(--blanco); }
+progress::-webkit-progress-value { background: var(--chocolate); }
+progress::-moz-progress-bar { background: var(--chocolate); }
+.zona-borrar { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--linea); }
+/* Aire al final para que la barra fija nunca quede pegada al último control. */
+#vista-formulario { padding-bottom: 32px; }
+#formulario > .bloque:last-of-type { margin-bottom: 24px; }
+.zona-borrar .boton { width: 100%; }
+
+/* Avisos */
+/* Cuelgan de la cabecera fija: abajo taparían la barra de Guardar. */
+.avisos { position: absolute; left: 12px; right: 12px; top: 100%; margin-top: 8px; z-index: 20; display: grid; gap: 8px; justify-items: center; pointer-events: none; }
+.aviso { pointer-events: auto; width: 100%; max-width: 560px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; padding: 12px 8px 12px 16px; border: 1px solid var(--exito); background: var(--exito-fondo); color: var(--exito); font-weight: 600; }
+.aviso.error { border-color: var(--error); background: var(--error-fondo); color: var(--error); }
+.aviso button { min-width: 44px; min-height: 44px; border: 0; background: none; color: inherit; font-size: 22px; cursor: pointer; }
+.aviso-fijo { padding: 16px; background: var(--error-fondo); color: var(--error); border: 1px solid var(--error); }
+
+/* Diálogo de confirmación */
+dialog { width: min(92vw, 440px); padding: 24px 20px; border: 1px solid var(--chocolate); border-radius: 0; background: var(--marfil); color: var(--chocolate); }
+dialog::backdrop { background: rgba(75, 42, 33, .55); }
+dialog p { margin-top: 12px; }
+.dialogo-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; }
+
+@media (min-width: 480px) {
+  .barra-titulo-resto { display: inline; }
+}
+@media (min-width: 600px) {
+  .filtros { grid-template-columns: 2fr 1fr 1fr; }
+  .filtros .campo:first-child { grid-column: auto; }
+  .producto-acciones { grid-template-columns: 1fr 1fr; }
+  .fotos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .botones-fotos { grid-template-columns: 1fr 1fr; }
+  .zona-borrar .boton { width: auto; }
+}
+@media (min-width: 792px) {
+  .barra-guardar { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .aviso { animation: entrar .2s ease-out; }
+  @keyframes entrar { from { opacity: 0; transform: translateY(-8px); } }
+}

@@ -1,0 +1,13 @@
+# Secretos y variables solo de desarrollo local (nunca se suben ni se despliegan)
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+
+# Estado local de wrangler (D1 y R2 simulados) y dependencias
+.wrangler/
+node_modules/
+
+# Copias de seguridad generadas con scripts/backup.mjs
+backups/
+!.dev.vars.example

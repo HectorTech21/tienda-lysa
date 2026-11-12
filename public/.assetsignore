@@ -1,0 +1,5 @@
+# Archivos de public/ que NO se publican con el Worker.
+*.md
+.assetsignore
+assets/photos/WhatsApp*
+assets/products/WhatsApp*

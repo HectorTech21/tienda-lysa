@@ -1,0 +1,4 @@
+# Copia este archivo como ".dev.vars" SOLO en tu ordenador para desarrollar.
+# Permite entrar en /admin sin Cloudflare Access cuando se usa "wrangler dev".
+# .dev.vars está en .gitignore y wrangler nunca lo despliega.
+DEV_BYPASS_AUTH=true

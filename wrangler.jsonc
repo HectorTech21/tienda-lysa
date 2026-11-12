@@ -1,0 +1,43 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tienda-lysa",
+  "main": "src/index.js",
+  "compatibility_date": "2025-10-01",
+
+  // Web pública y panel: archivos estáticos de public/.
+  // La API, el panel y las imágenes pasan siempre por el Worker (autenticación incluida).
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*", "/admin", "/admin/*", "/img/*"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tienda-lysa",
+      // TODO (Cloudflare): sustituir por el database_id real que devuelve
+      // "npx wrangler d1 create tienda-lysa".
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      // TODO (Cloudflare): crear el bucket con "npx wrangler r2 bucket create tienda-lysa-imagenes"
+      // o cambiar este nombre por el del bucket real.
+      "bucket_name": "tienda-lysa-imagenes"
+    }
+  ],
+
+  "vars": {
+    // TODO (Cloudflare Access): dominio del equipo, por ejemplo "miequipo.cloudflareaccess.com".
+    "ACCESS_TEAM_DOMAIN": "",
+    // TODO (Cloudflare Access): etiqueta AUD de la aplicación de Access que protege /admin y /api/admin.
+    "ACCESS_AUD": ""
+    // DEV_BYPASS_AUTH no se define NUNCA aquí: solo en .dev.vars (local, fuera de git).
+  }
+}
