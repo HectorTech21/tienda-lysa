@@ -5,11 +5,12 @@
  * Activar un logo solo con archivo local autorizado: logo + logoStatus: "approved".
  * Fuentes, investigación y recursos pendientes: assets/marcas/README.md.
  */
-// Marcas y catálogo en catalog-data.js, cargado antes de este archivo.
+// Marcas y categorías en brands-data.js, cargado antes de este archivo.
 
-/* CATÁLOGO REAL: editar los registros en catalog-data.js.
- * brand debe coincidir con un id de BRANDS. No inferir disponibilidad por marca.
- * No se incluyen precios, existencias, descuentos ni productos oficiales ficticios.
+/* CATÁLOGO: los productos se leen de /api/productos y se gestionan desde /admin.
+ * La marca de cada producto es un nombre; si coincide con una de BRANDS usa su filtro,
+ * y si no, se añade al selector de marcas como texto, sin logo ni franja.
+ * Sin precio se muestra «Consultar precio». No hay existencias ni descuentos.
  */
 
 
@@ -17,7 +18,26 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const categories = Object.fromEntries([["all", "Todas las categorías"], ...CATALOG_CATEGORIES.map(item => [item.id, item.name])]);
-  const products = CATALOG_PRODUCTS.filter(product => product.recordType === "product").map(product => ({ ...product, image: product.images[0].src, alt: product.images[0].alt, tone: product.color, category: product.categories[0] }));
+  let products = [];
+  let catalogState = "loading"; // loading | ready | error
+  const priceFormat = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" });
+  const priceText = product => (typeof product.price === "number" ? priceFormat.format(product.price) : "Consultar precio");
+  // Adapta un producto de la API a la forma que usan las tarjetas y las fichas.
+  const toProduct = item => ({
+    id: item.id,
+    name: item.titulo,
+    reference: item.referencia,
+    description: item.descripcion || "",
+    price: item.precio,
+    categories: [item.categoria],
+    category: item.categoria,
+    tone: item.color || "",
+    brand: item.marcaId || null,
+    brandLabel: item.marca || "",
+    images: item.imagenes.map(image => ({ src: image.url, alt: image.alt })),
+    image: item.imagenes[0].url,
+    alt: item.imagenes[0].alt
+  });
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const desktopMenu = window.matchMedia("(min-width: 851px)");
   const hoverPointer = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -39,7 +59,8 @@
 
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
-    if (Array.isArray(saved)) favorites = new Set(saved.filter(id => products.some(product => product.id === id)));
+    // Los que ya no existan se retiran cuando llega el catálogo (loadCatalog).
+    if (Array.isArray(saved)) favorites = new Set(saved.filter(id => typeof id === "string"));
   } catch { /* La navegación privada o el almacenamiento bloqueado no impiden usar favoritos. */ }
 
   function brandName(id) {
@@ -47,8 +68,7 @@
   }
 
   function productBrandName(product) {
-    if (!["visually-identified", "confirmed"].includes(product.brandStatus)) return "";
-    return BRANDS.find(brand => brand.id === product.brand)?.name || product.observedBrand || "";
+    return BRANDS.find(brand => brand.id === product.brand)?.name || product.brandLabel || "";
   }
 
   function whatsAppReady() {
@@ -332,7 +352,7 @@
     discover.textContent = "Ver detalles ↗";
     const status = document.createElement("p");
     status.className = "product-catalog-status";
-    status.textContent = "Consultar precio";
+    status.textContent = priceText(product);
     if (brand.textContent) info.append(brand);
     info.append(title, note, status, description, discover, createWhatsAppAction(product));
     card.append(imageBox, info);
@@ -411,6 +431,24 @@
     clearTimeout(renderTimer);
     if (animate && !reducedMotion.matches) grid.classList.add("is-updating");
     const render = () => {
+      if (catalogState !== "ready") {
+        // Mientras llega el catálogo no se muestra el estado vacío; si falla, se explica.
+        const failed = catalogState === "error";
+        filteredProducts = [];
+        grid.replaceChildren();
+        grid.hidden = true;
+        $(".load-more").hidden = true;
+        $(".empty-state").hidden = !failed;
+        if (failed) {
+          $("#empty-title").textContent = "No hemos podido cargar la selección.";
+          $("#empty-description").textContent = "Vuelve a intentarlo en unos segundos o consulta con la tienda.";
+        }
+        syncFilterUI();
+        $("#filter-description").textContent = failed ? "La selección no está disponible en este momento." : "Cargando la selección…";
+        $(".reset-filters").hidden = true;
+        grid.classList.remove("is-updating");
+        return;
+      }
       filteredProducts = products.filter(product =>
         (filterState.category === "all" || (product.categories || [product.category]).includes(filterState.category)) &&
         (filterState.brand === "all" || product.brand === filterState.brand) &&
@@ -439,7 +477,30 @@
 
   function resetFilters() {
     Object.assign(filterState, { category: "all", brand: "all", favorites: false });
-    renderProducts();
+    if (catalogState === "error") loadCatalog(); // «Limpiar filtros» también reintenta la carga
+    else renderProducts();
+  }
+
+  async function loadCatalog() {
+    catalogState = "loading";
+    renderProducts(false);
+    try {
+      const response = await fetch("/api/productos", { headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(`Estado ${response.status}`);
+      const data = await response.json();
+      products = data.productos.filter(item => Array.isArray(item.imagenes) && item.imagenes.length).map(toProduct);
+      // Marcas escritas a mano en el panel: entran en el selector, sin logo ni franja.
+      products.forEach(product => {
+        if (!product.brand || BRANDS.some(brand => brand.id === product.brand)) return;
+        BRANDS.push({ id: product.brand, name: product.brandLabel, catalogOnly: true });
+        brandSelect.add(new Option(product.brandLabel, product.brand));
+      });
+      favorites = new Set([...favorites].filter(id => products.some(product => product.id === id)));
+      catalogState = "ready";
+    } catch {
+      catalogState = "error";
+    }
+    renderProducts(false);
   }
 
   function openDialog(dialog, opener) {
@@ -504,13 +565,13 @@
     const description = document.createElement("p");
     description.textContent = product.description;
     const category = document.createElement("p");
-    category.textContent = product.categories.map(id => categories[id]).join(" · ") + " · " + product.tone;
+    category.textContent = [...product.categories.map(id => categories[id]), product.tone].filter(Boolean).join(" · ");
     const reference = document.createElement("p");
     reference.className = "product-reference";
     reference.textContent = "Ref. " + product.reference;
     const price = document.createElement("p");
     price.className = "product-detail-price";
-    price.textContent = "Consultar precio";
+    price.textContent = priceText(product);
     if (brand.textContent) copy.append(brand);
     copy.append(title, category, description, reference, price, createWhatsAppAction(product));
     layout.append(gallery, copy);
@@ -659,5 +720,5 @@
   });
   tabletUp.addEventListener("change", fitToColumns);
   desktopUp.addEventListener("change", fitToColumns);
-  renderProducts(false);
+  loadCatalog();
 })();

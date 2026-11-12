@@ -88,7 +88,8 @@ export async function apiPublica(request, env, url) {
     const categoria = validarFiltroCategoria(url.searchParams.get("categoria"));
     const marca = validarFiltroMarca(url.searchParams.get("marca"));
     const productos = await listarProductos(env, { soloVisibles: true, categoria, marca });
-    return json({ productos }, 200, { "Cache-Control": "public, max-age=30" });
+    // Sin caché: lo que se guarda en el panel se ve en la tienda al momento.
+    return json({ productos }, 200, { "Cache-Control": "no-cache" });
   }
   return error("Ruta no encontrada.", 404);
 }
