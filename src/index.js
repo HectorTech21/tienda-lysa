@@ -65,6 +65,9 @@ export default {
     }
     const final = new Response(respuesta.body, respuesta);
     for (const [nombre, valor] of Object.entries(CABECERAS_SEGURIDAD)) final.headers.set(nombre, valor);
+    // La API y el panel nunca se indexan, tampoco sus errores ni el 401. Las fotos de /img/ sí.
+    const { pathname } = new URL(request.url);
+    if (/^\/(api|admin)(\/|$)/.test(pathname)) final.headers.set("X-Robots-Tag", "noindex, nofollow");
     return final;
   }
 };

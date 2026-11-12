@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- La web es una sola página: categorías y fichas son filtros y diálogos, sin dirección propia.
+     Solo se listan páginas públicas indexables. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://tienda-lysa.com/</loc>
+  </url>
+</urlset>

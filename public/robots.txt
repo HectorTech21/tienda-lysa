@@ -1,5 +1,8 @@
-# Tienda Lysa: toda la web es pública.
-# Al confirmar el dominio, añadir aquí la línea «Sitemap: https://DOMINIO/sitemap.xml»
-# y crear sitemap.xml con esa misma URL.
+# Tienda Lysa: la web pública se puede rastrear entera.
+# /api/ no se bloquea aquí porque la portada carga los productos desde /api/productos
+# y los buscadores la necesitan para ver la página completa. El panel (/admin) y la API
+# no se indexan: responden con «noindex» (meta robots y cabecera X-Robots-Tag).
 User-agent: *
 Allow: /
+
+Sitemap: https://tienda-lysa.com/sitemap.xml
