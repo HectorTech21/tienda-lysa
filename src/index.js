@@ -18,6 +18,14 @@ async function encaminar(request, env) {
   const url = new URL(request.url);
   const ruta = url.pathname;
 
+  // Un solo dominio: www.tienda-lysa.com pasa a tienda-lysa.com conservando ruta y parámetros.
+  // (Los archivos estáticos no pasan por aquí: para ellos está la regla de redirección de Cloudflare.)
+  if (url.hostname.startsWith("www.")) {
+    url.hostname = url.hostname.slice(4);
+    url.protocol = "https:";
+    return Response.redirect(url.toString(), 301);
+  }
+
   if (ruta.startsWith("/img/")) return servirImagen(request, env, url);
 
   const esApiAdmin = ruta === "/api/admin" || ruta.startsWith("/api/admin/");

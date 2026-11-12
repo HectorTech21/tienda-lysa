@@ -4,6 +4,23 @@
   "main": "src/index.js",
   "compatibility_date": "2025-10-01",
 
+  // La web solo se sirve desde el dominio propio: sin dirección *.workers.dev
+  // ni direcciones de vista previa por versión.
+  "workers_dev": false,
+  "preview_urls": false,
+
+  // Dominio principal: tienda-lysa.com (sin www). www.tienda-lysa.com redirige aquí con una
+  // regla de redirección de Cloudflare (ver «Mañana en Cloudflare» en AGENTS.md); si www
+  // llegara al Worker, src/index.js también lo redirige.
+  // TODO (Cloudflare): el dominio tiene que estar ya añadido a la cuenta antes de desplegar.
+  "routes": [
+    { "pattern": "tienda-lysa.com", "custom_domain": true }
+  ],
+
+  // Solo afecta a "wrangler dev": sin esto, el desarrollo local se presentaría como
+  // tienda-lysa.com y el panel respondería 401 (el salto de .dev.vars exige un equipo local).
+  "dev": { "host": "localhost" },
+
   // Web pública y panel: archivos estáticos de public/.
   // La API, el panel y las imágenes pasan siempre por el Worker (autenticación incluida).
   "assets": {

@@ -439,6 +439,8 @@
         grid.hidden = true;
         $(".load-more").hidden = true;
         $(".empty-state").hidden = !failed;
+        // Con el error, el botón del estado vacío reintenta la carga (ver resetFilters).
+        $("[data-reset]").firstChild.textContent = failed ? "Volver a intentarlo " : "Limpiar filtros ";
         if (failed) {
           $("#empty-title").textContent = "No hemos podido cargar la selección.";
           $("#empty-description").textContent = "Vuelve a intentarlo en unos segundos o consulta con la tienda.";
@@ -449,6 +451,7 @@
         grid.classList.remove("is-updating");
         return;
       }
+      $("[data-reset]").firstChild.textContent = "Limpiar filtros ";
       filteredProducts = products.filter(product =>
         (filterState.category === "all" || (product.categories || [product.category]).includes(filterState.category)) &&
         (filterState.brand === "all" || product.brand === filterState.brand) &&
