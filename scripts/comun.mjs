@@ -33,3 +33,20 @@ export function wrangler(argumentos, { capturar = false } = {}) {
   }
   return resultado.stdout || "";
 }
+
+/** Ejecuta una consulta en D1 y devuelve sus filas. */
+export function consultar(baseDatos, destino, consulta) {
+  const salida = wrangler(["d1", "execute", baseDatos, destino, "--json", "--command", consulta], { capturar: true });
+  const datos = JSON.parse(salida.slice(salida.indexOf("[")));
+  return datos[0].results;
+}
+
+/** Descarga un objeto de R2 a un archivo. Devuelve false si no existe o no se puede leer. */
+export function descargarDeR2(bucket, clave, archivo, destino) {
+  try {
+    wrangler(["r2", "object", "get", `${bucket}/${clave}`, "--file", archivo, destino], { capturar: true });
+    return true;
+  } catch {
+    return false;
+  }
+}
