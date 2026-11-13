@@ -15,6 +15,11 @@
   const LADO_MAXIMO = 1600;
   const MAX_FOTOS = 12;
   const MAX_BYTES = 5 * 1024 * 1024;
+  // Los mismos límites que el servidor (src/validacion.js) y la base de datos.
+  const LIMITES_TEXTO = { titulo: { min: 2, max: 120 }, marca: { max: 60 }, color: { max: 60 }, descripcion: { max: 1000 } };
+  const MENSAJE_PRECIO = "Escribe solo el número, sin espacios, por ejemplo 39,90 o 1.234,56.";
+  /** Longitud en caracteres (un emoji cuenta como 1), la misma medida que el servidor y D1. */
+  const largo = texto => [...texto].length;
   const MENSAJE_FOTO_ILEGIBLE = "Esta foto no se puede subir, prueba a hacer una captura o a cambiar el formato";
 
   const $ = id => document.getElementById(id);
@@ -477,7 +482,7 @@
   function leerFormulario() {
     const marca = campos.marca.value === OTRA ? campos.marcaOtra.value.trim() : campos.marca.value;
     return {
-      titulo: campos.titulo.value.trim(),
+      titulo: campos.titulo.value.normalize("NFC").replace(/\s+/g, " ").trim(),
       categoria: campos.categoria.value,
       marca: marca || null,
       precio: campos.precio.value.trim() ? normalizarPrecio(campos.precio.value) ?? campos.precio.value.trim() : null,
@@ -488,20 +493,45 @@
     };
   }
 
-  /** "39.9", "39,9" o "39,90 €" pasan a "39.90". Devuelve null si no es un precio. */
+  /**
+   * Precio escrito a céntimos: null si está vacío, NaN si no se entiende. Admite «39», «39,90»,
+   * «39.90» y «1.234,56», con «€» opcional al final. No se quitan espacios de en medio:
+   * «1 2» es un error, no 12. Copia de precioEnCentimos en src/validacion.js: cambiar las dos.
+   */
+  function precioEnCentimos(valor) {
+    const texto = String(valor).trim().replace(/\s?€$/, "");
+    if (texto === "") return null;
+    let entero;
+    let decimales = "";
+    let partes = /^(\d{1,5})(?:[.,](\d{1,2}))?$/.exec(texto);
+    if (partes) [, entero, decimales = ""] = partes;
+    else {
+      partes = /^([1-9]\d?)\.(\d{3})(?:,(\d{1,2}))?$/.exec(texto);
+      if (!partes) return NaN;
+      entero = partes[1] + partes[2];
+      decimales = partes[3] || "";
+    }
+    return Number(entero) * 100 + Number(decimales.padEnd(2, "0"));
+  }
+
+  /** "39,9", "39.90 €" o "1.234,56" pasan a "39.90" / "1234.56". Devuelve null si no es un precio. */
   function normalizarPrecio(texto) {
-    const limpio = String(texto).replace(/\s|€/g, "").replace(",", ".");
-    return /^\d{1,5}(\.\d{1,2})?$/.test(limpio) ? Number(limpio).toFixed(2) : null;
+    const centimos = precioEnCentimos(texto);
+    return centimos === null || Number.isNaN(centimos) ? null : (centimos / 100).toFixed(2);
   }
 
   function validarEnNavegador(datos) {
     limpiarErrores();
     const errores = [];
     if (!edicion.fotos.length) errores.push(["fotos", "Añade al menos una foto.", $("elegir-fotos")]);
-    if (datos.titulo.length < 2) errores.push(["titulo", "El nombre es obligatorio (al menos 2 letras).", campos.titulo]);
+    if (largo(datos.titulo) < LIMITES_TEXTO.titulo.min) errores.push(["titulo", "El nombre es obligatorio (al menos 2 letras).", campos.titulo]);
+    else if (largo(datos.titulo) > LIMITES_TEXTO.titulo.max) errores.push(["titulo", `El nombre es demasiado largo (máximo ${LIMITES_TEXTO.titulo.max} caracteres).`, campos.titulo]);
     if (!datos.categoria) errores.push(["categoria", "La categoría es obligatoria: elige una.", campos.categoria]);
     if (campos.marca.value === OTRA && !datos.marca) errores.push(["marca", "Escribe el nombre de la marca o elige «Sin marca».", campos.marcaOtra]);
-    if (datos.precio !== null && normalizarPrecio(datos.precio) === null) errores.push(["precio", "Escribe solo el número, por ejemplo 39,90.", campos.precio]);
+    else if (datos.marca && largo(datos.marca) > LIMITES_TEXTO.marca.max) errores.push(["marca", `La marca es demasiado larga (máximo ${LIMITES_TEXTO.marca.max} caracteres).`, campos.marcaOtra]);
+    if (datos.precio !== null && normalizarPrecio(datos.precio) === null) errores.push(["precio", MENSAJE_PRECIO, campos.precio]);
+    if (datos.color && largo(datos.color) > LIMITES_TEXTO.color.max) errores.push(["color", `El color es demasiado largo (máximo ${LIMITES_TEXTO.color.max} caracteres).`, campos.color]);
+    if (largo(datos.descripcion) > LIMITES_TEXTO.descripcion.max) errores.push(["descripcion", `La descripción es demasiado larga (máximo ${LIMITES_TEXTO.descripcion.max} caracteres).`, campos.descripcion]);
     errores.forEach(([campo, mensaje]) => mostrarError(campo, mensaje));
     if (errores.length) {
       errores[0][2].focus();
@@ -728,11 +758,23 @@
     });
   }
 
-  // Al salir del campo, el precio se muestra ya normalizado (39.9 → 39,90).
+  // Al salir del campo, el precio se muestra ya normalizado (39.9 → 39,90); si no se entiende, se avisa.
   campos.precio.addEventListener("blur", () => {
-    const normalizado = campos.precio.value.trim() ? normalizarPrecio(campos.precio.value) : null;
-    if (normalizado !== null) { campos.precio.value = normalizado.replace(".", ","); mostrarError("precio", ""); }
+    if (!campos.precio.value.trim()) { mostrarError("precio", ""); return; }
+    const normalizado = normalizarPrecio(campos.precio.value);
+    if (normalizado === null) { mostrarError("precio", MENSAJE_PRECIO); return; }
+    campos.precio.value = normalizado.replace(".", ",");
+    mostrarError("precio", "");
   });
+
+  // Tope de caracteres al escribir, contando igual que el servidor (un emoji es 1). Sustituye
+  // al atributo maxlength, que cuenta de otra manera y cortaría antes los textos con emojis.
+  for (const [control, maximo] of [[campos.titulo, LIMITES_TEXTO.titulo.max], [campos.marcaOtra, LIMITES_TEXTO.marca.max], [campos.color, LIMITES_TEXTO.color.max], [campos.descripcion, LIMITES_TEXTO.descripcion.max]]) {
+    control.addEventListener("input", () => {
+      const caracteres = [...control.value];
+      if (caracteres.length > maximo) control.value = caracteres.slice(0, maximo).join("");
+    });
+  }
 
   // «Cerrar sesión» es de Cloudflare Access; en desarrollo local no hay sesión que cerrar.
   let enDesarrollo = false;

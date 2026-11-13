@@ -28,6 +28,12 @@ export class ErrorValidacion extends Error {
   }
 }
 
+/**
+ * Longitud de un texto en caracteres (puntos de código Unicode), no en unidades UTF-16.
+ * Es la misma medida que usa length() en D1 y que usa el panel: un emoji cuenta como 1.
+ */
+export const largo = texto => [...texto].length;
+
 /** Texto en minúsculas, sin acentos ni símbolos, separado por guiones. */
 export function slugificar(texto) {
   return String(texto || "")
@@ -39,10 +45,11 @@ export function slugificar(texto) {
 function limpiarTexto(valor, campo, etiqueta, { min = 0, max, multilinea = false }) {
   if (typeof valor !== "string") throw new ErrorValidacion(`${etiqueta}: tiene que ser un texto.`, 400, campo);
   // Sin caracteres de control; los saltos de línea solo donde tienen sentido.
-  let texto = valor.replace(multilinea ? /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g : /[\u0000-\u001F\u007F]/g, " ");
+  // NFC: «é» escrita como e + acento cuenta como un solo carácter, igual que en el panel.
+  let texto = valor.normalize("NFC").replace(multilinea ? /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g : /[\u0000-\u001F\u007F]/g, " ");
   texto = multilinea ? texto.replace(/\r\n?/g, "\n").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim() : texto.replace(/\s+/g, " ").trim();
-  if (texto.length < min) throw new ErrorValidacion(min > 1 ? `${etiqueta}: escribe al menos ${min} letras.` : `${etiqueta}: no puede estar vacío.`, 400, campo);
-  if (texto.length > max) throw new ErrorValidacion(`${etiqueta}: es demasiado largo (máximo ${max} caracteres).`, 400, campo);
+  if (largo(texto) < min) throw new ErrorValidacion(min > 1 ? `${etiqueta}: escribe al menos ${min} letras.` : `${etiqueta}: no puede estar vacío.`, 400, campo);
+  if (largo(texto) > max) throw new ErrorValidacion(`${etiqueta}: es demasiado largo (máximo ${max} caracteres).`, 400, campo);
   return texto;
 }
 
@@ -51,18 +58,43 @@ function textoOpcional(valor, campo, etiqueta, max) {
   return limpiarTexto(valor, campo, etiqueta, { max }) || null;
 }
 
+export const MENSAJE_PRECIO = "Precio: escribe solo el número, sin espacios, por ejemplo 39,90 o 1.234,56.";
+
+/**
+ * Convierte un precio escrito a céntimos. Devuelve null si está vacío y NaN si no se entiende.
+ * Admite «39», «39,90», «39.90» y «1.234,56» (punto de millares y coma decimal), con «€»
+ * opcional al final. No se quitan espacios de en medio: «1 2» no es 12, es un error.
+ * La misma función está copiada en public/admin/admin.js (precioEnCentimos): cambiar las dos.
+ */
+export function precioEnCentimos(valor) {
+  const texto = String(valor).trim().replace(/\s?€$/, "");
+  if (texto === "") return null;
+  let entero;
+  let decimales = "";
+  let partes = /^(\d{1,5})(?:[.,](\d{1,2}))?$/.exec(texto); // 39 · 39,9 · 39.90
+  if (partes) [, entero, decimales = ""] = partes;
+  else {
+    partes = /^([1-9]\d?)\.(\d{3})(?:,(\d{1,2}))?$/.exec(texto); // 1.234 · 1.234,56
+    if (!partes) return NaN;
+    entero = partes[1] + partes[2];
+    decimales = partes[3] || "";
+  }
+  return Number(entero) * 100 + Number(decimales.padEnd(2, "0"));
+}
+
 function leerPrecio(valor) {
   if (valor === null || valor === undefined || valor === "") return null;
-  let numero;
-  if (typeof valor === "number") numero = valor;
-  else if (typeof valor === "string") {
-    const texto = valor.trim().replace(/\s|€/g, "").replace(",", ".");
-    if (texto === "") return null;
-    if (!/^\d{1,5}(\.\d{1,2})?$/.test(texto)) throw new ErrorValidacion("Precio: escribe solo el número, por ejemplo 39,90.", 400, "precio");
-    numero = Number(texto);
-  } else throw new ErrorValidacion("Precio: no es un número válido.", 400, "precio");
-  if (!Number.isFinite(numero) || numero < 0 || numero > LIMITES.precioMaximo) throw new ErrorValidacion("Precio: tiene que estar entre 0 y 99.999,99 €.", 400, "precio");
-  return Math.round(numero * 100);
+  let centimos;
+  if (typeof valor === "number") {
+    centimos = Math.round(valor * 100);
+    if (!Number.isFinite(valor) || Math.abs(valor * 100 - centimos) > 1e-6) throw new ErrorValidacion(MENSAJE_PRECIO, 400, "precio");
+  } else if (typeof valor === "string") {
+    centimos = precioEnCentimos(valor);
+    if (centimos === null) return null;
+    if (Number.isNaN(centimos)) throw new ErrorValidacion(MENSAJE_PRECIO, 400, "precio");
+  } else throw new ErrorValidacion(MENSAJE_PRECIO, 400, "precio");
+  if (centimos < 0 || centimos > Math.round(LIMITES.precioMaximo * 100)) throw new ErrorValidacion("Precio: tiene que estar entre 0 y 99.999,99 €.", 400, "precio");
+  return centimos;
 }
 
 function leerBooleano(valor, campo, etiqueta) {

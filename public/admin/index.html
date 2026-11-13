@@ -93,7 +93,7 @@
           <legend>Datos del producto</legend>
           <label class="campo">
             <span class="etiqueta">Nombre del producto <small class="obligatorio">(obligatorio)</small></span>
-            <input type="text" id="titulo" maxlength="120" autocomplete="off" required aria-required="true">
+            <input type="text" id="titulo" autocomplete="off" required aria-required="true">
             <span class="error-campo" id="error-titulo" hidden></span>
           </label>
           <label class="campo">
@@ -107,23 +107,23 @@
           </label>
           <label class="campo" id="campo-marca-otra" hidden>
             <span class="etiqueta">Nombre de la marca</span>
-            <input type="text" id="marca-otra" maxlength="60" autocomplete="off">
+            <input type="text" id="marca-otra" autocomplete="off">
             <span class="error-campo" id="error-marca" hidden></span>
           </label>
           <label class="campo">
             <span class="etiqueta">Precio en euros <small>(opcional)</small></span>
-            <input type="text" id="precio" inputmode="decimal" maxlength="9" placeholder="Por ejemplo 39,90" autocomplete="off">
-            <span class="ayuda">Puedes escribirlo con coma o con punto. Si lo dejas vacío, en la tienda aparece «Consultar precio».</span>
+            <input type="text" id="precio" inputmode="decimal" maxlength="12" placeholder="Por ejemplo 39,90" autocomplete="off">
+            <span class="ayuda">Puedes escribirlo con coma o con punto, por ejemplo 39,90 o 1.234,56. Si lo dejas vacío, en la tienda aparece «Consultar precio».</span>
             <span class="error-campo" id="error-precio" hidden></span>
           </label>
           <label class="campo">
             <span class="etiqueta">Color <small>(opcional)</small></span>
-            <input type="text" id="color" maxlength="60" autocomplete="off">
+            <input type="text" id="color" autocomplete="off">
             <span class="error-campo" id="error-color" hidden></span>
           </label>
           <label class="campo">
             <span class="etiqueta">Descripción <small>(opcional)</small></span>
-            <textarea id="descripcion" rows="4" maxlength="1000"></textarea>
+            <textarea id="descripcion" rows="4"></textarea>
             <span class="error-campo" id="error-descripcion" hidden></span>
           </label>
         </fieldset>

@@ -251,7 +251,7 @@
     // para cubrir la ventana, y la duración se calcula en px/s para que la velocidad
     // percibida sea la misma en móvil, tablet y escritorio.
     const MARQUEE_SPEED = 40; // px/s
-    const MARQUEE_SPEED_REDUCED = 20; // px/s con «movimiento reducido»: más lento, nunca parado
+    const MARQUEE_SPEED_REDUCED = 20; // px/s si, con «movimiento reducido», la visitante decide ponerla en marcha
     let repetitions = 0;
     function sizeMarquee() {
       const sequenceWidth = sequence.getBoundingClientRect().width;
@@ -273,8 +273,29 @@
       observer.observe(marqueeWindow);
       observer.observe(sequence);
     } else window.addEventListener("resize", sizeMarquee);
-    reducedMotion.addEventListener("change", sizeMarquee);
-    // Teclado: la animación se pausa con :focus-within y se lleva su línea de tiempo
+    // Pausa: con «movimiento reducido» la franja empieza quieta. El botón la pausa o la pone
+    // en marcha y su estado se mantiene (no lo cambian el ratón, el foco ni el tamaño de la
+    // ventana) hasta que se vuelve a pulsar. En pausa, la franja se puede recorrer con el dedo.
+    const marqueeToggle = $(".marquee-toggle");
+    let marqueeChosen = false; // true cuando la visitante ha pulsado el botón
+    function setMarqueePlaying(playing) {
+      marqueeWindow.dataset.marquee = playing ? "playing" : "paused";
+      if (playing) marqueeWindow.scrollLeft = 0;
+      marqueeToggle.classList.toggle("is-paused", !playing);
+      $(".marquee-toggle-label", marqueeToggle).textContent = playing ? "Pausar el movimiento" : "Reanudar el movimiento";
+      marqueeToggle.setAttribute("aria-label", playing ? "Pausar el movimiento de las marcas" : "Reanudar el movimiento de las marcas");
+    }
+    setMarqueePlaying(!reducedMotion.matches);
+    marqueeToggle.hidden = false;
+    marqueeToggle.addEventListener("click", () => {
+      marqueeChosen = true;
+      setMarqueePlaying(marqueeWindow.dataset.marquee !== "playing");
+    });
+    reducedMotion.addEventListener("change", () => {
+      sizeMarquee();
+      if (!marqueeChosen) setMarqueePlaying(!reducedMotion.matches);
+    });
+    // Teclado: la animación se pausa con :focus-within (o ya estaba en pausa) y se lleva su línea de tiempo
     // al punto en que el logo enfocado queda dentro de la zona visible (fuera del
     // fundido). Al salir, el movimiento continúa desde ahí, sin saltos.
     marqueeWindow.addEventListener("focusin", event => {

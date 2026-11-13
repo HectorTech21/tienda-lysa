@@ -170,6 +170,28 @@ caso("borrar un producto: si D1 borra bien y R2 falla, la respuesta es de éxito
   assert.ok(errores.some(texto => texto.includes("productos/a.webp")), "el fallo de R2 tiene que quedar en el registro");
 });
 
+caso("Origin: las escrituras exigen la cabecera y que coincida entera (esquema, nombre y puerto)", async () => {
+  // Sesión válida (salto de desarrollo en una red local) para llegar a la comprobación de Origin.
+  const sitio = "http://192.168.1.20:8787";
+  const sentencia = () => ({ bind() { return this; }, first: async () => null, all: async () => ({ results: [] }) });
+  const { env } = entorno({ DEV_BYPASS_AUTH: "true", DB: { prepare: sentencia, batch: async () => [] } });
+  const escribir = async (origen, metodo = "DELETE") => (await worker.fetch(new Request(sitio + "/api/admin/productos/abc", {
+    method: metodo, headers: origen === null ? {} : { Origin: origen }
+  }), env)).status;
+  for (const metodo of ["POST", "PATCH", "PUT", "DELETE"]) assert.equal(await escribir(null, metodo), 403, `sin Origin (${metodo})`);
+  const rechazados = [
+    "https://192.168.1.20:8787",        // otro esquema
+    "http://192.168.1.20:8788",         // otro puerto
+    "http://192.168.1.20",              // sin puerto
+    "http://192.168.1.21:8787",         // otro equipo
+    "http://192.168.1.20:8787.otra.example", "http://otra.example", "http://192.168.1.20:8787/", "null", ""
+  ];
+  for (const origen of rechazados) assert.equal(await escribir(origen), 403, origen);
+  assert.equal(await escribir(sitio), 404); // pasa la comprobación; el producto «abc» no existe
+  // Las lecturas no llevan Origin.
+  assert.equal((await worker.fetch(new Request(sitio + "/api/admin/productos/abc"), env)).status, 404);
+});
+
 let fallos = 0;
 for (const [nombre, funcion] of casos) {
   try { await funcion(); console.log(`  ok  ${nombre}`); }

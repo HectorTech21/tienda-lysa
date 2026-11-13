@@ -182,6 +182,41 @@ caso("identificador de operación mal formado: se rechaza", async () => {
   assert.equal(r.estado, 400);
 });
 
+caso("Origin: las escrituras exigen la cabecera y que coincida entera", async () => {
+  const puerto = new URL(BASE).port;
+  const cuerpo = JSON.stringify({ visible: false });
+  const probar = async origen => (await fetch(`${BASE}/api/admin/productos/${producto.id}`, {
+    method: "PATCH", body: cuerpo, headers: { "Content-Type": "application/json", ...(origen === null ? {} : { Origin: origen }) }
+  })).status;
+  assert.equal(await probar(null), 403, "sin Origin");
+  assert.equal(await probar("https://otra-web.example"), 403);
+  assert.equal(await probar("null"), 403);
+  // Esquema y puerto distintos se prueban en probar-rutas.mjs: aquí "wrangler dev" reescribe
+  // la cabecera Origin de localhost antes de que llegue al Worker.
+  assert.equal(await probar(BASE), 200);
+  // Las lecturas no la necesitan.
+  assert.equal((await fetch(`${BASE}/api/admin/productos/${producto.id}`)).status, 200);
+});
+
+caso("precio y nombre con emoji: errores claros, nunca un error genérico", async () => {
+  const guardar = datos => api(`productos/${producto.id}`, { metodo: "PATCH", datos });
+  const espacios = await guardar({ precio: "1 2" });
+  assert.equal(espacios.estado, 400);
+  assert.equal(espacios.json.campo, "precio");
+  const miles = await guardar({ precio: "1.234,56" });
+  assert.equal(miles.estado, 200, JSON.stringify(miles.json));
+  assert.equal(miles.json.producto.precio, 1234.56);
+  const corto = await guardar({ titulo: "👜" });
+  assert.equal(corto.estado, 400, JSON.stringify(corto.json));
+  assert.equal(corto.json.campo, "titulo");
+  const emojis = await guardar({ titulo: "👜".repeat(120), descripcion: "💗".repeat(1000) });
+  assert.equal(emojis.estado, 200, JSON.stringify(emojis.json));
+  assert.equal([...emojis.json.producto.titulo].length, 120);
+  const largo = await guardar({ titulo: "👜".repeat(121) });
+  assert.equal(largo.estado, 400);
+  assert.equal(largo.json.campo, "titulo");
+});
+
 caso("borrar: desaparecen el producto y sus fotos", async () => {
   const fotos = producto.imagenes;
   assert.equal((await api(`productos/${producto.id}`, { metodo: "DELETE" })).estado, 200);

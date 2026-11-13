@@ -10,7 +10,8 @@
     "test:auth": "node scripts/probar-auth.mjs",
     "test:rutas": "node scripts/probar-rutas.mjs",
     "test:panel": "node scripts/probar-panel.mjs",
-    "test": "node scripts/probar-auth.mjs && node scripts/probar-rutas.mjs"
+    "test": "node scripts/probar-auth.mjs && node scripts/probar-rutas.mjs && node scripts/probar-validacion.mjs",
+    "test:validacion": "node scripts/probar-validacion.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.161.0"

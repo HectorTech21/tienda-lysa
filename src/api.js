@@ -123,14 +123,10 @@ export async function servirImagen(request, env, url) {
 
 export async function apiAdmin(request, env, url, sesion) {
   const metodo = request.method;
-  // Los cambios solo se aceptan desde el propio panel, no desde otra web.
-  if (metodo !== "GET" && metodo !== "HEAD") {
-    const origen = request.headers.get("Origin");
-    if (origen) {
-      let mismoSitio = false;
-      try { mismoSitio = new URL(origen).host === url.host; } catch { /* origen ilegible: se rechaza */ }
-      if (!mismoSitio) return error("Petición no permitida desde otro sitio.", 403);
-    }
+  // Los cambios solo se aceptan desde el propio panel: la cabecera Origin tiene que venir y
+  // coincidir entera (esquema, nombre y puerto). Los navegadores la envían siempre en las escrituras.
+  if (metodo !== "GET" && metodo !== "HEAD" && request.headers.get("Origin") !== url.origin) {
+    return error("Petición no permitida desde otro sitio.", 403);
   }
   const partes = url.pathname.slice("/api/admin/".length).split("/").filter(Boolean);
   const [recurso, id] = partes;

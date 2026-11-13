@@ -1098,7 +1098,7 @@ h2 {
 }
 /* Marquee infinito. Dos mitades idénticas (la segunda con aria-hidden) y
    translateX de 0 a -50 %. La duración la fija script.js en px/s (--marquee-duration).
-   Se mueve siempre: con movimiento reducido solo va más lento. */
+   Con «movimiento reducido» empieza quieta; el botón .marquee-toggle la pausa o la reanuda. */
 .marquee-window {
   --logo-h:44px;
   --logo-w:170px;
@@ -1125,6 +1125,43 @@ h2 {
 }
 .marquee-window:focus-within .marquee-track {
   animation-play-state:paused
+}
+/* Pausa elegida con el botón (o inicial con movimiento reducido): quieta y recorrible a mano. */
+.marquee-window[data-marquee="paused"] .marquee-track {
+  animation-play-state:paused
+}
+.marquee-window[data-marquee="paused"] {
+  overflow-x:auto;
+  scrollbar-width:none
+}
+.marquee-window[data-marquee="paused"]::-webkit-scrollbar {
+  display:none
+}
+.marquee-toggle {
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  min-height:var(--tap);
+  padding:8px 0;
+  margin-left:auto;
+  font-size:var(--btn-font);
+  font-weight:500;
+  white-space:nowrap;
+  color:var(--muted)
+}
+.marquee-toggle:hover {
+  color:var(--chocolate)
+}
+.marquee-toggle svg {
+  flex:none;
+  stroke-width:1.8
+}
+.marquee-toggle .marquee-toggle-play,.marquee-toggle.is-paused .marquee-toggle-pause {
+  display:none
+}
+.marquee-toggle.is-paused .marquee-toggle-play {
+  display:inline;
+  fill:currentColor
 }
 .marquee-group {
   display:flex;
@@ -2539,6 +2576,9 @@ dialog[open] {
   .brands-caption {
     font-size:11px
   }
+  .marquee-toggle {
+    margin-left:0
+  }
   .editorial {
     display:flex;
     flex-direction:column;
@@ -2717,12 +2757,24 @@ dialog[open] {
     opacity:1;
     transform:none
   }
-  /* Excepción deliberada: la franja de marcas sigue en movimiento (más lenta,
-     ver MARQUEE_SPEED_REDUCED en script.js). Su especificidad de clase gana a «*». */
+  /* La franja de marcas se queda quieta. La animación sigue definida (su especificidad de
+     clase gana a «*») pero en pausa: solo se mueve, más despacio, si la visitante pulsa
+     «Reanudar el movimiento» (data-marquee="playing", ver script.js). */
   .marquee-track {
-    animation:marquee var(--marquee-duration,120s) linear infinite!important
+    animation:marquee var(--marquee-duration,120s) linear infinite!important;
+    animation-play-state:paused!important
   }
-  .marquee-window:focus-within .marquee-track {
+  .marquee-window {
+    overflow-x:auto;
+    scrollbar-width:none
+  }
+  .marquee-window::-webkit-scrollbar {
+    display:none
+  }
+  .marquee-window[data-marquee="playing"] .marquee-track {
+    animation-play-state:running!important
+  }
+  .marquee-window[data-marquee="playing"]:focus-within .marquee-track {
     animation-play-state:paused!important
   }
   .hero-visual>img {
@@ -2731,7 +2783,7 @@ dialog[open] {
   }
 }
 @media(prefers-reduced-motion:reduce) and (hover:hover) and (pointer:fine) {
-  .marquee-window:hover .marquee-track {
+  .marquee-window[data-marquee="playing"]:hover .marquee-track {
     animation-play-state:paused!important
   }
 }
