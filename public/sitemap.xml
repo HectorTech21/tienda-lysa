@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- La web es una sola página: categorías y fichas son filtros y diálogos, sin dirección propia.
-     Solo se listan páginas públicas indexables. -->
+     Solo se listan páginas públicas indexables: la portada y las tres páginas legales
+     (Cloudflare las sirve sin la extensión .html). -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://tienda-lysa.com/</loc>
+  </url>
+  <url>
+    <loc>https://tienda-lysa.com/aviso-legal</loc>
+  </url>
+  <url>
+    <loc>https://tienda-lysa.com/privacidad</loc>
+  </url>
+  <url>
+    <loc>https://tienda-lysa.com/cookies</loc>
   </url>
 </urlset>

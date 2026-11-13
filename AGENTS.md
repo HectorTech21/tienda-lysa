@@ -1,5 +1,16 @@
 # Tienda Lysa · instrucciones y decisiones
 
+## Páginas legales · 13 de noviembre de 2026
+
+Sustituye lo que se diga más abajo sobre los diálogos de «Aviso legal» y «Privacidad» (`data-policy`, `#policy-dialog`), que se han eliminado.
+
+- **Páginas.** `public/aviso-legal.html`, `public/privacidad.html` y `public/cookies.html`, con rutas desde la raíz (`/styles.css`). Cloudflare las sirve sin extensión (`/aviso-legal`; `.html` redirige), y así están en enlaces, `canonical` y `sitemap.xml`. Cabecera reducida (`.legal-nav`: Inicio, Productos, Contacto) porque no cargan `script.js`; estilos en el bloque «Páginas legales» de `styles.css`. La tabla de cookies pasa a fichas por debajo de 580 px.
+- **Datos de la titular.** Único sitio: el objeto `LEGAL` de `public/store-config.js`. `public/legal.js` coloca cada valor en los `<span data-legal="CLAVE">` de las tres páginas (correo y teléfono como enlaces) y rellena WhatsApp, Instagram y el año del pie. Marcadores: `[[NOMBRE_TITULAR]]`, `[[NIF]]`, `[[DOMICILIO]]`, `[[EMAIL_LEGAL]]`, `[[TELEFONO]]`, `[[DATOS_REGISTRALES]]`, `[[FECHA_ACTUALIZACION]]`. Un valor vacío (`""`) elimina su línea (`data-legal-linea`): es lo que hay que hacer con `DATOS_REGISTRALES` si la titular es autónoma. No inventar estos datos.
+- **Pie.** Portada y páginas legales enlazan «Aviso legal», «Privacidad» y «Cookies» en `.footer-bottom`; `404.html` lleva los mismos enlaces. El panel no.
+- **Revisión de cookies y terceros (código y local).** La web no crea cookies ni usa `sessionStorage`; `localStorage` solo guarda favoritos (`lysa-demo-favorites-v1`), al pulsar el corazón. No hay fuentes remotas, mapas, iframes, analítica, píxeles ni CDN. Contacto solo por enlaces a `wa.me` e Instagram; sin formularios, `tel:` ni `mailto:` en la portada. Por eso no hay banner de consentimiento. Si se añade cualquier recurso de terceros o cookie no técnica, hay que actualizar `cookies.html` y `privacidad.html` y valorar el banner.
+- **Pendiente.** Rellenar `LEGAL`. Tras desplegar, comprobar en el navegador qué cookies pone Cloudflare de verdad (`__cf_bm`, `cf_clearance`, `CF_Authorization`) y ajustar la tabla de `cookies.html`: en local no se pueden ver. El plazo de conservación de doce meses de `privacidad.html` es una propuesta que debe confirmar la titular. Los textos no los ha revisado un profesional jurídico.
+- **Estado.** Probado en local a 375 px y en escritorio: las tres páginas sin desbordamiento horizontal ni errores de consola, enlaces del pie desde la portada y desde `404.html`, sustitución de datos y eliminación de la línea registral con valores de prueba (retirados después).
+
 ## Panel de administración y Cloudflare · 13 de noviembre de 2026
 
 Sustituye lo que se diga más abajo sobre Vercel, «sin npm ni backend», la ubicación de los archivos en la raíz y el servidor local con Python.

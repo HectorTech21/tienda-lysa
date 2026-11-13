@@ -582,11 +582,6 @@
     openDialog($("#product-dialog"), opener);
   }
 
-  const policies = {
-    legal: { title: "Información de esta web", html: "<p>Esta web presenta una selección fotografiada en Tienda Lysa. Los nombres de los artículos son descriptivos y las referencias LYSA sirven para identificarlos en las consultas; no son referencias oficiales del fabricante.</p><p>El precio y la disponibilidad se consultan con la tienda. No se realizan pagos ni pedidos desde esta página. Las imágenes del hero, las categorías y el editorial son ilustrativas y no representan artículos del catálogo.</p><h3>Contacto con la tienda</h3><p>Puedes contactar por WhatsApp desde las fichas de producto, la sección de contacto o el pie de página. El perfil oficial de Instagram también está enlazado en el pie de página.</p><h3>Información del negocio</h3><p>Los datos de titularidad, identificación fiscal y domicilio están pendientes de incorporar. El aviso legal definitivo deberá completarse con los datos verificados de la tienda antes de publicar.</p>" },
-    privacy: { title: "Tu privacidad", html: "<p>Esta página no utiliza analítica, publicidad ni cookies de seguimiento. Las imágenes y los estilos se cargan desde el propio proyecto.</p><h3>Tus favoritos</h3><p>Al guardar una pieza se conserva únicamente su identificador en el almacenamiento local de tu navegador. Puedes retirarla con el mismo corazón. Eliminar todos los favoritos borra ese registro. Si el navegador bloquea el almacenamiento, los favoritos funcionan durante la visita.</p><h3>Consultas por WhatsApp</h3><p>«Consultar por WhatsApp» abre una nueva pestaña con el nombre, la marca identificada y la referencia del artículo. Los enlaces de contacto general preparan una consulta sin mencionar productos. El mensaje no se envía automáticamente: puedes revisarlo y decidir si lo envías en WhatsApp.</p><h3>Enlaces sociales</h3><p>Los enlaces de WhatsApp e Instagram te llevan a servicios externos, donde se aplican sus condiciones y políticas de privacidad. Esta web no recoge datos personales mediante un formulario ni envía mensajes por ti.</p><p>La política definitiva deberá completarse con los datos del responsable del negocio antes de publicar.</p>" }
-  };
-
   document.addEventListener("click", event => {
     if (!event.target.closest(".brand-dropdown")) setBrandsOpen(false);
     if (!event.target.closest(".site-header")) setMobileOpen(false);
@@ -632,14 +627,6 @@
     }
     const closeButton = event.target.closest("[data-close]");
     if (closeButton) { closeButton.closest("dialog").close(); return; }
-    const policyButton = event.target.closest("[data-policy]");
-    if (policyButton) {
-      const policy = policies[policyButton.dataset.policy];
-      $("#policy-title").textContent = policy.title;
-      $("#policy-content").innerHTML = policy.html;
-      openDialog($("#policy-dialog"), policyButton);
-      return;
-    }
     if (event.target.closest("#main-navigation a")) setMobileOpen(false);
   });
 
