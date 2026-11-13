@@ -149,6 +149,27 @@ caso("una ruta que no se puede decodificar no llega a los archivos", async () =>
   assert.deepEqual(servidos, []);
 });
 
+caso("borrar un producto: si D1 borra bien y R2 falla, la respuesta es de éxito", async () => {
+  const lote = [];
+  const sentencia = sql => ({ sql, bind() { return this; }, first: async () => ({ id: "abc" }), all: async () => ({ results: [{ clave: "productos/a.webp" }, { clave: "productos/b.webp" }] }) });
+  const { env } = entorno({
+    DEV_BYPASS_AUTH: "true",
+    DB: { prepare: sentencia, batch: async sentencias => { lote.push(...sentencias.map(item => item.sql)); return []; } },
+    BUCKET: { delete: async () => { throw new Error("R2 no responde"); } }
+  });
+  const errores = [];
+  const original = console.error;
+  console.error = (...datos) => errores.push(datos.join(" "));
+  let respuesta;
+  try {
+    respuesta = await worker.fetch(new Request("http://localhost:8787/api/admin/productos/abc", { method: "DELETE", headers: { Origin: "http://localhost:8787" } }), env);
+  } finally { console.error = original; }
+  assert.equal(respuesta.status, 200);
+  assert.deepEqual(await respuesta.json(), { ok: true });
+  assert.ok(lote.some(sql => sql.startsWith("DELETE FROM productos")), "el producto tenía que borrarse de D1");
+  assert.ok(errores.some(texto => texto.includes("productos/a.webp")), "el fallo de R2 tiene que quedar en el registro");
+});
+
 let fallos = 0;
 for (const [nombre, funcion] of casos) {
   try { await funcion(); console.log(`  ok  ${nombre}`); }

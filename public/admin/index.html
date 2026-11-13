@@ -25,6 +25,13 @@
   <main id="contenido">
     <noscript><p class="aviso-fijo">El panel necesita JavaScript para funcionar.</p></noscript>
 
+    <!-- Sesión caducada: el formulario y las fotos se conservan; solo hay que volver a entrar. -->
+    <div class="sesion-caducada" id="sesion-caducada" role="alert" hidden>
+      <p><strong>Tu sesión ha caducado. Vuelve a entrar para guardar.</strong></p>
+      <p>No se ha perdido nada: lo que has escrito y tus fotos siguen aquí. Entra de nuevo en la otra pestaña y vuelve a esta.</p>
+      <a class="boton primario" id="volver-a-entrar" href="/admin/" target="_blank" rel="noopener">Volver a entrar</a>
+    </div>
+
     <!-- Listado -->
     <section id="vista-lista" aria-labelledby="titulo-lista">
       <div class="cabecera-lista">

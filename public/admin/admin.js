@@ -26,13 +26,28 @@
   let productos = [];
   let cargado = false;
   // Estado del formulario abierto.
-  let edicion = null; // { id | null, fotos: [{ clave, id | null, url, blob | null }] } · con blob = foto aún sin guardar
+  // { id | null, operacion, procesando, fotos: [{ clave, id | null, url, blob | null, operacion }] }
+  // · operacion: identificador para que un reintento no cree otro producto ni otra foto.
+  // · procesando: fotos que se están preparando para ESTE formulario.
+  // · foto con blob = todavía sin guardar.
+  let edicion = null;
   let sucio = false;
   let guardando = false;
-  let procesandoFotos = 0;
   let rutaActual = "";
   let restaurandoRuta = false;
   let contadorFotos = 0;
+
+  const MENSAJE_SESION = "Tu sesión ha caducado. Vuelve a entrar para guardar.";
+  const MENSAJE_SIN_CONEXION = "No hay conexión. Comprueba el wifi o los datos del móvil e inténtalo de nuevo.";
+  // Con esta cabecera, Cloudflare Access responde 401 en lugar de redirigir a su página de entrada.
+  const CABECERA_PANEL = ["X-Requested-With", "XMLHttpRequest"];
+
+  /** Identificador único de una operación (alta de producto o subida de foto). */
+  function nuevaOperacion() {
+    if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    return [...bytes].map(byte => byte.toString(16).padStart(2, "0")).join("");
+  }
 
   const sinAcentos = texto => String(texto || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const nombreCategoria = id => CATEGORIAS.find(item => item.id === id)?.nombre || id;
@@ -80,48 +95,93 @@
   /* ---------- Comunicación con el servidor ---------- */
 
   class ErrorApi extends Error {
-    constructor(mensaje, estado = 0, campo = null) { super(mensaje); this.estado = estado; this.campo = campo; }
+    constructor(mensaje, estado = 0, campo = null) { super(mensaje); this.estado = estado; this.campo = campo; this.sesion = estado === 401; }
+  }
+
+  /* Sesión caducada: aviso fijo con un botón para volver a entrar en otra pestaña.
+     El formulario y las fotos se quedan como están para poder reintentar. */
+  function mostrarSesionCaducada() {
+    const aviso = $("sesion-caducada");
+    if (!aviso.hidden) return;
+    aviso.hidden = false;
+    $("volver-a-entrar").focus({ preventScroll: true });
+  }
+
+  function ocultarSesionCaducada() { $("sesion-caducada").hidden = true; }
+
+  /** Pregunta al servidor si la sesión sigue viva. true = caducada; false = viva o sin conexión. */
+  async function sesionCaducada() {
+    try {
+      const respuesta = await fetch("/api/admin/sesion", { headers: [CABECERA_PANEL], cache: "no-store", redirect: "manual" });
+      return respuesta.status === 401 || respuesta.type === "opaqueredirect";
+    } catch { return false; }
+  }
+
+  /** Error de red: si hay conexión pero la sesión ya no vale, es una sesión caducada. */
+  async function errorDeRed() {
+    if (navigator.onLine !== false && await sesionCaducada()) { mostrarSesionCaducada(); return new ErrorApi(MENSAJE_SESION, 401); }
+    return new ErrorApi(MENSAJE_SIN_CONEXION);
+  }
+
+  /** Muestra un error; si es de sesión, ya está el aviso fijo y no hace falta repetirlo. */
+  function avisarFallo(fallo, prefijo = "", sufijo = "") {
+    if (!fallo.sesion) avisar(prefijo + fallo.message + sufijo, "error");
   }
 
   function mensajeDeEstado(estado, datos) {
-    if (estado === 401) return "Tu sesión ha caducado. Recarga la página para volver a entrar.";
+    if (estado === 401) return MENSAJE_SESION;
     if (datos && typeof datos.error === "string") return datos.error;
     if (estado === 413) return "La foto pesa demasiado.";
     return "No se ha podido completar. Inténtalo de nuevo en un momento.";
   }
 
-  async function pedir(ruta, { metodo = "GET", datos } = {}) {
+  async function pedir(ruta, { metodo = "GET", datos, operacion } = {}) {
+    const cabeceras = [CABECERA_PANEL];
+    if (datos !== undefined) cabeceras.push(["Content-Type", "application/json"]);
+    if (operacion) cabeceras.push(["X-Operacion", operacion]);
     let respuesta;
     try {
       respuesta = await fetch(`/api/admin/${ruta}`, {
         method: metodo,
-        headers: datos === undefined ? {} : { "Content-Type": "application/json" },
+        headers: cabeceras,
         body: datos === undefined ? undefined : JSON.stringify(datos),
-        cache: "no-store"
+        cache: "no-store",
+        redirect: "manual" // una redirección aquí solo puede ser la página de entrada de Access
       });
     } catch {
-      throw new ErrorApi("No hay conexión. Comprueba el wifi o los datos del móvil e inténtalo de nuevo.");
+      throw await errorDeRed();
+    }
+    if (respuesta.status === 401 || respuesta.type === "opaqueredirect") {
+      mostrarSesionCaducada();
+      throw new ErrorApi(MENSAJE_SESION, 401);
     }
     let cuerpo = null;
     try { cuerpo = await respuesta.json(); } catch { /* respuesta sin JSON */ }
     if (!respuesta.ok) throw new ErrorApi(mensajeDeEstado(respuesta.status, cuerpo), respuesta.status, cuerpo?.campo || null);
+    ocultarSesionCaducada();
     return cuerpo;
   }
 
   /** Sube una foto con XMLHttpRequest para poder mostrar el avance. */
-  function subirFoto(blob, alAvanzar) {
+  function subirFoto(blob, operacion, alAvanzar) {
     return new Promise((resolver, rechazar) => {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/api/admin/imagenes");
       xhr.setRequestHeader("Content-Type", blob.type);
+      xhr.setRequestHeader(...CABECERA_PANEL);
+      xhr.setRequestHeader("X-Operacion", operacion); // si se reintenta, el servidor no guarda otra copia
       xhr.responseType = "json";
       xhr.upload.onprogress = evento => { if (evento.lengthComputable) alAvanzar(evento.loaded); };
-      xhr.onerror = () => rechazar(new ErrorApi("No hay conexión. Comprueba el wifi o los datos del móvil e inténtalo de nuevo."));
+      // Un fallo de red puede ser en realidad la redirección de una sesión caducada.
+      xhr.onerror = () => errorDeRed().then(rechazar);
       xhr.ontimeout = () => rechazar(new ErrorApi("La subida ha tardado demasiado. Inténtalo de nuevo."));
       xhr.timeout = 120000;
       xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300 && xhr.response?.imagen) resolver(xhr.response.imagen);
-        else rechazar(new ErrorApi(mensajeDeEstado(xhr.status, xhr.response), xhr.status));
+        if (xhr.status >= 200 && xhr.status < 300 && xhr.response?.imagen) { ocultarSesionCaducada(); resolver(xhr.response.imagen); return; }
+        // Sin JSON y con otra dirección final: Access ha contestado con su página de entrada.
+        const redirigida = xhr.status === 200 && !xhr.response;
+        if (xhr.status === 401 || redirigida) { mostrarSesionCaducada(); rechazar(new ErrorApi(MENSAJE_SESION, 401)); return; }
+        rechazar(new ErrorApi(mensajeDeEstado(xhr.status, xhr.response), xhr.status));
       };
       xhr.send(blob);
     });
@@ -218,7 +278,7 @@
       pintarLista();
     } catch (fallo) {
       $("recuento").textContent = "No se han podido cargar los productos.";
-      avisar(fallo.message, "error");
+      avisarFallo(fallo);
     }
   }
 
@@ -231,7 +291,7 @@
       avisar(actualizado.visible ? `«${actualizado.titulo}» vuelve a verse en la tienda.` : `«${actualizado.titulo}» ya no se ve en la tienda.`);
     } catch (fallo) {
       boton.disabled = false;
-      avisar(fallo.message, "error");
+      avisarFallo(fallo);
       if (fallo.estado === 404) cargarProductos();
     }
   }
@@ -287,33 +347,48 @@
   }
 
   async function anadirFotos(archivos) {
-    if (!edicion || !archivos.length) return;
-    const hueco = MAX_FOTOS - edicion.fotos.length;
+    // Las fotos pertenecen al formulario que estaba abierto al elegirlas. Si la dueña sale o
+    // abre otro producto mientras se preparan, el resultado se descarta.
+    const formularioDeOrigen = edicion;
+    if (!formularioDeOrigen || !archivos.length) return;
+    const sigueAbierto = () => edicion === formularioDeOrigen;
+    const hueco = MAX_FOTOS - formularioDeOrigen.fotos.length;
     if (hueco <= 0) { avisar(`Un producto puede tener como máximo ${MAX_FOTOS} fotos.`, "error"); return; }
     const elegidos = archivos.slice(0, hueco);
     if (archivos.length > hueco) avisar(`Solo se han añadido ${hueco} fotos: el máximo por producto es ${MAX_FOTOS}.`, "error");
 
-    procesandoFotos += elegidos.length;
+    let pendientes = elegidos.length;
+    formularioDeOrigen.procesando += pendientes;
     actualizarBotones();
     let ilegibles = 0;
-    let hechas = 0;
-    for (const archivo of elegidos) {
-      $("estado-fotos").textContent = `Preparando foto ${hechas + 1} de ${elegidos.length}…`;
-      try {
-        const blob = await comprimir(archivo);
-        if (!edicion) return;
-        edicion.fotos.push({ clave: `nueva-${++contadorFotos}`, id: null, url: URL.createObjectURL(blob), blob });
-        sucio = true;
-        pintarFotos();
-      } catch (fallo) {
-        if (fallo.message === "grande") avisar("Esta foto pesa demasiado incluso después de reducirla. Prueba con otra.", "error");
-        else ilegibles += 1;
+    let grandes = 0;
+    try {
+      for (let i = 0; i < elegidos.length && sigueAbierto(); i++) {
+        $("estado-fotos").textContent = `Preparando foto ${i + 1} de ${elegidos.length}…`;
+        try {
+          const blob = await comprimir(elegidos[i]);
+          if (!sigueAbierto()) break; // el formulario ya no es este: la foto no se añade a ningún otro
+          formularioDeOrigen.fotos.push({ clave: `nueva-${++contadorFotos}`, id: null, url: URL.createObjectURL(blob), blob, operacion: nuevaOperacion() });
+          sucio = true;
+          pintarFotos();
+        } catch (fallo) {
+          if (fallo.message === "grande") grandes += 1;
+          else ilegibles += 1;
+        } finally {
+          pendientes -= 1;
+          formularioDeOrigen.procesando -= 1;
+        }
       }
-      hechas += 1;
-      procesandoFotos -= 1;
+    } finally {
+      // Pase lo que pase, el contador de fotos en proceso de este formulario queda liberado.
+      formularioDeOrigen.procesando -= pendientes;
+      if (sigueAbierto()) {
+        $("estado-fotos").textContent = "";
+        actualizarBotones();
+      }
     }
-    $("estado-fotos").textContent = "";
-    actualizarBotones();
+    if (!sigueAbierto()) return;
+    if (grandes) avisar(grandes === 1 ? "Esta foto pesa demasiado incluso después de reducirla. Prueba con otra." : `${grandes} fotos pesan demasiado incluso después de reducirlas. Prueba con otras.`, "error");
     if (ilegibles === 1) avisar(`${MENSAJE_FOTO_ILEGIBLE}.`, "error");
     else if (ilegibles > 1) avisar(`${ilegibles} fotos no se pueden subir, prueba a hacer una captura o a cambiar el formato.`, "error");
   }
@@ -437,9 +512,10 @@
   }
 
   function actualizarBotones() {
-    const ocupado = guardando || procesandoFotos > 0;
+    const preparando = (edicion?.procesando || 0) > 0;
+    const ocupado = guardando || preparando;
     $("boton-guardar").disabled = ocupado;
-    $("boton-guardar").textContent = guardando ? "Guardando…" : procesandoFotos > 0 ? "Preparando fotos…" : edicion?.id ? "Guardar cambios" : "Guardar producto";
+    $("boton-guardar").textContent = guardando ? "Guardando…" : preparando ? "Preparando fotos…" : edicion?.id ? "Guardar cambios" : "Guardar producto";
     $("boton-cancelar").disabled = guardando;
     $("boton-borrar").disabled = ocupado;
     $("boton-volver").disabled = guardando;
@@ -465,6 +541,8 @@
     liberarFotos();
     edicion = {
       id: producto?.id || null,
+      operacion: nuevaOperacion(), // la misma mientras este formulario siga abierto
+      procesando: 0,
       fotos: (producto?.imagenes || []).map(imagen => ({ clave: imagen.id, id: imagen.id, url: imagen.url, blob: null }))
     };
     formulario.reset();
@@ -509,7 +587,7 @@
    * Si algo falla en cualquier punto, el producto sigue como estaba y «Guardar» lo retoma.
    */
   async function guardar() {
-    if (guardando || procesandoFotos > 0 || !edicion) return; // evita duplicados por pulsar dos veces
+    if (guardando || !edicion || edicion.procesando > 0) return; // evita duplicados por pulsar dos veces
     const datos = leerFormulario();
     if (!validarEnNavegador(datos)) return;
 
@@ -524,7 +602,7 @@
         const foto = pendientes[i];
         const texto = `Subiendo foto ${i + 1} de ${pendientes.length}…`;
         mostrarProgreso(texto, 5 + Math.round((bytesHechos / totalBytes) * 85));
-        const imagen = await subirFoto(foto.blob, cargados => mostrarProgreso(texto, 5 + Math.round(((bytesHechos + Math.min(cargados, foto.blob.size)) / totalBytes) * 85)));
+        const imagen = await subirFoto(foto.blob, foto.operacion, cargados => mostrarProgreso(texto, 5 + Math.round(((bytesHechos + Math.min(cargados, foto.blob.size)) / totalBytes) * 85)));
         bytesHechos += foto.blob.size;
         // Subida, pero sin guardar todavía: se conserva la vista previa local y la marca «Sin guardar».
         foto.id = imagen.id;
@@ -532,7 +610,7 @@
 
       mostrarProgreso("Guardando el producto…", 95);
       const ruta = edicion.id ? `productos/${encodeURIComponent(edicion.id)}` : "productos";
-      const { producto } = await pedir(ruta, { metodo: edicion.id ? "PATCH" : "POST", datos: { ...datos, imagenes: edicion.fotos.map(foto => foto.id) } });
+      const { producto } = await pedir(ruta, { metodo: edicion.id ? "PATCH" : "POST", datos: { ...datos, imagenes: edicion.fotos.map(foto => foto.id) }, operacion: edicion.id ? null : edicion.operacion });
 
       const posicion = productos.findIndex(item => item.id === producto.id);
       if (posicion >= 0) productos[posicion] = producto; else productos.unshift(producto);
@@ -551,7 +629,7 @@
         ({ titulo: campos.titulo, categoria: campos.categoria, marca: campos.marcaOtra, precio: campos.precio, color: campos.color, descripcion: campos.descripcion }[fallo.campo])?.focus();
       }
       const consuelo = eraNuevo ? "No se ha guardado. " : "No se ha guardado: el producto sigue en la tienda como estaba. ";
-      avisar(`${consuelo}${fallo.message} Pulsa «Guardar» para volver a intentarlo.`, "error");
+      avisarFallo(fallo, consuelo, " Pulsa «Guardar» para volver a intentarlo.");
     }
   }
 
@@ -577,7 +655,7 @@
     } catch (fallo) {
       guardando = false;
       actualizarBotones();
-      avisar(fallo.message, "error");
+      avisarFallo(fallo);
     }
   }
 
@@ -585,7 +663,9 @@
 
   function puedeSalir() {
     if (guardando) return false;
-    return !sucio || window.confirm("Hay cambios sin guardar. Si sales ahora se perderán.\n\n¿Salir sin guardar?");
+    // Una foto que todavía se está preparando también es un cambio sin guardar.
+    const pendiente = sucio || (edicion?.procesando || 0) > 0;
+    return !pendiente || window.confirm("Hay cambios sin guardar. Si sales ahora se perderán.\n\n¿Salir sin guardar?");
   }
 
   function irA(ruta, { forzar = false } = {}) {
@@ -609,6 +689,7 @@
     const coincidencia = ruta.match(/^#\/editar\/([A-Za-z0-9-]{1,64})$/);
     if (coincidencia) {
       if (!cargado) await cargarProductos();
+      if ((location.hash || "#/") !== ruta) return; // mientras cargaba, se ha ido a otra pantalla
       const producto = productos.find(item => item.id === coincidencia[1]);
       if (producto) { abrirFormulario(producto); return; }
       if (cargado) avisar("Este producto ya no existe.", "error");
@@ -662,9 +743,19 @@
     avisar("En este ordenador no hay sesión que cerrar. En la web real, este botón cierra la sesión.");
   });
 
+  // Al volver a esta pestaña después de entrar de nuevo, el aviso de sesión se quita solo.
+  async function revisarSesion() {
+    if ($("sesion-caducada").hidden || document.visibilityState !== "visible") return;
+    try { await pedir("sesion"); } catch { return; }
+    avisar(edicion ? "Ya has vuelto a entrar. Pulsa «Guardar» para terminar." : "Ya has vuelto a entrar.");
+    if (!cargado) cargarProductos();
+  }
+  document.addEventListener("visibilitychange", revisarSesion);
+  window.addEventListener("focus", revisarSesion);
+
   window.addEventListener("hashchange", aplicarRuta);
   window.addEventListener("beforeunload", evento => {
-    if (sucio || guardando) { evento.preventDefault(); evento.returnValue = ""; }
+    if (sucio || guardando || (edicion?.procesando || 0) > 0) { evento.preventDefault(); evento.returnValue = ""; }
   });
 
   cargarProductos().then(aplicarRuta);

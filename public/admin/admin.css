@@ -40,6 +40,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .barra-enlace { color: inherit; font-size: 15px; white-space: nowrap; min-height: var(--tap); display: inline-flex; align-items: center; text-underline-offset: 4px; }
 
 main { max-width: 760px; margin: 0 auto; padding: 20px 16px 40px; }
+.sesion-caducada { position: sticky; top: 72px; z-index: 4; margin-bottom: 20px; padding: 16px; border: 2px solid var(--error); background: var(--error-fondo); display: grid; gap: 10px; justify-items: start; }
+.sesion-caducada p { margin: 0; }
+.sesion-caducada strong { color: var(--error); }
 
 /* Botones */
 .boton { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--tap); padding: 10px 18px; border: 1px solid var(--chocolate); border-radius: 0; background: var(--blanco); color: var(--chocolate); font-weight: 600; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; appearance: none; }

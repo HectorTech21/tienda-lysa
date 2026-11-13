@@ -140,6 +140,48 @@ caso("cambiar solo la visibilidad no toca las fotos", async () => {
   assert.equal(await enTienda(producto.id), null);
 });
 
+caso("subida repetida con el mismo identificador de operación: devuelve la misma foto", async () => {
+  const operacion = crypto.randomUUID();
+  const primera = await subir({ "X-Operacion": operacion });
+  const repetida = await api("imagenes", { metodo: "POST", cuerpo: FOTO, cabeceras: { "Content-Type": "image/webp", "X-Operacion": operacion } });
+  assert.equal(repetida.estado, 200);
+  assert.equal(repetida.json.imagen.id, primera.id);
+  assert.notEqual((await subir({ "X-Operacion": crypto.randomUUID() })).id, primera.id);
+});
+
+caso("alta repetida con el mismo identificador de operación: no crea otro producto", async () => {
+  const operacion = crypto.randomUUID();
+  const foto = await subir();
+  const alta = () => api("productos", { metodo: "POST", datos: { ...DATOS, titulo: "Prueba de reintento", imagenes: [foto.id] }, cabeceras: { "X-Operacion": operacion } });
+  const primera = await alta();
+  assert.equal(primera.estado, 201, JSON.stringify(primera.json));
+  // Reintento, y además dos a la vez (doble pulsación).
+  const [segunda, tercera] = await Promise.all([alta(), alta()]);
+  for (const repetida of [segunda, tercera]) {
+    assert.equal(repetida.estado, 200, JSON.stringify(repetida.json));
+    assert.equal(repetida.json.producto.id, primera.json.producto.id);
+    assert.equal(repetida.json.producto.referencia, primera.json.producto.referencia);
+  }
+  const { productos } = (await api("productos")).json;
+  assert.equal(productos.filter(item => item.titulo === "Prueba de reintento").length, 1);
+  assert.equal((await api(`productos/${primera.json.producto.id}`, { metodo: "DELETE" })).estado, 200);
+});
+
+caso("dos altas simultáneas de la misma operación: un solo producto", async () => {
+  const operacion = crypto.randomUUID();
+  const foto = await subir();
+  const alta = () => api("productos", { metodo: "POST", datos: { ...DATOS, titulo: "Prueba simultánea", imagenes: [foto.id] }, cabeceras: { "X-Operacion": operacion } });
+  const respuestas = await Promise.all([alta(), alta(), alta()]);
+  assert.ok(respuestas.every(r => r.estado === 200 || r.estado === 201), JSON.stringify(respuestas.map(r => [r.estado, r.json?.error])));
+  assert.equal(new Set(respuestas.map(r => r.json.producto.id)).size, 1);
+  assert.equal((await api(`productos/${respuestas[0].json.producto.id}`, { metodo: "DELETE" })).estado, 200);
+});
+
+caso("identificador de operación mal formado: se rechaza", async () => {
+  const r = await api("imagenes", { metodo: "POST", cuerpo: FOTO, cabeceras: { "Content-Type": "image/webp", "X-Operacion": "no válido!" } });
+  assert.equal(r.estado, 400);
+});
+
 caso("borrar: desaparecen el producto y sus fotos", async () => {
   const fotos = producto.imagenes;
   assert.equal((await api(`productos/${producto.id}`, { metodo: "DELETE" })).estado, 200);

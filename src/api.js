@@ -15,6 +15,14 @@ export function json(datos, estado = 200, cabeceras = {}) {
 
 const error = (mensaje, estado = 400, campo = null) => json(campo ? { error: mensaje, campo } : { error: mensaje }, estado);
 const noEncontrado = () => error("Este producto ya no existe. Puede que se haya borrado.", 404);
+/** Identificador de operación del panel (cabecera X-Operacion), para no repetir un alta al reintentar. */
+function leerOperacion(request) {
+  const operacion = request.headers.get("X-Operacion");
+  if (operacion === null || operacion === "") return null;
+  if (!esIdentificador(operacion)) throw new ErrorValidacion("Identificador de operación no válido.");
+  return operacion;
+}
+
 const metodoNoPermitido = permitidos => json({ error: "Operación no permitida." }, 405, { Allow: permitidos });
 
 function urlImagen(clave) {
@@ -211,6 +219,14 @@ function separarImagenes(cuerpo) {
 }
 
 async function crearProducto(request, env) {
+  // Operación repetida (reintento o doble pulsación): se devuelve el producto de la primera vez.
+  const operacion = leerOperacion(request);
+  const yaCreado = async () => {
+    const previo = operacion ? await env.DB.prepare("SELECT id FROM productos WHERE operacion = ?").bind(operacion).first() : null;
+    return previo ? json({ producto: await obtenerProducto(env, previo.id), repetida: true }) : null;
+  };
+  const repetida = await yaCreado();
+  if (repetida) return repetida;
   const cuerpo = separarImagenes(await leerJson(request));
   const datos = validarProducto(cuerpo.datos);
   const fotos = await prepararImagenes(env, null, cuerpo.imagenes === undefined ? [] : cuerpo.imagenes);
@@ -218,16 +234,25 @@ async function crearProducto(request, env) {
   const ahora = new Date().toISOString();
   // Todo o nada: referencia, producto y fotos en un solo batch. La referencia sale de un
   // contador que solo sube; si el batch falla, el contador tampoco avanza.
-  const resultados = await env.DB.batch([
-    env.DB.prepare("UPDATE contadores SET valor = valor + 1 WHERE nombre = 'referencia'"),
-    env.DB.prepare(
-      `INSERT INTO productos (id, referencia, titulo, slug, descripcion, precio_centimos, categoria, marca, marca_slug, color, visible, destacado, creado_en, actualizado_en)
-       SELECT ?, 'LYSA-' || printf('%03d', valor), ?, ? || '-lysa-' || printf('%03d', valor), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-       FROM contadores WHERE nombre = 'referencia'`
-    ).bind(id, datos.titulo, slugificar(datos.titulo) || "producto", datos.descripcion, datos.precio_centimos, datos.categoria,
-      datos.marca, datos.marca_slug, datos.color, datos.visible, datos.destacado, ahora, ahora),
-    ...fotos.sentencias(id, datos.titulo, ahora)
-  ]);
+  let resultados;
+  try {
+    resultados = await env.DB.batch([
+      env.DB.prepare("UPDATE contadores SET valor = valor + 1 WHERE nombre = 'referencia'"),
+      env.DB.prepare(
+        `INSERT INTO productos (id, referencia, titulo, slug, descripcion, precio_centimos, categoria, marca, marca_slug, color, visible, destacado, creado_en, actualizado_en, operacion)
+         SELECT ?, 'LYSA-' || printf('%03d', valor), ?, ? || '-lysa-' || printf('%03d', valor), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+         FROM contadores WHERE nombre = 'referencia'`
+      ).bind(id, datos.titulo, slugificar(datos.titulo) || "producto", datos.descripcion, datos.precio_centimos, datos.categoria,
+        datos.marca, datos.marca_slug, datos.color, datos.visible, datos.destacado, ahora, ahora, operacion),
+      ...fotos.sentencias(id, datos.titulo, ahora)
+    ]);
+  } catch (fallo) {
+    // Dos peticiones de la misma operación a la vez: la segunda choca con el índice único
+    // y recibe el producto que ha creado la primera.
+    const otra = await yaCreado();
+    if (otra) return otra;
+    throw fallo;
+  }
   if (!resultados[1].meta.changes) throw new Error("Falta el contador de referencias");
   return json({ producto: await obtenerProducto(env, id) }, 201);
 }
@@ -263,13 +288,22 @@ async function borrarProducto(env, id) {
     env.DB.prepare("DELETE FROM imagenes WHERE producto_id = ?").bind(id),
     env.DB.prepare("DELETE FROM productos WHERE id = ?").bind(id)
   ]);
-  const claves = imagenes.results.map(imagen => imagen.clave);
-  if (claves.length) await env.BUCKET.delete(claves);
+  // El producto ya está borrado: si R2 falla, se anota en el registro y la respuesta sigue siendo de éxito.
+  await borrarDeR2(env, imagenes.results.map(imagen => imagen.clave));
   return json({ ok: true });
 }
 
 /** Guarda una foto en R2 sin unirla todavía a ningún producto: la tienda no cambia. */
 async function subirImagen(request, env) {
+  // Subida repetida (reintento): se devuelve la foto de la primera vez, sin guardar otra.
+  const operacion = leerOperacion(request);
+  const yaSubida = async () => {
+    const previa = operacion ? await env.DB.prepare("SELECT id, clave FROM subidas WHERE operacion = ?").bind(operacion).first() : null;
+    return previa ? json({ imagen: { id: previa.id, url: urlImagen(previa.clave) }, repetida: true }) : null;
+  };
+  const repetida = await yaSubida();
+  if (repetida) return repetida;
+
   const mensajeTamano = `La foto pesa demasiado (máximo ${LIMITES.imagenBytes / 1024 / 1024} MB).`;
   const declarado = Number(request.headers.get("Content-Length"));
   if (Number.isFinite(declarado) && declarado > LIMITES.imagenBytes) return error(mensajeTamano, 413);
@@ -286,9 +320,11 @@ async function subirImagen(request, env) {
   const clave = `${PREFIJO_IMAGENES}${id}.${formato.extension}`;
   await env.BUCKET.put(clave, datos, { httpMetadata: { contentType: formato.tipo } });
   try {
-    await env.DB.prepare("INSERT INTO subidas (id, clave, bytes, creado_en) VALUES (?, ?, ?, ?)").bind(id, clave, datos.byteLength, new Date().toISOString()).run();
+    await env.DB.prepare("INSERT INTO subidas (id, clave, bytes, creado_en, operacion) VALUES (?, ?, ?, ?, ?)").bind(id, clave, datos.byteLength, new Date().toISOString(), operacion).run();
   } catch (fallo) {
     await borrarDeR2(env, [clave]);
+    const otra = await yaSubida(); // la misma operación ha llegado dos veces a la vez
+    if (otra) return otra;
     throw fallo;
   }
   return json({ imagen: { id, url: urlImagen(clave) } }, 201);
