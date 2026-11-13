@@ -125,7 +125,7 @@ export async function apiAdmin(request, env, url, sesion) {
     }
   }
   const partes = url.pathname.slice("/api/admin/".length).split("/").filter(Boolean);
-  const [recurso, id, sub, accion] = partes;
+  const [recurso, id] = partes;
 
   if (recurso === "sesion" && partes.length === 1) {
     return metodo === "GET" ? json({ email: sesion.email, desarrollo: Boolean(sesion.desarrollo) }) : metodoNoPermitido("GET");
@@ -145,44 +145,113 @@ export async function apiAdmin(request, env, url, sesion) {
       if (metodo === "DELETE") return borrarProducto(env, id);
       return metodoNoPermitido("GET, PATCH, DELETE");
     }
-    if (sub === "imagenes" && partes.length === 3) return metodo === "POST" ? subirImagen(request, env, id) : metodoNoPermitido("POST");
-    if (sub === "imagenes" && accion === "orden" && partes.length === 4) return metodo === "PUT" ? reordenarImagenes(request, env, id) : metodoNoPermitido("PUT");
   }
 
-  if (recurso === "imagenes" && id && partes.length === 2) {
-    if (!esIdentificador(id)) return error("Esta foto ya no existe.", 404);
-    return metodo === "DELETE" ? borrarImagen(env, id) : metodoNoPermitido("DELETE");
+  // Las fotos se suben sueltas; se unen al producto al guardarlo (crearProducto / editarProducto).
+  if (recurso === "imagenes" && partes.length === 1) {
+    return metodo === "POST" ? subirImagen(request, env) : metodoNoPermitido("POST");
   }
 
   return error("Ruta no encontrada.", 404);
 }
 
+/**
+ * Prepara el conjunto final de fotos de un producto: `lista` son los identificadores en el
+ * orden en que deben quedar. Cada uno es una foto que el producto ya tiene o una foto subida
+ * que todavía no pertenece a ningún producto. Devuelve las sentencias para D1 (se ejecutan
+ * en el mismo batch que los datos) y las claves de R2 que sobran después.
+ */
+async function prepararImagenes(env, productoId, lista) {
+  if (!Array.isArray(lista) || lista.length > LIMITES.imagenesPorProducto || !lista.every(esIdentificador) || new Set(lista).size !== lista.length) {
+    throw new ErrorValidacion(`Las fotos no son válidas (máximo ${LIMITES.imagenesPorProducto} por producto).`, 400, "fotos");
+  }
+  const actuales = productoId
+    ? (await env.DB.prepare("SELECT id, clave FROM imagenes WHERE producto_id = ?").bind(productoId).all()).results
+    : [];
+  const idsActuales = new Set(actuales.map(imagen => imagen.id));
+  const nuevas = lista.filter(id => !idsActuales.has(id));
+  if (nuevas.length) {
+    const marcas = nuevas.map(() => "?").join(", ");
+    const libres = await env.DB.prepare(`SELECT id FROM subidas WHERE id IN (${marcas}) AND id NOT IN (SELECT id FROM imagenes)`).bind(...nuevas).all();
+    if (libres.results.length !== nuevas.length) {
+      throw new ErrorValidacion("Alguna foto nueva ya no está disponible. Quítala, vuelve a añadirla y guarda otra vez.", 409, "fotos");
+    }
+  }
+  const finales = new Set(lista);
+  const sobrantes = actuales.filter(imagen => !finales.has(imagen.id));
+
+  const sentencias = (id, titulo, ahora) => {
+    const lote = [];
+    if (sobrantes.length) {
+      lote.push(env.DB.prepare(`DELETE FROM imagenes WHERE producto_id = ? AND id IN (${sobrantes.map(() => "?").join(", ")})`).bind(id, ...sobrantes.map(imagen => imagen.id)));
+    }
+    for (const nueva of nuevas) {
+      lote.push(env.DB.prepare("INSERT INTO imagenes (id, producto_id, clave, alt, orden, bytes, creado_en) SELECT id, ?, clave, ?, 0, bytes, ? FROM subidas WHERE id = ?").bind(id, titulo, ahora, nueva));
+    }
+    lista.forEach((imagen, posicion) => {
+      lote.push(env.DB.prepare("UPDATE imagenes SET orden = ? WHERE id = ? AND producto_id = ?").bind(posicion, imagen, id));
+    });
+    return lote;
+  };
+  return { sentencias, clavesSobrantes: sobrantes.map(imagen => imagen.clave) };
+}
+
+/** Borra archivos de R2 sin que un fallo afecte a lo ya guardado: una foto huérfana no hace daño. */
+async function borrarDeR2(env, claves) {
+  if (!claves.length) return;
+  try { await env.BUCKET.delete(claves); }
+  catch (fallo) { console.error("No se han podido borrar de R2 (quedan huérfanas):", claves.join(", "), fallo); }
+}
+
+/** Separa los datos del producto de la lista de fotos (`imagenes`), que es opcional. */
+function separarImagenes(cuerpo) {
+  if (!cuerpo || typeof cuerpo !== "object" || Array.isArray(cuerpo)) throw new ErrorValidacion("Los datos enviados no son válidos.");
+  const { imagenes, ...datos } = cuerpo;
+  return { imagenes, datos };
+}
+
 async function crearProducto(request, env) {
-  const datos = validarProducto(await leerJson(request));
-  // La referencia sale de un contador que solo sube: nunca se reutiliza.
-  const contador = await env.DB.prepare("UPDATE contadores SET valor = valor + 1 WHERE nombre = 'referencia' RETURNING valor").first();
-  if (!contador) throw new Error("Falta el contador de referencias");
-  const referencia = `LYSA-${String(contador.valor).padStart(3, "0")}`;
+  const cuerpo = separarImagenes(await leerJson(request));
+  const datos = validarProducto(cuerpo.datos);
+  const fotos = await prepararImagenes(env, null, cuerpo.imagenes === undefined ? [] : cuerpo.imagenes);
   const id = crypto.randomUUID();
   const ahora = new Date().toISOString();
-  await env.DB.prepare(
-    `INSERT INTO productos (id, referencia, titulo, slug, descripcion, precio_centimos, categoria, marca, marca_slug, color, visible, destacado, creado_en, actualizado_en)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  ).bind(id, referencia, datos.titulo, crearSlug(datos.titulo, referencia), datos.descripcion, datos.precio_centimos, datos.categoria,
-    datos.marca, datos.marca_slug, datos.color, datos.visible, datos.destacado, ahora, ahora).run();
+  // Todo o nada: referencia, producto y fotos en un solo batch. La referencia sale de un
+  // contador que solo sube; si el batch falla, el contador tampoco avanza.
+  const resultados = await env.DB.batch([
+    env.DB.prepare("UPDATE contadores SET valor = valor + 1 WHERE nombre = 'referencia'"),
+    env.DB.prepare(
+      `INSERT INTO productos (id, referencia, titulo, slug, descripcion, precio_centimos, categoria, marca, marca_slug, color, visible, destacado, creado_en, actualizado_en)
+       SELECT ?, 'LYSA-' || printf('%03d', valor), ?, ? || '-lysa-' || printf('%03d', valor), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+       FROM contadores WHERE nombre = 'referencia'`
+    ).bind(id, datos.titulo, slugificar(datos.titulo) || "producto", datos.descripcion, datos.precio_centimos, datos.categoria,
+      datos.marca, datos.marca_slug, datos.color, datos.visible, datos.destacado, ahora, ahora),
+    ...fotos.sentencias(id, datos.titulo, ahora)
+  ]);
+  if (!resultados[1].meta.changes) throw new Error("Falta el contador de referencias");
   return json({ producto: await obtenerProducto(env, id) }, 201);
 }
 
 async function editarProducto(request, env, id) {
-  const actual = await env.DB.prepare("SELECT referencia FROM productos WHERE id = ?").bind(id).first();
+  const actual = await env.DB.prepare("SELECT referencia, titulo FROM productos WHERE id = ?").bind(id).first();
   if (!actual) return noEncontrado();
-  const datos = validarProducto(await leerJson(request), { parcial: true });
+  const cuerpo = separarImagenes(await leerJson(request));
+  const conFotos = cuerpo.imagenes !== undefined;
+  // Se puede guardar solo el conjunto de fotos, solo datos o las dos cosas a la vez.
+  const datos = conFotos && !Object.keys(cuerpo.datos).length ? {} : validarProducto(cuerpo.datos, { parcial: true });
+  const fotos = conFotos ? await prepararImagenes(env, id, cuerpo.imagenes) : null;
   if (datos.titulo !== undefined) datos.slug = crearSlug(datos.titulo, actual.referencia);
   datos.actualizado_en = new Date().toISOString();
   // Los nombres de columna salen de validarProducto, nunca del navegador.
   const columnas = Object.keys(datos);
-  await env.DB.prepare(`UPDATE productos SET ${columnas.map(columna => `${columna} = ?`).join(", ")} WHERE id = ?`)
-    .bind(...columnas.map(columna => datos[columna]), id).run();
+  // Datos, fotos nuevas, fotos quitadas y orden: todo en un solo batch (o se guarda todo o nada).
+  await env.DB.batch([
+    env.DB.prepare(`UPDATE productos SET ${columnas.map(columna => `${columna} = ?`).join(", ")} WHERE id = ?`)
+      .bind(...columnas.map(columna => datos[columna]), id),
+    ...(fotos ? fotos.sentencias(id, datos.titulo ?? actual.titulo, datos.actualizado_en) : [])
+  ]);
+  // Solo ahora, con todo guardado, se borran de R2 las fotos que sobran.
+  if (fotos) await borrarDeR2(env, fotos.clavesSobrantes);
   return json({ producto: await obtenerProducto(env, id) });
 }
 
@@ -199,10 +268,8 @@ async function borrarProducto(env, id) {
   return json({ ok: true });
 }
 
-async function subirImagen(request, env, productoId) {
-  const producto = await env.DB.prepare("SELECT id, titulo FROM productos WHERE id = ?").bind(productoId).first();
-  if (!producto) return noEncontrado();
-
+/** Guarda una foto en R2 sin unirla todavía a ningún producto: la tienda no cambia. */
+async function subirImagen(request, env) {
   const mensajeTamano = `La foto pesa demasiado (máximo ${LIMITES.imagenBytes / 1024 / 1024} MB).`;
   const declarado = Number(request.headers.get("Content-Length"));
   if (Number.isFinite(declarado) && declarado > LIMITES.imagenBytes) return error(mensajeTamano, 413);
@@ -215,54 +282,16 @@ async function subirImagen(request, env, productoId) {
   const formato = detectarImagen(new Uint8Array(datos, 0, Math.min(datos.byteLength, 16)));
   if (!formato) return error("Este archivo no es una foto válida (se admiten JPG, PNG y WebP).", 415);
 
-  const resumen = await env.DB.prepare("SELECT COUNT(*) AS total, COALESCE(MAX(orden), -1) AS ultimo FROM imagenes WHERE producto_id = ?").bind(productoId).first();
-  if (resumen.total >= LIMITES.imagenesPorProducto) return error(`Un producto puede tener como máximo ${LIMITES.imagenesPorProducto} fotos.`, 409);
-
   const id = crypto.randomUUID();
-  const clave = `${PREFIJO_IMAGENES}${productoId}/${id}.${formato.extension}`;
-  const ahora = new Date().toISOString();
+  const clave = `${PREFIJO_IMAGENES}${id}.${formato.extension}`;
   await env.BUCKET.put(clave, datos, { httpMetadata: { contentType: formato.tipo } });
   try {
-    await env.DB.batch([
-      env.DB.prepare("INSERT INTO imagenes (id, producto_id, clave, alt, orden, bytes, creado_en) VALUES (?, ?, ?, ?, ?, ?, ?)")
-        .bind(id, productoId, clave, producto.titulo, resumen.ultimo + 1, datos.byteLength, ahora),
-      env.DB.prepare("UPDATE productos SET actualizado_en = ? WHERE id = ?").bind(ahora, productoId)
-    ]);
+    await env.DB.prepare("INSERT INTO subidas (id, clave, bytes, creado_en) VALUES (?, ?, ?, ?)").bind(id, clave, datos.byteLength, new Date().toISOString()).run();
   } catch (fallo) {
-    await env.BUCKET.delete(clave); // no dejar archivos huérfanos
+    await borrarDeR2(env, [clave]);
     throw fallo;
   }
-  return json({ imagen: { id, url: urlImagen(clave), alt: producto.titulo } }, 201);
-}
-
-async function reordenarImagenes(request, env, productoId) {
-  const cuerpo = await leerJson(request);
-  const orden = cuerpo && cuerpo.orden;
-  if (!Array.isArray(orden) || orden.length > LIMITES.imagenesPorProducto || !orden.every(esIdentificador) || new Set(orden).size !== orden.length) {
-    return error("El orden de las fotos no es válido.");
-  }
-  const actuales = await env.DB.prepare("SELECT id FROM imagenes WHERE producto_id = ?").bind(productoId).all();
-  const ids = new Set(actuales.results.map(imagen => imagen.id));
-  if (ids.size !== orden.length || !orden.every(id => ids.has(id))) return error("Las fotos han cambiado. Recarga la página e inténtalo de nuevo.", 409);
-  if (orden.length) {
-    const ahora = new Date().toISOString();
-    await env.DB.batch([
-      ...orden.map((id, posicion) => env.DB.prepare("UPDATE imagenes SET orden = ? WHERE id = ? AND producto_id = ?").bind(posicion, id, productoId)),
-      env.DB.prepare("UPDATE productos SET actualizado_en = ? WHERE id = ?").bind(ahora, productoId)
-    ]);
-  }
-  return json({ producto: await obtenerProducto(env, productoId) });
-}
-
-async function borrarImagen(env, id) {
-  const imagen = await env.DB.prepare("SELECT clave, producto_id FROM imagenes WHERE id = ?").bind(id).first();
-  if (!imagen) return error("Esta foto ya no existe.", 404);
-  await env.DB.batch([
-    env.DB.prepare("DELETE FROM imagenes WHERE id = ?").bind(id),
-    env.DB.prepare("UPDATE productos SET actualizado_en = ? WHERE id = ?").bind(new Date().toISOString(), imagen.producto_id)
-  ]);
-  await env.BUCKET.delete(imagen.clave);
-  return json({ ok: true });
+  return json({ imagen: { id, url: urlImagen(clave) } }, 201);
 }
 
 export { ErrorValidacion };

@@ -26,7 +26,7 @@
   let productos = [];
   let cargado = false;
   // Estado del formulario abierto.
-  let edicion = null; // { id | null, fotos: [{ clave, id | null, url, blob | null }], borradas: [id] }
+  let edicion = null; // { id | null, fotos: [{ clave, id | null, url, blob | null }] } · con blob = foto aún sin guardar
   let sucio = false;
   let guardando = false;
   let procesandoFotos = 0;
@@ -109,10 +109,10 @@
   }
 
   /** Sube una foto con XMLHttpRequest para poder mostrar el avance. */
-  function subirFoto(productoId, blob, alAvanzar) {
+  function subirFoto(blob, alAvanzar) {
     return new Promise((resolver, rechazar) => {
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", `/api/admin/productos/${encodeURIComponent(productoId)}/imagenes`);
+      xhr.open("POST", "/api/admin/imagenes");
       xhr.setRequestHeader("Content-Type", blob.type);
       xhr.responseType = "json";
       xhr.upload.onprogress = evento => { if (evento.lengthComputable) alAvanzar(evento.loaded); };
@@ -327,7 +327,7 @@
       const imagen = Object.assign(document.createElement("img"), { src: foto.url, alt: `Foto ${indice + 1} de ${total}` });
       item.append(imagen);
       if (indice === 0) item.append(Object.assign(document.createElement("span"), { className: "foto-principal", textContent: "Principal" }));
-      if (!foto.id) item.append(Object.assign(document.createElement("span"), { className: "foto-nueva", textContent: "Sin guardar" }));
+      if (foto.blob) item.append(Object.assign(document.createElement("span"), { className: "foto-nueva", textContent: "Sin guardar" }));
 
       const botones = document.createElement("div");
       botones.className = "foto-botones";
@@ -364,8 +364,7 @@
   function quitarFoto(indice) {
     if (guardando) return;
     const [foto] = edicion.fotos.splice(indice, 1);
-    if (foto.id) edicion.borradas.push(foto.id);
-    else URL.revokeObjectURL(foto.url);
+    if (foto.blob) URL.revokeObjectURL(foto.url);
     sucio = true;
     pintarFotos();
   }
@@ -466,8 +465,7 @@
     liberarFotos();
     edicion = {
       id: producto?.id || null,
-      fotos: (producto?.imagenes || []).map(imagen => ({ clave: imagen.id, id: imagen.id, url: imagen.url, blob: null })),
-      borradas: []
+      fotos: (producto?.imagenes || []).map(imagen => ({ clave: imagen.id, id: imagen.id, url: imagen.url, blob: null }))
     };
     formulario.reset();
     limpiarErrores();
@@ -504,7 +502,12 @@
     pintarLista();
   }
 
-  /** Guarda todo en orden: datos, fotos quitadas, fotos nuevas y orden final. */
+  /**
+   * Guarda sin riesgo para lo que ya está en la tienda:
+   * 1) se suben las fotos nuevas (todavía no pertenecen al producto y la tienda no cambia);
+   * 2) el servidor guarda de una vez los datos, el orden y el conjunto final de fotos.
+   * Si algo falla en cualquier punto, el producto sigue como estaba y «Guardar» lo retoma.
+   */
   async function guardar() {
     if (guardando || procesandoFotos > 0 || !edicion) return; // evita duplicados por pulsar dos veces
     const datos = leerFormulario();
@@ -513,37 +516,23 @@
     guardando = true;
     actualizarBotones();
     const eraNuevo = !edicion.id;
-    let etapa = "datos";
     try {
-      mostrarProgreso("Guardando los datos…", 5);
-      const ruta = edicion.id ? `productos/${encodeURIComponent(edicion.id)}` : "productos";
-      let { producto } = await pedir(ruta, { metodo: edicion.id ? "PATCH" : "POST", datos });
-      // Desde aquí el producto ya existe: si algo falla, «Guardar» lo retoma sin duplicarlo.
-      edicion.id = producto.id;
-
-      etapa = "fotos";
-      while (edicion.borradas.length) {
-        try { await pedir(`imagenes/${encodeURIComponent(edicion.borradas[0])}`, { metodo: "DELETE" }); }
-        catch (fallo) { if (fallo.estado !== 404) throw fallo; }
-        edicion.borradas.shift();
-      }
-
       const pendientes = edicion.fotos.filter(foto => !foto.id);
       const totalBytes = pendientes.reduce((suma, foto) => suma + foto.blob.size, 0) || 1;
       let bytesHechos = 0;
       for (let i = 0; i < pendientes.length; i++) {
         const foto = pendientes[i];
         const texto = `Subiendo foto ${i + 1} de ${pendientes.length}…`;
-        mostrarProgreso(texto, 10 + Math.round((bytesHechos / totalBytes) * 85));
-        const imagen = await subirFoto(edicion.id, foto.blob, cargados => mostrarProgreso(texto, 10 + Math.round(((bytesHechos + Math.min(cargados, foto.blob.size)) / totalBytes) * 85)));
+        mostrarProgreso(texto, 5 + Math.round((bytesHechos / totalBytes) * 85));
+        const imagen = await subirFoto(foto.blob, cargados => mostrarProgreso(texto, 5 + Math.round(((bytesHechos + Math.min(cargados, foto.blob.size)) / totalBytes) * 85)));
         bytesHechos += foto.blob.size;
-        URL.revokeObjectURL(foto.url);
-        Object.assign(foto, { id: imagen.id, clave: imagen.id, url: imagen.url, blob: null });
-        pintarFotos();
+        // Subida, pero sin guardar todavía: se conserva la vista previa local y la marca «Sin guardar».
+        foto.id = imagen.id;
       }
 
-      mostrarProgreso("Terminando…", 97);
-      ({ producto } = await pedir(`productos/${encodeURIComponent(edicion.id)}/imagenes/orden`, { metodo: "PUT", datos: { orden: edicion.fotos.map(foto => foto.id) } }));
+      mostrarProgreso("Guardando el producto…", 95);
+      const ruta = edicion.id ? `productos/${encodeURIComponent(edicion.id)}` : "productos";
+      const { producto } = await pedir(ruta, { metodo: edicion.id ? "PATCH" : "POST", datos: { ...datos, imagenes: edicion.fotos.map(foto => foto.id) } });
 
       const posicion = productos.findIndex(item => item.id === producto.id);
       if (posicion >= 0) productos[posicion] = producto; else productos.unshift(producto);
@@ -557,16 +546,12 @@
       guardando = false;
       mostrarProgreso(null);
       actualizarBotones();
-      if (edicion.id) {
-        $("titulo-formulario").textContent = "Editar producto";
-        if (eraNuevo && location.hash !== `#/editar/${edicion.id}`) { rutaActual = `#/editar/${edicion.id}`; history.replaceState(null, "", rutaActual); }
-      }
       if (fallo.campo) {
         mostrarError(fallo.campo, fallo.message);
         ({ titulo: campos.titulo, categoria: campos.categoria, marca: campos.marcaOtra, precio: campos.precio, color: campos.color, descripcion: campos.descripcion }[fallo.campo])?.focus();
       }
-      const prefijo = etapa === "fotos" ? "Los datos se han guardado, pero falta alguna foto. Pulsa «Guardar» para volver a intentarlo. " : "No se ha guardado. ";
-      avisar(prefijo + fallo.message, "error");
+      const consuelo = eraNuevo ? "No se ha guardado. " : "No se ha guardado: el producto sigue en la tienda como estaba. ";
+      avisar(`${consuelo}${fallo.message} Pulsa «Guardar» para volver a intentarlo.`, "error");
     }
   }
 

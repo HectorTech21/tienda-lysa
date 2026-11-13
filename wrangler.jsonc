@@ -22,12 +22,15 @@
   "dev": { "host": "localhost" },
 
   // Web pública y panel: archivos estáticos de public/.
-  // La API, el panel y las imágenes pasan siempre por el Worker (autenticación incluida).
+  // TODAS las peticiones pasan primero por el Worker (run_worker_first: true), que normaliza
+  // la ruta y exige la sesión en el panel y su API antes de servir nada (también //admin,
+  // /ADMIN, /%61dmin…). No poner aquí una lista de rutas ni excepciones: con una excepción
+  // como /assets/*, una ruta del tipo /assets/%2e%2e/admin/ podría saltarse el Worker.
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*", "/admin", "/admin/*", "/img/*"]
+    "run_worker_first": true
   },
 
   "d1_databases": [
