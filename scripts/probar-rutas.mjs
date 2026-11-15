@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import worker, { normalizarRuta, rutaPrivada } from "../src/index.js";
 
-const ORIGEN = "https://tienda-lysa.com";
+const ORIGEN = "https://tiendalysa43.com";
 console.warn = () => {}; // el Worker avisa de cada acceso denegado; aquí sobra
 
 function entorno(extra = {}) {
@@ -190,6 +190,18 @@ caso("Origin: las escrituras exigen la cabecera y que coincida entera (esquema, 
   assert.equal(await escribir(sitio), 404); // pasa la comprobación; el producto «abc» no existe
   // Las lecturas no llevan Origin.
   assert.equal((await worker.fetch(new Request(sitio + "/api/admin/productos/abc"), env)).status, 404);
+});
+
+caso("www.tiendalysa43.com redirige (301) a tiendalysa43.com conservando ruta y parámetros", async () => {
+  const { env, servidos } = entorno();
+  for (const [ruta, destino] of [["/", "https://tiendalysa43.com/"], ["/aviso-legal?a=1", "https://tiendalysa43.com/aviso-legal?a=1"], ["/admin/", "https://tiendalysa43.com/admin/"]]) {
+    for (const esquema of ["https", "http"]) {
+      const respuesta = await worker.fetch(new Request(`${esquema}://www.tiendalysa43.com${ruta}`, { redirect: "manual" }), env);
+      assert.equal(respuesta.status, 301, ruta);
+      assert.equal(respuesta.headers.get("Location"), destino);
+    }
+  }
+  assert.deepEqual(servidos, []);
 });
 
 let fallos = 0;

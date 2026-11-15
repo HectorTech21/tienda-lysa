@@ -5,4 +5,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tienda-lysa.com/sitemap.xml
+Sitemap: https://tiendalysa43.com/sitemap.xml

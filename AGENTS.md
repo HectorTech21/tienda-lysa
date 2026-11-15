@@ -26,7 +26,7 @@ La web no funciona abriendo el archivo con `file://`: necesita el servidor.
 
 ## Pruebas
 
-- `npm test`: autenticación (15), rutas privadas y API sin red (112) y validación (8). No usan la red.
+- `npm test`: autenticación (15), rutas privadas y API sin red (113) y validación (8). No usan la red.
   - `node scripts/probar-auth.mjs`: JWT de Access y salto de desarrollo.
   - `node scripts/probar-rutas.mjs`: variantes de `/admin` y `/api/admin` (`//admin`, `/ADMIN`, `/%61dmin`, `/admin/./`, `/api//admin`…), comprobación de `Origin` y borrado con fallo de R2.
   - `node scripts/probar-validacion.mjs`: precios y longitud de textos; comprueba que el panel y el servidor interpretan igual el precio.
@@ -35,9 +35,9 @@ La web no funciona abriendo el archivo con `file://`: necesita el servidor.
 
 ## Dominio y SEO
 
-- El dominio principal es `tienda-lysa.com`, sin `www` (`routes` con `custom_domain`). `workers_dev: false` y `preview_urls: false`: la web solo se sirve desde el dominio propio. `www` redirige con 301 (regla de redirección de Cloudflare y, por si llegara al Worker, también en `src/index.js`).
-- `dev.host: "localhost"` es necesario: sin él, `wrangler dev` se presenta como `tienda-lysa.com` y el panel local responde 401. Efecto secundario: en local, wrangler reescribe la URL y la cabecera `Origin` antes de que lleguen al Worker.
-- `canonical`, `og:url` y `og:image` absolutos con `https://tienda-lysa.com`. `public/assets/og-image.jpg` (1200×630) se generó con el logo de 150 px ampliado: sustituir si la clienta aporta el logo en alta resolución.
+- El dominio principal es `tiendalysa43.com` (`https://tiendalysa43.com`), sin `www`; `www.tiendalysa43.com` redirige a él. No es `tienda-lysa` con guion: `tienda-lysa` y `tienda-lysa-imagenes` son solo los nombres internos del Worker, la base de datos D1 y el bucket, y no se cambian. En `wrangler.jsonc`, `routes` con `custom_domain`. `workers_dev: false` y `preview_urls: false`: la web solo se sirve desde el dominio propio. `www` redirige con 301 (regla de redirección de Cloudflare y, por si llegara al Worker, también en `src/index.js`).
+- `dev.host: "localhost"` es necesario: sin él, `wrangler dev` se presenta como `tiendalysa43.com` y el panel local responde 401. Efecto secundario: en local, wrangler reescribe la URL y la cabecera `Origin` antes de que lleguen al Worker.
+- `canonical`, `og:url` y `og:image` absolutos con `https://tiendalysa43.com`. `public/assets/og-image.jpg` (1200×630) se generó con el logo de 150 px ampliado: sustituir si la clienta aporta el logo en alta resolución.
 - `public/sitemap.xml` lista la portada y las tres páginas legales (sin `.html`); categorías y fichas no tienen dirección propia. `robots.txt` enlaza el sitemap y NO bloquea `/api/`: la portada necesita `/api/productos`.
 - El panel y la API no se indexan (`noindex` en `public/admin/index.html` y cabecera `X-Robots-Tag` en todo `/api/*` y `/admin*`, errores, redirecciones y 401 incluidos). `/img/` sí es indexable.
 - Cabeceras de seguridad: `public/_headers` (estáticos) y `src/index.js` (todo lo que pasa por el Worker).
@@ -138,11 +138,11 @@ Mantener `lang=es`, enlace para saltar al contenido, landmarks, títulos jerárq
 
 ## Pendiente
 
-- **Cloudflare** (marcado con `TODO` en `wrangler.jsonc`): `database_id` real, bucket real, `ACCESS_TEAM_DOMAIN` y `ACCESS_AUD`. Al cambiar `database_id` la D1 local empieza vacía: volver a aplicar esquema y migración en local. En remoto hay que aplicar las tres migraciones antes del primer despliegue.
+- **Cloudflare** (marcado con `TODO` en `wrangler.jsonc`): `database_id` real, bucket real y `ACCESS_AUD` (se rellena al crear la aplicación de Access; mientras esté vacío, el panel responde 401). Ya están puestos el `account_id` de la cuenta de la tienda y `ACCESS_TEAM_DOMAIN` (`tiendalysa.cloudflareaccess.com`). El dominio `tiendalysa43.com` tiene que estar añadido a esa cuenta antes de desplegar. Al cambiar `database_id` la D1 local empieza vacía: volver a aplicar esquema y migración en local. En remoto hay que aplicar las tres migraciones antes del primer despliegue.
 - **Titular:** rellenar `LEGAL`. Dirección, horario y zona para título, descripción y datos estructurados `LocalBusiness`. El plazo de conservación de doce meses de `privacidad.html` es una propuesta que debe confirmar la titular. Los textos legales no los ha revisado un profesional jurídico.
 - **Tras desplegar:** comprobar qué cookies pone Cloudflare de verdad (`__cf_bm`, `cf_clearance`, `CF_Authorization`) y ajustar la tabla de `cookies.html`.
 - **Sin probar:** un móvil físico; Cloudflare Access real (sesión caducada incluida, que en local se ha simulado); `prefers-reduced-motion` con el ajuste real del sistema (se ha comprobado la cascada de CSS); los scripts con `--remote`.
 
 ## Estado · 13 de noviembre de 2026
 
-Probado en local: `npm test` (135 pruebas) y `npm run test:panel` (17). En el navegador, a 375 px: crear un producto con foto, aviso de sesión caducada y vuelta a guardar sin perder el formulario, cambiar la foto con un fallo de subida simulado (el producto sigue en la tienda con su foto anterior) y reintento correcto, precio con espacios rechazado, `1.234,56` aceptado, nombre con emoji, borrado; pausa y reanudación de la franja de marcas. Copia de seguridad local completa (datos y 83 imágenes) y migración local: rechazo con la base de datos llena y ejecución con `--forzar`. Páginas legales a 375 px y escritorio. Nada desplegado.
+Probado en local: `npm test` (136 pruebas) y `npm run test:panel` (17). En el navegador, a 375 px: crear un producto con foto, aviso de sesión caducada y vuelta a guardar sin perder el formulario, cambiar la foto con un fallo de subida simulado (el producto sigue en la tienda con su foto anterior) y reintento correcto, precio con espacios rechazado, `1.234,56` aceptado, nombre con emoji, borrado; pausa y reanudación de la franja de marcas. Copia de seguridad local completa (datos y 83 imágenes) y migración local: rechazo con la base de datos llena y ejecución con `--forzar`. Páginas legales a 375 px y escritorio. Nada desplegado.

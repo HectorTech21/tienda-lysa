@@ -55,7 +55,7 @@ export function rutaPrivada(normalizada) {
 }
 
 async function encaminar(request, env, url, privada) {
-  // Un solo dominio: www.tienda-lysa.com pasa a tienda-lysa.com conservando ruta y parámetros.
+  // Un solo dominio: www.tiendalysa43.com pasa a tiendalysa43.com conservando ruta y parámetros.
   if (url.hostname.startsWith("www.")) {
     const destino = new URL(url);
     destino.hostname = destino.hostname.slice(4);

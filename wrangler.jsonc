@@ -1,6 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "tienda-lysa",
+  // Cuenta de Cloudflare de la tienda: wrangler despliega siempre en ella.
+  "account_id": "907db136813ed4ab7d8a9d2a64157397",
   "main": "src/index.js",
   "compatibility_date": "2025-10-01",
 
@@ -9,16 +11,16 @@
   "workers_dev": false,
   "preview_urls": false,
 
-  // Dominio principal: tienda-lysa.com (sin www). www.tienda-lysa.com redirige aquí con una
-  // regla de redirección de Cloudflare (ver «Mañana en Cloudflare» en AGENTS.md); si www
+  // Dominio principal: tiendalysa43.com (sin www). www.tiendalysa43.com redirige aquí con una
+  // regla de redirección de Cloudflare (ver «Dominio y SEO» en AGENTS.md); si www
   // llegara al Worker, src/index.js también lo redirige.
   // TODO (Cloudflare): el dominio tiene que estar ya añadido a la cuenta antes de desplegar.
   "routes": [
-    { "pattern": "tienda-lysa.com", "custom_domain": true }
+    { "pattern": "tiendalysa43.com", "custom_domain": true }
   ],
 
   // Solo afecta a "wrangler dev": sin esto, el desarrollo local se presentaría como
-  // tienda-lysa.com y el panel respondería 401 (el salto de .dev.vars exige un equipo local).
+  // tiendalysa43.com y el panel respondería 401 (el salto de .dev.vars exige un equipo local).
   "dev": { "host": "localhost" },
 
   // Web pública y panel: archivos estáticos de public/.
@@ -54,8 +56,8 @@
   ],
 
   "vars": {
-    // TODO (Cloudflare Access): dominio del equipo, por ejemplo "miequipo.cloudflareaccess.com".
-    "ACCESS_TEAM_DOMAIN": "",
+    // Dominio del equipo de Cloudflare Access de la tienda.
+    "ACCESS_TEAM_DOMAIN": "tiendalysa.cloudflareaccess.com",
     // TODO (Cloudflare Access): etiqueta AUD de la aplicación de Access que protege /admin y /api/admin.
     "ACCESS_AUD": ""
     // DEV_BYPASS_AUTH no se define NUNCA aquí: solo en .dev.vars (local, fuera de git).
