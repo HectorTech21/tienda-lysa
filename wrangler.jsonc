@@ -39,9 +39,8 @@
     {
       "binding": "DB",
       "database_name": "tienda-lysa",
-      // TODO (Cloudflare): sustituir por el database_id real que devuelve
-      // "npx wrangler d1 create tienda-lysa".
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      // D1 creada con "npx wrangler d1 create tienda-lysa" (región WEUR).
+      "database_id": "93a231a7-cb45-4f54-8a98-8fd0bf344228",
       "migrations_dir": "migrations"
     }
   ],
@@ -49,8 +48,7 @@
   "r2_buckets": [
     {
       "binding": "BUCKET",
-      // TODO (Cloudflare): crear el bucket con "npx wrangler r2 bucket create tienda-lysa-imagenes"
-      // o cambiar este nombre por el del bucket real.
+      // Bucket creado con "npx wrangler r2 bucket create tienda-lysa-imagenes".
       "bucket_name": "tienda-lysa-imagenes"
     }
   ],
