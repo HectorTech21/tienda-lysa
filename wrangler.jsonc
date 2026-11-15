@@ -14,7 +14,6 @@
   // Dominio principal: tiendalysa43.com (sin www). www.tiendalysa43.com redirige aquí con una
   // regla de redirección de Cloudflare (ver «Dominio y SEO» en AGENTS.md); si www
   // llegara al Worker, src/index.js también lo redirige.
-  // TODO (Cloudflare): el dominio tiene que estar ya añadido a la cuenta antes de desplegar.
   "routes": [
     { "pattern": "tiendalysa43.com", "custom_domain": true }
   ],
@@ -56,8 +55,8 @@
   "vars": {
     // Dominio del equipo de Cloudflare Access de la tienda.
     "ACCESS_TEAM_DOMAIN": "tiendalysa.cloudflareaccess.com",
-    // TODO (Cloudflare Access): etiqueta AUD de la aplicación de Access que protege /admin y /api/admin.
-    "ACCESS_AUD": ""
+    // Etiqueta AUD de la aplicación de Access «Panel Tienda Lysa» (/admin y /api/admin, con y sin www).
+    "ACCESS_AUD": "451aa20255ef36ed5a1e709c441a3d3d8f924b01eea57315a5cfe5a15b23c930"
     // DEV_BYPASS_AUTH no se define NUNCA aquí: solo en .dev.vars (local, fuera de git).
   }
 }

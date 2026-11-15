@@ -22,7 +22,14 @@ Web de una tienda multimarca de bolsos, mochilas, maletas y accesorios. Es un ca
 
 La web no funciona abriendo el archivo con `file://`: necesita el servidor.
 
-**No ejecutar `wrangler login`, `deploy` ni nada con `--remote` sin que el usuario lo pida.** Nada está desplegado todavía.
+**No ejecutar `wrangler login`, `deploy` ni nada con `--remote` sin que el usuario lo pida.** La web está en producción (ver «Despliegue»): `--remote` toca los datos reales de la tienda.
+
+## Despliegue
+
+- En producción desde el 15 de noviembre de 2026 en `https://tiendalysa43.com`, cuenta de Cloudflare `907db136813ed4ab7d8a9d2a64157397` («Yobis-27@hotmail.com's Account»).
+- D1 `tienda-lysa` (id `93a231a7-cb45-4f54-8a98-8fd0bf344228`, región WEUR) con las migraciones 0001–0003 aplicadas, y bucket R2 `tienda-lysa-imagenes`. Carga inicial hecha con `migrar-catalogo.mjs --remote`: 76 productos y 82 imágenes. No volver a ejecutarla en remoto.
+- Cloudflare Access: aplicación «Panel Tienda Lysa» (equipo `tiendalysa.cloudflareaccess.com`) sobre `/admin` y `/api/admin`, con y sin `www`. Política: solo `yobis-27@hotmail.com` y `hectorplagar@gmail.com`, con código de un solo uso por correo. Su AUD está en `ACCESS_AUD` de `wrangler.jsonc`. Sin sesión, Access redirige al login (302) o, con `X-Requested-With`, responde 401 antes de llegar al Worker.
+- Para publicar cambios: `npx wrangler deploy`. Si se añade una migración, aplicarla antes con `npx wrangler d1 migrations apply tienda-lysa --remote`. Antes de tocar datos en remoto, hacer copia con `node scripts/backup.mjs --remote`.
 
 ## Pruebas
 
@@ -138,11 +145,14 @@ Mantener `lang=es`, enlace para saltar al contenido, landmarks, títulos jerárq
 
 ## Pendiente
 
-- **Cloudflare** (marcado con `TODO` en `wrangler.jsonc`): `database_id` real, bucket real y `ACCESS_AUD` (se rellena al crear la aplicación de Access; mientras esté vacío, el panel responde 401). Ya están puestos el `account_id` de la cuenta de la tienda y `ACCESS_TEAM_DOMAIN` (`tiendalysa.cloudflareaccess.com`). El dominio `tiendalysa43.com` tiene que estar añadido a esa cuenta antes de desplegar. Al cambiar `database_id` la D1 local empieza vacía: volver a aplicar esquema y migración en local. En remoto hay que aplicar las tres migraciones antes del primer despliegue.
+- **`www.tiendalysa43.com`:** todavía no tiene registro DNS (no resuelve). Falta crearlo (con proxy) y la regla de redirección 301 a `tiendalysa43.com`.
+- **D1 local:** al poner el `database_id` real, la base de datos local empieza vacía: volver a aplicar esquema y migración en local (`--local`).
 - **Titular:** rellenar `LEGAL`. Dirección, horario y zona para título, descripción y datos estructurados `LocalBusiness`. El plazo de conservación de doce meses de `privacidad.html` es una propuesta que debe confirmar la titular. Los textos legales no los ha revisado un profesional jurídico.
 - **Tras desplegar:** comprobar qué cookies pone Cloudflare de verdad (`__cf_bm`, `cf_clearance`, `CF_Authorization`) y ajustar la tabla de `cookies.html`.
-- **Sin probar:** un móvil físico; Cloudflare Access real (sesión caducada incluida, que en local se ha simulado); `prefers-reduced-motion` con el ajuste real del sistema (se ha comprobado la cascada de CSS); los scripts con `--remote`.
+- **Sin probar:** un móvil físico; entrar al panel con Access real y usarlo en producción (crear, editar, sesión caducada); `prefers-reduced-motion` con el ajuste real del sistema (se ha comprobado la cascada de CSS); `backup.mjs --remote`.
 
-## Estado · 13 de noviembre de 2026
+## Estado · 15 de noviembre de 2026
 
-Probado en local: `npm test` (136 pruebas) y `npm run test:panel` (17). En el navegador, a 375 px: crear un producto con foto, aviso de sesión caducada y vuelta a guardar sin perder el formulario, cambiar la foto con un fallo de subida simulado (el producto sigue en la tienda con su foto anterior) y reintento correcto, precio con espacios rechazado, `1.234,56` aceptado, nombre con emoji, borrado; pausa y reanudación de la franja de marcas. Copia de seguridad local completa (datos y 83 imágenes) y migración local: rechazo con la base de datos llena y ejecución con `--forzar`. Páginas legales a 375 px y escritorio. Nada desplegado.
+En producción en `https://tiendalysa43.com`. Comprobado sin sesión: portada, páginas legales, `robots.txt` y `sitemap.xml` responden 200; `/api/productos` devuelve 76 productos y las 82 fotos de `/img/productos/…` cargan; en el navegador el catálogo muestra «76 artículos» sin errores de consola; `/assets/products/` da 404. `/admin`, `/admin/…`, `/api/admin/*` (GET y POST) y variantes como `/ADMIN`, `/%61dmin/` o `/api//admin/…` redirigen al login de `tiendalysa.cloudflareaccess.com` sin devolver datos.
+
+Antes, en local (13 de noviembre): `npm test` (136 pruebas) y `npm run test:panel` (17). En el navegador, a 375 px: crear un producto con foto, aviso de sesión caducada y vuelta a guardar sin perder el formulario, cambiar la foto con un fallo de subida simulado (el producto sigue en la tienda con su foto anterior) y reintento correcto, precio con espacios rechazado, `1.234,56` aceptado, nombre con emoji, borrado; pausa y reanudación de la franja de marcas. Copia de seguridad local completa (datos y 83 imágenes) y migración local: rechazo con la base de datos llena y ejecución con `--forzar`. Páginas legales a 375 px y escritorio.
