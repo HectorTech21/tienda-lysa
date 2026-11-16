@@ -9,7 +9,7 @@
 
 /* CATÁLOGO: los productos se leen de /api/productos y se gestionan desde /admin.
  * La marca de cada producto es un nombre; si coincide con una de BRANDS usa su filtro,
- * y si no, se añade al selector de marcas como texto, sin logo ni franja.
+ * y si no, se añade al selector de marcas como texto, sin logo ni tarjeta en «Nuestras marcas».
  * Sin precio se muestra «Consultar precio». No hay existencias ni descuentos.
  */
 
@@ -157,37 +157,51 @@
     if (moveFocus) focusCatalog();
   }
 
-  function createBrandIdentity(brand, useLogo = true) {
+  function createBrandIdentity(brand) {
     const identity = document.createElement("span");
     identity.className = `brand-identity brand-identity--${brand.id}`;
     const text = document.createElement("span");
     text.className = "brand-text";
     text.textContent = brand.name;
     identity.append(text);
-    // No se solicitan imágenes externas ni rutas pendientes. El nombre es el fallback.
-    if (useLogo && brand.logoStatus === "approved" && /^assets\/marcas\/[^/]+\.(svg|png|jpe?g|webp)$/i.test(brand.logo || "")) {
-      const image = document.createElement("img");
-      image.loading = "lazy"; // la franja queda bajo el primer pantallazo
-      image.src = brand.logo;
-      image.alt = ""; // El botón ya tiene un nombre accesible; evita repetir la marca.
-      image.decoding = "async";
-      image.width = 160;
-      image.height = 54;
-      image.addEventListener("load", () => { text.hidden = true; identity.classList.add("has-logo"); });
-      image.addEventListener("error", () => { image.remove(); text.hidden = false; identity.classList.remove("has-logo"); }, { once: true });
-      identity.prepend(image);
-    }
     return identity;
+  }
+
+  // Tarjeta de «Nuestras marcas»: solo visual, ni enlace ni filtro.
+  function createBrandCard(brand) {
+    const card = document.createElement("li");
+    card.className = `brand-card brand-card--${brand.id}`;
+    // Sin logo aprobado (o si no carga), el nombre en grande ocupa la tarjeta.
+    const showWordmark = () => {
+      const wordmark = document.createElement("span");
+      wordmark.className = "brand-card-wordmark";
+      wordmark.textContent = brand.name;
+      card.replaceChildren(wordmark);
+    };
+    // No se solicitan imágenes externas ni rutas pendientes.
+    if (brand.logoStatus !== "approved" || !/^assets\/marcas\/[^/]+\.(svg|png|jpe?g|webp)$/i.test(brand.logo || "")) {
+      showWordmark();
+      return card;
+    }
+    const logo = document.createElement("span");
+    logo.className = "brand-card-logo";
+    const image = document.createElement("img");
+    image.loading = "lazy"; // la sección queda bajo el primer pantallazo
+    image.decoding = "async";
+    image.alt = `Logo de ${brand.name}`;
+    image.addEventListener("error", showWordmark, { once: true });
+    image.src = brand.logo;
+    logo.append(image);
+    const name = document.createElement("span");
+    name.className = "brand-card-name";
+    name.textContent = brand.name;
+    card.append(logo, name);
+    return card;
   }
 
   function createBrandControls() {
     const menu = $("#brands-menu");
-    const marquee = $("#marquee-track");
-    const group = document.createElement("div");
-    group.className = "marquee-group";
-    const sequence = document.createElement("div");
-    sequence.className = "marquee-sequence";
-    group.append(sequence);
+    const grid = $("#brands-grid");
     BRANDS.forEach(brand => {
       brandSelect.add(new Option(brand.name, brand.id));
       if (brand.catalogOnly) return;
@@ -197,8 +211,7 @@
       button.setAttribute("aria-pressed", "false");
       const label = document.createElement("span");
       label.className = "brand-menu-label";
-      // Conserva el menú editorial y su geometría; los archivos gráficos protagonizan la franja.
-      label.append(createBrandIdentity(brand, false));
+      label.append(createBrandIdentity(brand));
       const family = document.createElement("span");
       family.className = "brand-menu-family";
       family.textContent = brand.identity || brand.families.slice(0, 2).join(" · ");
@@ -209,19 +222,7 @@
       arrow.textContent = "↗";
       button.append(arrow);
       menu.append(button);
-      const word = document.createElement("button");
-      word.type = "button";
-      word.className = "brand-item";
-      word.dataset.brand = brand.id;
-      word.setAttribute("aria-label", `Ver la selección de ${brand.name}`);
-      word.setAttribute("aria-pressed", "false");
-      word.append(createBrandIdentity(brand));
-      sequence.append(word);
-      const separator = document.createElement("span");
-      separator.className = "brand-separator";
-      separator.textContent = "·";
-      separator.setAttribute("aria-hidden", "true");
-      sequence.append(separator);
+      grid.append(createBrandCard(brand));
     });
     const allButton = document.createElement("button");
     allButton.type = "button";
@@ -230,85 +231,6 @@
     allButton.textContent = "Todas las marcas →";
     allButton.setAttribute("aria-pressed", "true");
     menu.append(allButton);
-    marquee.append(group);
-    const duplicate = document.createElement("div");
-    duplicate.className = "marquee-group";
-    duplicate.setAttribute("aria-hidden", "true");
-    marquee.append(duplicate);
-    const marqueeWindow = $(".marquee-window");
-    function copySequence() {
-      const copy = sequence.cloneNode(true);
-      copy.setAttribute("aria-hidden", "true");
-      // Las copias admiten clic/tap, pero nunca duplican los siete destinos accesibles.
-      $$("button", copy).forEach(button => {
-        button.tabIndex = -1;
-        button.replaceChildren(createBrandIdentity(BRANDS.find(brand => brand.id === button.dataset.brand)));
-      });
-      return copy;
-    }
-    // Marquee infinito: el track contiene dos mitades idénticas y la animación CSS
-    // lo desplaza de 0 a -50 %. Cada mitad repite la secuencia las veces necesarias
-    // para cubrir la ventana, y la duración se calcula en px/s para que la velocidad
-    // percibida sea la misma en móvil, tablet y escritorio.
-    const MARQUEE_SPEED = 40; // px/s
-    const MARQUEE_SPEED_REDUCED = 20; // px/s si, con «movimiento reducido», la visitante decide ponerla en marcha
-    let repetitions = 0;
-    function sizeMarquee() {
-      const sequenceWidth = sequence.getBoundingClientRect().width;
-      if (!sequenceWidth) return;
-      const count = Math.max(1, Math.ceil(marqueeWindow.clientWidth / sequenceWidth));
-      if (count !== repetitions) {
-        repetitions = count;
-        $$(".marquee-sequence[aria-hidden]", group).forEach(copy => copy.remove());
-        duplicate.replaceChildren();
-        for (let index = 1; index < count; index++) group.append(copySequence());
-        for (let index = 0; index < count; index++) duplicate.append(copySequence());
-      }
-      const speed = reducedMotion.matches ? MARQUEE_SPEED_REDUCED : MARQUEE_SPEED;
-      marquee.style.setProperty("--marquee-duration", `${(sequenceWidth * count / speed).toFixed(2)}s`);
-    }
-    sizeMarquee();
-    if ("ResizeObserver" in window) {
-      const observer = new ResizeObserver(sizeMarquee);
-      observer.observe(marqueeWindow);
-      observer.observe(sequence);
-    } else window.addEventListener("resize", sizeMarquee);
-    // Pausa: con «movimiento reducido» la franja empieza quieta. El botón la pausa o la pone
-    // en marcha y su estado se mantiene (no lo cambian el ratón, el foco ni el tamaño de la
-    // ventana) hasta que se vuelve a pulsar. En pausa, la franja se puede recorrer con el dedo.
-    const marqueeToggle = $(".marquee-toggle");
-    let marqueeChosen = false; // true cuando la visitante ha pulsado el botón
-    function setMarqueePlaying(playing) {
-      marqueeWindow.dataset.marquee = playing ? "playing" : "paused";
-      if (playing) marqueeWindow.scrollLeft = 0;
-      marqueeToggle.classList.toggle("is-paused", !playing);
-      $(".marquee-toggle-label", marqueeToggle).textContent = playing ? "Pausar el movimiento" : "Reanudar el movimiento";
-      marqueeToggle.setAttribute("aria-label", playing ? "Pausar el movimiento de las marcas" : "Reanudar el movimiento de las marcas");
-    }
-    setMarqueePlaying(!reducedMotion.matches);
-    marqueeToggle.hidden = false;
-    marqueeToggle.addEventListener("click", () => {
-      marqueeChosen = true;
-      setMarqueePlaying(marqueeWindow.dataset.marquee !== "playing");
-    });
-    reducedMotion.addEventListener("change", () => {
-      sizeMarquee();
-      if (!marqueeChosen) setMarqueePlaying(!reducedMotion.matches);
-    });
-    // Teclado: la animación se pausa con :focus-within (o ya estaba en pausa) y se lleva su línea de tiempo
-    // al punto en que el logo enfocado queda dentro de la zona visible (fuera del
-    // fundido). Al salir, el movimiento continúa desde ahí, sin saltos.
-    marqueeWindow.addEventListener("focusin", event => {
-      const item = event.target.closest(".brand-item");
-      const animation = marquee.getAnimations?.()[0];
-      marqueeWindow.scrollLeft = 0;
-      if (!item || !animation) return;
-      const half = group.getBoundingClientRect().width;
-      const itemLeft = item.getBoundingClientRect().left - marquee.getBoundingClientRect().left;
-      const offset = Math.max(-half, Math.min(0, marqueeWindow.clientWidth * .35 - itemLeft));
-      animation.currentTime = (-offset / half) * animation.effect.getComputedTiming().duration;
-      requestAnimationFrame(() => { marqueeWindow.scrollLeft = 0; });
-    });
   }
 
   function favoriteSvg() {
@@ -513,7 +435,7 @@
       if (!response.ok) throw new Error(`Estado ${response.status}`);
       const data = await response.json();
       products = data.productos.filter(item => Array.isArray(item.imagenes) && item.imagenes.length).map(toProduct);
-      // Marcas escritas a mano en el panel: entran en el selector, sin logo ni franja.
+      // Marcas escritas a mano en el panel: entran en el selector, sin logo ni tarjeta de marca.
       products.forEach(product => {
         if (!product.brand || BRANDS.some(brand => brand.id === product.brand)) return;
         BRANDS.push({ id: product.brand, name: product.brandLabel, catalogOnly: true });

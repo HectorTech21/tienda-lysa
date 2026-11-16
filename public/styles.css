@@ -1072,163 +1072,97 @@ h2 {
   gap:22px
 }
 
-/* Franja de marcas */
+/* Nuestras marcas: cuadrícula fija, solo visual (las tarjetas no son enlaces ni filtran) */
 .brands-section {
-  padding:calc(var(--section-y)*.66) 0 calc(var(--section-y)*.4);
+  padding:calc(var(--section-y)*.8) 0;
   border-top:1px solid var(--line);
   border-bottom:1px solid var(--line);
-  background:#f5ede8;
-  overflow:hidden
-}
-.brands-heading {
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-end;
-  gap:20px
-}
-.brands-heading .eyebrow {
-  font-size:9px;
-  letter-spacing:1.7px;
-  margin-bottom:14px
+  background:#f5ede8
 }
 .brands-subtitle {
   font-size:14px;
+  letter-spacing:.3px;
   color:var(--muted);
-  margin-top:16px
+  margin-top:14px
 }
-/* Marquee infinito. Dos mitades idénticas (la segunda con aria-hidden) y
-   translateX de 0 a -50 %. La duración la fija script.js en px/s (--marquee-duration).
-   Con «movimiento reducido» empieza quieta; el botón .marquee-toggle la pausa o la reanuda. */
-.marquee-window {
-  --logo-h:44px;
-  --logo-w:170px;
-  --marquee-gap:clamp(28px,4vw,56px);
-  overflow:hidden;
-  margin:38px 0 28px;
-  padding-block:22px;
-  background:#fff;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
-  mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)
-}
-.marquee-track {
+/* Flex en lugar de grid para centrar la última fila (son siete marcas): 4 columnas en
+   escritorio, 3 en tablet y 2 en móvil, con los mismos cortes que el catálogo (768 y 1024). */
+.brands-grid {
+  --brand-cols:4;
+  --brand-gap:20px;
+  --logo-h:76px;
+  --logo-w:220px;
   display:flex;
-  width:max-content;
-  will-change:transform;
-  animation:marquee var(--marquee-duration,60s) linear infinite
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:var(--brand-gap);
+  margin-top:38px;
+  padding:0;
+  list-style:none
 }
-/* Pausa al pasar el ratón solo con puntero de escritorio; también mientras
-   un logo tiene el foco de teclado, para que no se escape. */
+.brand-card {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  /* El medio píxel evita que el redondeo mande la última tarjeta a otra fila. */
+  flex:0 0 calc((100% - var(--brand-gap)*(var(--brand-cols) - 1))/var(--brand-cols) - .5px);
+  min-width:0;
+  padding:30px 20px 22px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  transition:box-shadow .3s,border-color .3s
+}
 @media(hover:hover) and (pointer:fine) {
-  .marquee-window:hover .marquee-track {
-    animation-play-state:paused
+  .brand-card:hover {
+    border-color:#d3c4b8;
+    box-shadow:0 10px 24px rgba(75,42,33,.09)
   }
 }
-.marquee-window:focus-within .marquee-track {
-  animation-play-state:paused
-}
-/* Pausa elegida con el botón (o inicial con movimiento reducido): quieta y recorrible a mano. */
-.marquee-window[data-marquee="paused"] .marquee-track {
-  animation-play-state:paused
-}
-.marquee-window[data-marquee="paused"] {
-  overflow-x:auto;
-  scrollbar-width:none
-}
-.marquee-window[data-marquee="paused"]::-webkit-scrollbar {
-  display:none
-}
-.marquee-toggle {
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  min-height:var(--tap);
-  padding:8px 0;
-  margin-left:auto;
-  font-size:var(--btn-font);
-  font-weight:500;
-  white-space:nowrap;
-  color:var(--muted)
-}
-.marquee-toggle:hover {
-  color:var(--chocolate)
-}
-.marquee-toggle svg {
-  flex:none;
-  stroke-width:1.8
-}
-.marquee-toggle .marquee-toggle-play,.marquee-toggle.is-paused .marquee-toggle-pause {
-  display:none
-}
-.marquee-toggle.is-paused .marquee-toggle-play {
-  display:inline;
-  fill:currentColor
-}
-.marquee-group {
-  display:flex;
-  flex-shrink:0
-}
-.marquee-sequence {
-  display:flex;
-  align-items:center;
-  gap:var(--marquee-gap);
-  flex-shrink:0;
-  /* El padding derecho equivale al gap para que la unión entre copias no se note. */
-  padding-right:var(--marquee-gap)
-}
-.brand-item {
+/* Caja común: todos los logos comparten alto máximo y object-fit: contain.
+   --logo-scale compensa el margen en blanco propio de cada archivo; lo que sobra se recorta. */
+.brand-card-logo {
   display:grid;
   place-items:center;
-  flex:0 0 auto;
-  width:calc(var(--logo-w) + 16px);
-  min-height:calc(var(--logo-h) + 24px);
-  padding:12px 8px;
-  border-bottom:1px solid transparent;
-  transition:color .25s,border-color .25s
-}
-.brand-item:focus-visible {
-  outline-offset:-3px
-}
-.brand-item .brand-identity {
-  width:var(--logo-w);
+  width:100%;
+  max-width:var(--logo-w);
   height:var(--logo-h);
-  overflow:visible
+  overflow:hidden
 }
-/* Altura visual uniforme: todas las imágenes comparten caja y object-fit: contain.
-   --logo-scale compensa el margen en blanco propio de cada archivo. */
-.brand-item .brand-identity img {
+.brand-card-logo img {
   width:auto;
   height:calc(var(--logo-h)*var(--logo-scale,1));
-  max-width:var(--logo-w);
+  max-width:100%;
   /* El margen negativo mantiene la caja en --logo-h y centra el logo escalado. */
   margin-block:calc(var(--logo-h)*(1 - var(--logo-scale,1))/2);
   object-fit:contain
 }
-.brand-item .brand-identity--cacharel img {
+.brand-card--cacharel img {
   --logo-scale:2
 }
-.brand-item .brand-identity--anekke img {
+.brand-card--anekke img {
   --logo-scale:1.5
 }
-.brand-item .brand-identity--totto img {
+.brand-card--totto img {
   --logo-scale:1.45
 }
-.brand-item .brand-identity--gabol img {
+.brand-card--gabol img {
   --logo-scale:2.6
 }
 /* El archivo de Gladiator es una banda de 1880×108 px con amplios márgenes
    lisos: se muestra solo la zona del símbolo y el nombre, sin deformar. */
-.brand-item .brand-identity--gladiator {
+.brand-card--gladiator .brand-card-logo {
   /* Altura que permite mostrar símbolo y nombre (proporción 3,9:1) sin superar --logo-w. */
-  --gh:min(var(--logo-h),calc(var(--logo-w)/3.9))
-}
-.brand-item .brand-identity--gladiator.has-logo {
+  --gh:min(var(--logo-h),calc(var(--logo-w)/3.9));
   position:relative;
   width:calc(var(--gh)*3.9);
   height:var(--gh);
-  overflow:hidden;
+  margin-block:calc((var(--logo-h) - var(--gh))/2);
   background:#30302f
 }
-.brand-item .brand-identity--gladiator img {
+.brand-card--gladiator .brand-card-logo img {
   position:absolute;
   top:0;
   left:calc(var(--gh)*-6.3);
@@ -1237,38 +1171,53 @@ h2 {
   max-width:none;
   margin:0
 }
-.brand-item:hover,.brand-item[aria-pressed=true] {
-  color:#885563;
-  border-bottom-color:var(--pink)
-}
-.brand-item .brand-text {
-  font-family:var(--serif);
-  font-size:calc(var(--logo-h)*.68);
-  line-height:1.2;
-  letter-spacing:.5px;
-  white-space:nowrap
-}
-.marquee-sequence>.brand-separator {
-  flex:0 0 1px;
-  width:1px;
-  height:24px;
-  background:var(--pink);
-  font-size:0
-}
-.brands-bottom {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:24px
-}
-.brands-caption {
-  text-align:left;
-  font-size:12px;
-  letter-spacing:.5px;
+.brand-card-name {
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+  text-align:center;
   color:var(--muted)
 }
-.brands-bottom .text-link {
-  flex-shrink:0
+/* Marca sin logo: su nombre, grande y en serif, ocupa la tarjeta. */
+.brand-card-wordmark {
+  font-family:var(--serif);
+  font-size:calc(var(--logo-h)*.6);
+  line-height:1.15;
+  letter-spacing:.5px;
+  text-align:center;
+  color:var(--chocolate);
+  overflow-wrap:anywhere
+}
+@media(max-width:1023px) {
+  .brands-grid {
+    --brand-cols:3;
+    --brand-gap:16px;
+    --logo-h:56px;
+    --logo-w:160px
+  }
+}
+@media(max-width:767px) {
+  .brands-grid {
+    --brand-cols:2;
+    --brand-gap:12px;
+    --logo-h:46px;
+    --logo-w:104px;
+    margin-top:24px
+  }
+  .brand-card {
+    gap:12px;
+    padding:22px 12px 16px;
+    border-radius:12px
+  }
+  .brand-card-name {
+    font-size:10px;
+    letter-spacing:1.5px
+  }
+  .brands-subtitle {
+    font-size:13px;
+    margin-top:11px
+  }
 }
 
 /* Editorial, tienda y contacto */
@@ -1925,14 +1874,6 @@ dialog[open] {
     transform:scale(1)
   }
 }
-@keyframes marquee {
-  from {
-    transform:translate3d(0,0,0)
-  }
-  to {
-    transform:translate3d(-50%,0,0)
-  }
-}
 @keyframes menu-in {
   from {
     opacity:0;
@@ -2241,10 +2182,6 @@ dialog[open] {
     font-size:12px;
     max-width:145px
   }
-  .marquee-window {
-    --logo-h:38px;
-    --logo-w:145px
-  }
   .editorial {
     gap:6%
   }
@@ -2544,41 +2481,6 @@ dialog[open] {
   .demo-note {
     font-size:11px
   }
-  .brands-heading {
-    display:block
-  }
-  .brands-heading .eyebrow {
-    font-size:9px;
-    letter-spacing:1.5px
-  }
-  .brands-heading h2 {
-    max-width:340px
-  }
-  .brands-subtitle {
-    font-size:13px;
-    margin-top:13px
-  }
-  .marquee-window {
-    --logo-h:34px;
-    --logo-w:120px;
-    --marquee-gap:24px;
-    margin:22px 0 18px;
-    padding-block:14px
-  }
-  .marquee-sequence>.brand-separator {
-    height:18px
-  }
-  .brands-bottom {
-    align-items:flex-start;
-    gap:15px;
-    flex-direction:column
-  }
-  .brands-caption {
-    font-size:11px
-  }
-  .marquee-toggle {
-    margin-left:0
-  }
   .editorial {
     display:flex;
     flex-direction:column;
@@ -2757,33 +2659,8 @@ dialog[open] {
     opacity:1;
     transform:none
   }
-  /* La franja de marcas se queda quieta. La animación sigue definida (su especificidad de
-     clase gana a «*») pero en pausa: solo se mueve, más despacio, si la visitante pulsa
-     «Reanudar el movimiento» (data-marquee="playing", ver script.js). */
-  .marquee-track {
-    animation:marquee var(--marquee-duration,120s) linear infinite!important;
-    animation-play-state:paused!important
-  }
-  .marquee-window {
-    overflow-x:auto;
-    scrollbar-width:none
-  }
-  .marquee-window::-webkit-scrollbar {
-    display:none
-  }
-  .marquee-window[data-marquee="playing"] .marquee-track {
-    animation-play-state:running!important
-  }
-  .marquee-window[data-marquee="playing"]:focus-within .marquee-track {
-    animation-play-state:paused!important
-  }
   .hero-visual>img {
     opacity:1;
     transform:none
-  }
-}
-@media(prefers-reduced-motion:reduce) and (hover:hover) and (pointer:fine) {
-  .marquee-window[data-marquee="playing"]:hover .marquee-track {
-    animation-play-state:paused!important
   }
 }

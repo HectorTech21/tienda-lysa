@@ -17,7 +17,7 @@ Actualización del 4 de noviembre de 2026: el cliente ha proporcionado y solicit
 
 `anneke-logo.png` corresponde a **Anekke**; se conserva el nombre de archivo recibido. El archivo de Gladiator tiene grandes márgenes grises a los lados: un encuadre CSS oculta solo esos márgenes y mantiene completos el símbolo y el nombre, sin alterar el archivo. Cada marca dispone de un tamaño visual propio con `object-fit: contain`.
 
-En `BRANDS`, estos seis archivos tienen `logoStatus: "approved"` por la incorporación expresamente solicitada por el cliente; no significa que se haya obtenido una autorización independiente del fabricante. **Torrens sigue pendiente** y utiliza texto editorial provisional, sin imitar su logotipo. La franja usa los archivos reales; el desplegable conserva los nombres y su composición existente.
+En `BRANDS`, estos seis archivos tienen `logoStatus: "approved"` por la incorporación expresamente solicitada por el cliente; no significa que se haya obtenido una autorización independiente del fabricante. **Torrens sigue pendiente** y utiliza texto editorial provisional, sin imitar su logotipo. La sección «Nuestras marcas» usa los archivos reales; el desplegable conserva los nombres y su composición existente.
 
 ## Investigación previa (2 de noviembre de 2026)
 
@@ -47,6 +47,6 @@ La información funcional vive exclusivamente en `BRANDS`, al principio de `scri
 2. Establecer la ruta local en `logo` y `logoStatus: "approved"` en esa marca. Los valores `null` y `pending-*` de Torrens evitan solicitudes a imágenes inexistentes. Se admiten SVG, PNG, JPG/JPEG y WebP.
 3. Anotar aquí procedencia exacta del archivo, fecha y autorización proporcionada por el cliente/proveedor, respetando sus normas de identidad. No dar por verificado un archivo solo por su nombre.
 4. Comprobar proporción, contraste, transparencia, lectura en móvil y ausencia de scripts o referencias externas en un SVG.
-5. La franja utiliza el recurso; el menú mantiene nombres tipográficos. `object-fit: contain` conserva las proporciones; si la carga falla se muestra el nombre. Las copias del carrusel conservan ese fallback y quedan fuera del orden de Tab y de lectores de pantalla.
+5. La sección «Nuestras marcas» utiliza el recurso en una tarjeta con el nombre debajo; el menú mantiene nombres tipográficos. `object-fit: contain` conserva las proporciones; si la carga falla se muestra el nombre en grande.
 
 Este registro documenta comprobaciones y pendientes; no pretende dar una opinión jurídica ni sustituye las condiciones de cada proveedor.
