@@ -171,12 +171,17 @@
   function createBrandCard(brand) {
     const card = document.createElement("li");
     card.className = `brand-card brand-card--${brand.id}`;
-    // Sin logo aprobado (o si no carga), el nombre en grande ocupa la tarjeta.
+    const name = document.createElement("span");
+    name.className = "brand-card-name";
+    name.textContent = brand.name;
+    // Sin logo aprobado (o si no carga), el nombre en grande ocupa el sitio del logo.
+    // Es decorativo: el nombre accesible es el pequeño de debajo, igual que en el resto.
     const showWordmark = () => {
       const wordmark = document.createElement("span");
       wordmark.className = "brand-card-wordmark";
+      wordmark.setAttribute("aria-hidden", "true");
       wordmark.textContent = brand.name;
-      card.replaceChildren(wordmark);
+      card.replaceChildren(wordmark, name);
     };
     // No se solicitan imágenes externas ni rutas pendientes.
     if (brand.logoStatus !== "approved" || !/^assets\/marcas\/[^/]+\.(svg|png|jpe?g|webp)$/i.test(brand.logo || "")) {
@@ -192,9 +197,6 @@
     image.addEventListener("error", showWordmark, { once: true });
     image.src = brand.logo;
     logo.append(image);
-    const name = document.createElement("span");
-    name.className = "brand-card-name";
-    name.textContent = brand.name;
     card.append(logo, name);
     return card;
   }

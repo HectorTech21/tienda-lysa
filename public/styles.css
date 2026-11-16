@@ -1120,16 +1120,39 @@ h2 {
     border-color:#d3c4b8;
     box-shadow:0 10px 24px rgba(75,42,33,.09)
   }
+  .brand-card:hover .brand-card-logo::after {
+    opacity:0
+  }
+  .brand-card:hover .brand-card-logo img {
+    filter:grayscale(0) contrast(1)
+  }
+  .brand-card--gladiator:hover .brand-card-logo {
+    background:#30302f
+  }
 }
 /* Caja común: todos los logos comparten alto máximo y object-fit: contain.
    --logo-scale compensa el margen en blanco propio de cada archivo; lo que sobra se recorta. */
 .brand-card-logo {
   display:grid;
   place-items:center;
+  position:relative;
   width:100%;
   max-width:var(--logo-w);
   height:var(--logo-h);
-  overflow:hidden
+  overflow:hidden;
+  /* clip: la caja no se puede desplazar (hidden sí, y descolocaría la capa de color). */
+  overflow:clip
+}
+/* Un solo color: el logo pasa a grises y una capa chocolate en modo «screen» tiñe lo oscuro
+   y deja el blanco intacto. Al pasar el ratón por la tarjeta vuelve el color original. */
+.brand-card-logo::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--chocolate);
+  mix-blend-mode:screen;
+  pointer-events:none;
+  transition:opacity .45s
 }
 .brand-card-logo img {
   width:auto;
@@ -1137,7 +1160,9 @@ h2 {
   max-width:100%;
   /* El margen negativo mantiene la caja en --logo-h y centra el logo escalado. */
   margin-block:calc(var(--logo-h)*(1 - var(--logo-scale,1))/2);
-  object-fit:contain
+  object-fit:contain;
+  filter:grayscale(1) contrast(1);
+  transition:filter .45s
 }
 .brand-card--cacharel img {
   --logo-scale:2
@@ -1160,7 +1185,8 @@ h2 {
   width:calc(var(--gh)*3.9);
   height:var(--gh);
   margin-block:calc((var(--logo-h) - var(--gh))/2);
-  background:#30302f
+  background:var(--chocolate);
+  transition:background-color .45s
 }
 .brand-card--gladiator .brand-card-logo img {
   position:absolute;
@@ -1169,7 +1195,9 @@ h2 {
   width:calc(var(--gh)*17.41);
   height:var(--gh);
   max-width:none;
-  margin:0
+  margin:0;
+  /* El contraste lleva el gris de la banda a negro: teñida queda chocolate, con el nombre en blanco. */
+  filter:grayscale(1) contrast(1.6)
 }
 .brand-card-name {
   font-size:11px;
@@ -1179,8 +1207,11 @@ h2 {
   text-align:center;
   color:var(--muted)
 }
-/* Marca sin logo: su nombre, grande y en serif, ocupa la tarjeta. */
+/* Marca sin logo: su nombre, grande y en serif, ocupa la caja del logo. */
 .brand-card-wordmark {
+  display:grid;
+  place-items:center;
+  height:var(--logo-h);
   font-family:var(--serif);
   font-size:calc(var(--logo-h)*.6);
   line-height:1.15;
